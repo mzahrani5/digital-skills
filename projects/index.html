@@ -707,7 +707,110 @@ input[type=text]:focus,input[type=number]:focus,select:focus,textarea:focus{outl
 .ann{display:flex;flex-direction:column;gap:10px;border:1.5px dashed var(--line);border-radius:14px;padding:12px 14px;margin-top:4px}.ann-cls{display:flex;flex-wrap:wrap;gap:8px}.chip{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--line);border-radius:999px;padding:6px 14px;background:var(--surface);color:var(--ink);font:inherit;font-weight:600;cursor:pointer}.chip.on{background:var(--brand1,#1d6fb8);border-color:transparent;color:#fff}.chip input{width:16px;height:16px;margin:0}
 .name-st{display:block;min-height:1.3em;margin-top:4px;font-size:13.5px;font-weight:700;color:var(--muted)}.name-st.ok{color:var(--ok)}.name-st.bad{color:var(--bad)}
 .name-opts{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.name-opt{font:inherit;font-weight:700;font-size:15px;padding:9px 14px;border-radius:12px;border:1.5px solid var(--brand1,#1d6fb8);background:var(--surface);color:var(--ink);cursor:pointer}.name-opt:hover{background:var(--brand1,#1d6fb8);color:#fff}.name-help{margin:8px 0 0;font-size:13px;color:var(--muted);background:var(--surface-2);border-radius:10px;padding:8px 12px;line-height:1.7}.name-help a{color:var(--brand1,#1d6fb8);font-weight:700}
+.g-head{font-size:21px;margin:8px 0 0;padding:8px 14px;border-radius:12px;background:var(--surface-2);border-inline-start:5px solid var(--brand1,#1d6fb8)}
+.st-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.st-kpi{background:var(--surface-2);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:2px}.st-kpi small{color:var(--muted);font-weight:700}.st-kpi b{font-size:26px;color:var(--brand1,#1d6fb8)}.st-kpi span{font-size:12.5px;color:var(--muted)}
+@media (max-width:620px){.st-kpis{grid-template-columns:1fr 1fr}}
+.vs-bars{display:flex;align-items:flex-end;gap:3px;height:120px;margin-top:8px;padding:6px;background:var(--surface-2);border-radius:12px;direction:ltr}.vs-bar{flex:1;height:100%;display:flex;align-items:flex-end}.vs-bar span{display:block;width:100%;min-height:2px;border-radius:3px 3px 0 0;background:linear-gradient(180deg,#1f9e8a,#1d6fb8)}
+.vs-axis{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:4px;direction:ltr}
+.st-two{display:grid;grid-template-columns:1fr 1.4fr;gap:16px}@media (max-width:620px){.st-two{grid-template-columns:1fr}}
+.st-top{margin:6px 0 0;padding-inline-start:22px}.st-top li{display:list-item;margin:3px 0}.st-top li span{margin-inline-end:8px}.st-top li b{color:var(--brand1,#1d6fb8)}
+.gr-pick{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.gr-chip{display:flex;flex-direction:column;align-items:center;gap:4px;padding:14px 10px;border-radius:16px;border:2px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;cursor:pointer;position:relative;transition:border-color .15s,background .15s}.gr-chip b{font-size:17px}.gr-chip small{color:var(--muted);font-size:12.5px}.gr-chip.on{border-color:var(--brand1,#1d6fb8);background:color-mix(in srgb,var(--brand1,#1d6fb8) 8%,var(--surface))}.gr-ck{position:absolute;top:8px;inset-inline-start:8px;width:24px;height:24px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:14px;font-weight:800;color:#fff}.gr-chip.on .gr-ck{background:var(--brand1,#1d6fb8);border-color:var(--brand1,#1d6fb8)}@media (max-width:520px){.gr-pick{grid-template-columns:1fr}.gr-chip{flex-direction:row;justify-content:center;gap:10px}}
 </style>
+<style>/* ====== محاكيات الصفين الخامس والسادس ====== */
+.appwin.files{--app:#1f5f9e}.fx-path{display:flex;gap:6px;align-items:center;padding:8px 10px;background:#fff;border-bottom:1px solid #dde3e8;font-size:13.5px;flex-wrap:wrap}
+.fx-crumb{border:0;background:none;font:inherit;font-weight:700;color:#1f5f9e;cursor:pointer;padding:2px 4px}
+.fx-body{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;padding:10px;background:#fff;min-height:150px;border-radius:6px}
+.fx-item{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 6px;border-radius:8px;border:1.5px solid transparent;cursor:pointer;text-align:center;font-size:13px;color:#1b1b1b;position:relative}
+.fx-item:hover{background:#eef4fb}.fx-item.sel{background:#d8e8fb;border-color:#7aa7e6}
+.fx-ic{width:46px;height:46px;display:block}.fx-ic svg{width:100%;height:100%}
+.fx-name{word-break:break-word;line-height:1.35}.fx-name-in{width:100%;font:inherit;font-size:13px;padding:2px 4px;border:1.5px solid #2b579a;border-radius:4px}
+.fx-open{border:1px solid #c9d3dd;background:#f7f9fb;border-radius:6px;font:inherit;font-size:12px;padding:1px 8px;cursor:pointer}
+.fx-move{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px;align-items:center;background:#fff8e1;border:1px solid #f0d58a;border-radius:8px;padding:8px;margin:6px 0}
+.sh-tag{font-size:11px;color:#2d7d46;font-weight:700}
+.sh-dlg{background:#fff;border:1px solid #cfd8e0;border-radius:10px;padding:12px;margin-top:10px;display:flex;flex-direction:column;gap:10px;color:#1b1b1b;box-shadow:0 8px 20px rgba(0,0,0,.12)}
+.sh-dlg input,.em-comp input,.em-comp textarea,.vd-f input,.vd-f select{font:inherit;font-size:14px;padding:7px 9px;border:1px solid #c9d3dd;border-radius:6px;background:#fff;color:#1b1b1b}
+.vd-ok{color:#17844e;font-weight:700;font-size:13.5px;margin:6px 0 0}
+.pic-pick{display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:#fff;border:1px solid #d6dbe0;border-radius:8px;padding:8px;margin-bottom:10px}
+.pic-opt{display:flex;flex-direction:column;align-items:center;gap:4px;border:1.5px solid #d0d5da;background:#fff;border-radius:8px;padding:6px;font:inherit;font-size:12.5px;cursor:pointer}
+.pic-opt span{width:64px;height:64px;display:block}.pic-opt span svg{width:100%;height:100%}
+.wi-doc{position:relative;font-size:14px;line-height:1.8;color:#1b1b1b;min-height:150px;overflow:hidden}
+.wi-img{display:inline-block}.wi-img svg{width:100%;height:auto;display:block;border-radius:2px}.wi-img.bd svg{outline:3px solid #2b579a;outline-offset:2px}
+.ae-track{display:flex;gap:3px;background:#1e2a36;border-radius:8px;padding:8px;min-height:110px}
+.ae-seg{display:flex;flex-direction:column;gap:4px;border:2px solid transparent;border-radius:6px;background:#2b3a4a;padding:4px;cursor:pointer;min-width:42px;color:#cfe0ef;font:inherit}
+.ae-seg.sel{border-color:#ffb02e;background:#3a4c60}.ae-seg small{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ae-bars{display:flex;align-items:center;gap:2px;height:70px}.ae-bars i{flex:1;background:#52c08a;border-radius:2px;min-height:2px}
+.ae-seg.noise .ae-bars i{background:#ef7d5e}.ae-seg.silence .ae-bars i{background:#7d8fa3}
+.ae-info{font-size:13px;color:#33475b;margin-top:8px}
+.vd{display:grid;grid-template-columns:minmax(0,220px) 1fr;gap:12px;color:#1b1b1b}
+@media (max-width:620px){.vd{grid-template-columns:1fr}}
+.vd-lib{display:flex;flex-direction:column;gap:6px}
+.vd-clip{display:flex;align-items:center;gap:8px;border:1px solid #d0d5da;background:#fff;border-radius:8px;padding:6px 8px;font:inherit;font-size:13px;cursor:pointer;text-align:start}
+.vd-clip span{width:30px;height:30px;flex:none}.vd-clip span svg{width:100%;height:100%}.vd-clip small{margin-inline-start:auto;color:#5a2e8a;font-weight:700}
+.vd-f{display:flex;flex-direction:column;gap:3px;font-size:13px;font-weight:700}
+.vd-screen{background:#111;color:#fff;border-radius:8px;aspect-ratio:16/8;display:grid;place-items:center;font-size:18px;text-align:center;padding:10px}
+.vd-tl{display:flex;gap:6px;background:#2d2140;border-radius:8px;padding:8px;margin-top:8px;overflow-x:auto;min-height:56px;align-items:center}
+.vd-tc{display:flex;flex-direction:column;gap:4px;background:#7a4bb8;color:#fff;border-radius:6px;padding:4px;min-width:110px;border:2px solid transparent}.vd-tc.sel{border-color:#ffb02e}
+.vd-tsel{border:0;background:none;color:#fff;font:inherit;font-size:12.5px;text-align:start;cursor:pointer}
+.vd-tb{display:flex;gap:3px}.vd-tb button{flex:1;border:0;border-radius:4px;background:rgba(255,255,255,.2);color:#fff;font:inherit;font-size:12px;cursor:pointer;padding:2px}
+.fc-prog{display:flex;flex-direction:column;gap:6px}
+.fc-line{padding:9px 12px;border-radius:8px;color:#fff;font-weight:700;font-size:14.5px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.fc-line.events{background:#c88330}.fc-line.control{background:#cf8b17}.fc-line.motion{background:#4c97ff}.fc-line.looks{background:#9966ff}.fc-line.sensing{background:#5cb1d6}.fc-line.operators{background:#59c059}.fc-line.vars{background:#ff8c1a}.fc-line.sound{background:#cf63cf}
+.fc-line svg{vertical-align:middle}
+.fc-slot,.fc-line input{font:inherit;font-size:14px;font-weight:700;border:0;border-radius:99px;padding:3px 10px;background:#fff;color:#1b1b1b;max-width:100%}
+.fc-line input{width:70px;text-align:center}
+.fc-stage{background:#fff;border:1.5px solid var(--line);border-radius:12px;min-height:150px;display:grid;place-items:center;padding:14px}
+.fc-out{display:flex;flex-direction:column;align-items:center;gap:8px}
+.fc-sprite{width:70px;height:70px;display:block}.fc-sprite svg{width:100%;height:100%}
+.fc-bubble{background:#fff;border:2px solid #c9d3dd;border-radius:16px;padding:8px 14px;font-weight:700;color:#1b1b1b;max-width:260px;text-align:center}
+.em{display:grid;grid-template-columns:150px 1fr;gap:12px;color:#1b1b1b}
+@media (max-width:560px){.em{grid-template-columns:1fr}}
+.em-side{display:flex;flex-direction:column;gap:6px}
+.em-nav{border:0;background:none;font:inherit;font-size:14px;text-align:start;padding:8px 10px;border-radius:8px;cursor:pointer;color:#1b1b1b}
+.em-nav.on{background:#d8e8fb;font-weight:700}
+.em-list{display:flex;flex-direction:column;gap:6px}
+.em-row{display:flex;flex-direction:column;gap:2px;text-align:start;background:#fff;border:1px solid #d6dbe0;border-radius:8px;padding:10px;font:inherit;font-size:14px;cursor:pointer;color:#1b1b1b}
+.em-comp{display:flex;flex-direction:column;gap:8px;background:#fff;border-radius:8px;padding:12px}
+.em-comp label{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:700}.em-comp label input{flex:1;min-width:0}
+.em-comp textarea{min-height:110px;resize:vertical}
+.em-att{font-size:13px;background:#eef4fb;padding:3px 10px;border-radius:99px}
+.bl{display:flex;flex-direction:column;gap:12px;color:#1b1b1b}
+.bl-cm{background:#fff;border:1px solid #e2c9b8;border-radius:8px;padding:8px 10px;display:flex;flex-direction:column;gap:6px}
+.co-stage{position:relative;width:100%;max-width:380px;aspect-ratio:4/3;background:#fff;border:1.5px solid var(--line);border-radius:10px;overflow:hidden;background-image:linear-gradient(#eef2f6 1px,transparent 1px),linear-gradient(90deg,#eef2f6 1px,transparent 1px);background-size:8.333% 11.11%}
+.co-ax{position:absolute;background:#9fb3c8}.co-ax.x{left:0;right:0;top:50%;height:2px}.co-ax.y{top:0;bottom:0;left:50%;width:2px}
+.co-t,.co-sp{position:absolute;width:30px;height:30px;transform:translate(-50%,-50%);transition:left .4s,top .4s}.co-t svg,.co-sp svg{width:100%;height:100%}
+.co-t{opacity:.35}.co-t.now{opacity:1;animation:pulse 1.2s infinite}.co-t.got{opacity:.15}
+@keyframes pulse{50%{transform:translate(-50%,-50%) scale(1.15)}}
+.co-lbl{position:absolute;bottom:4px;left:6px;font-size:12px;background:rgba(255,255,255,.9);padding:1px 6px;border-radius:6px;color:#1b1b1b}
+.ch-wrap{display:flex;flex-direction:column;gap:10px}.ch-h{font-weight:700;background:#e7f4ea}
+.ch-box{background:#fff;border:1px solid #cfd8e0;border-radius:6px;padding:6px;max-width:460px}.ch-svg{width:100%;height:auto;display:block;font-family:inherit;fill:#1b1b1b}
+.db-t{border-collapse:collapse;background:#fff;color:#1b1b1b;font-size:13.5px;width:100%;min-width:320px}
+.db-t th{background:#f3e6e6;border:1px solid #d8c4c4;padding:6px 8px;white-space:nowrap}.db-t td{border:1px solid #e1d6d6;padding:4px 6px}
+.db-t input,.db-t select{font:inherit;font-size:13.5px;width:100%;min-width:80px;border:1px solid #d0c3c3;border-radius:4px;padding:3px 5px;box-sizing:border-box}
+.db-new td{background:#fbf6f6}
+.tp{background:#fff;border:1px solid #d6dbe0;border-radius:8px;padding:8px;margin-bottom:10px;display:inline-flex;flex-direction:column;gap:6px;color:#1b1b1b}
+.tp-g{display:grid;grid-template-columns:repeat(7,22px);gap:3px}.tp-c{width:22px;height:22px;border:1px solid #c3cbd3;background:#fff;border-radius:2px;padding:0;cursor:pointer}.tp-c.on{background:#cfe0f7;border-color:#2b579a}
+.dt{border-collapse:collapse;width:100%;min-width:300px}.dt td{border:1px solid #9fb0c2;padding:0}
+.dt input{width:100%;box-sizing:border-box;border:0;background:transparent;font:inherit;font-size:13.5px;padding:6px;color:inherit;font-weight:inherit;text-align:center}
+.ps-page{background:#fff;max-width:420px;aspect-ratio:1/1.3;margin:0 auto;box-shadow:0 1px 4px rgba(0,0,0,.2);color:#1b1b1b;overflow:hidden;transition:all .25s}
+.ps-page.land{max-width:540px;aspect-ratio:1.3/1}
+.ps-head{font-size:11px;color:#5d6f81;border-bottom:1px dashed #c9d3dd;min-height:16px;margin-bottom:8px;text-align:center}
+.stb{display:grid;grid-template-columns:240px 1fr;gap:12px;color:#1b1b1b;position:relative}
+@media (max-width:640px){.stb{grid-template-columns:1fr}}
+.st-side{display:flex;flex-direction:column;gap:8px;background:#fff;border-radius:8px;padding:10px}
+.st-prev{border-radius:8px;overflow:hidden;border:1px solid #d6dbe0;min-height:240px}
+.st-bar{color:#fff;padding:10px 12px;display:flex;flex-direction:column;gap:6px}.st-nav{display:flex;gap:10px;font-size:12.5px;flex-wrap:wrap}.st-nav .on{text-decoration:underline;font-weight:700}
+.st-pg{padding:12px;display:flex;flex-direction:column;gap:8px}
+.st-blk{margin:0;background:#fff;border-radius:6px;padding:8px;font-size:13px}.st-blk.img{width:120px;padding:0;overflow:hidden}.st-blk.img svg{width:100%;display:block}.st-blk.btnb{align-self:flex-start;color:#fff;padding:6px 16px;border-radius:99px}
+.stb .sh-dlg{grid-column:1/-1}.stb .vd-ok{grid-column:1/-1}
+.m3{display:grid;grid-template-columns:1fr 220px;gap:10px;color:#1b1b1b}
+@media (max-width:640px){.m3{grid-template-columns:1fr}}
+.m3-view{background:#fff;border-radius:8px;border:1px solid #d6dbe0}.m3-view svg{width:100%;height:auto;display:block}
+.m3-panel{display:flex;flex-direction:column;gap:6px;background:#fff;border-radius:8px;padding:10px;font-size:13px}
+.m3-sl{display:grid;grid-template-columns:96px 1fr 30px;gap:6px;align-items:center;font-size:12.5px}.m3-sl output{font-weight:700;text-align:center}
+.m3-col{width:28px;height:28px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #c3cbd3;cursor:pointer}.m3-col[aria-pressed="true"]{box-shadow:0 0 0 3px #13263a}
+</style>
+<link rel="manifest" href="/manifest.webmanifest"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="المهارات الرقمية">
+<script>if("serviceWorker" in navigator&&/^https:/.test(location.protocol))addEventListener("load",()=>navigator.serviceWorker.register("/sw.js").catch(()=>{}))</script>
 <style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
 </head>
 <body>
@@ -947,16 +1050,921 @@ const TERMS=[
 /* الحل الصحيح خطوة بخطوة — يظهر للطالب بعد إغلاق إجاباته */
 const SOL={"t1-u1-1": ["الشاشة تُوصَل بمنفذ الصورة HDMI، وهي جهاز إخراج.", "لوحة المفاتيح والفأرة تُوصلان بمنفذي USB، وهما جهازا إدخال.", "السماعات تُوصَل بمنفذ الصوت، وهي جهاز إخراج.", "سلك الكهرباء يُوصَل بمنفذ الطاقة.", "ثم شغّل الحاسب، واكتب بلوحة المفاتيح لتظهر الكتابة على الشاشة."], "t1-u1-2": ["زر ابدأ في طرف شريط المهام أسفل الشاشة.", "سلة المحذوفات أيقونة على سطح المكتب.", "مجلد المستندات أيقونته صفراء على شكل مجلد.", "مربع البحث بجانب زر ابدأ في شريط المهام.", "الساعة وأيقونة الصوت في الطرف الآخر من شريط المهام."], "t1-u1-3": ["الخلفية: اضغط على اللون الأخضر.", "الصوت: حرّك المؤشر حتى يصير بين ٣٠ و٥٠.", "السطوع: حرّك المؤشر حتى يصير بين ٦٠ و٨٠.", "الوضع: اختر «داكن»."], "t1-u1-p": ["اضغط «حفظ» في ملف «واجبي» قبل إغلاقه.", "أغلق «واجبي» ثم «الرسام» بزر ✕.", "اضغط زر ابدأ ← الطاقة.", "اختر «إيقاف التشغيل»، وليس السكون أو إعادة التشغيل."], "t1-u2-1": ["المسافة: أطول مفتاح في الصف السفلي.", "Enter: في يمين اللوحة، وينقلك إلى سطر جديد.", "Backspace: أعلى اليمين، ويحذف الحرف الذي قبل المؤشر.", "Shift: في طرفي الصف الرابع.", "الباء في الصف الأوسط، والميم قرب نهايته.", "Alt: بجانب مفتاح المسافة."], "t1-u2-2": ["الجملة الصحيحة: «أنا أحب القراءة في المكتبة كل يوم».", "«انا» تُكتب «أنا» بهمزة على الألف.", "«احب» تُكتب «أحب» بهمزة على الألف.", "«القرأة» تُكتب «القراءة».", "«المكتبه» تُكتب «المكتبة» بتاء مربوطة."], "t1-u2-3": ["حدّد النص أولًا.", "اضغط B ليصبح غامقًا، ثم U ليكون تحته خط.", "اختر حجم الخط «كبير».", "اختر اللون الأخضر."], "t1-u2-4": ["اختر المحاذاة «وسط».", "اختر تباعد الأسطر 1.5.", "اضغط زر التعداد النقطي."], "t1-u2-p": ["اكتب ثلاثة أسطر على الأقل عن نفسك.", "اضغط B للغامق، واختر الحجم «كبير».", "اختر اللون الأزرق.", "اختر المحاذاة «وسط» وتباعد الأسطر 1.5."], "t1-u3-1": ["اكتب www.hayawanat.edu.sa في شريط العنوان، ثم اضغط «انتقال».", "اضغط رابط «الجمل» داخل الموقع.", "اضغط زر الرجوع → للعودة إلى الصفحة السابقة.", "اضغط النجمة ☆ لإضافة الموقع إلى المفضلة."], "t1-u3-2": ["اكتب كلمات قليلة ودقيقة مثل: «طول برج المملكة».", "اختر نتيجة «موسوعة المعالم» لأنها موقع تعليمي، ولا تختر الإعلان أو المنتدى.", "الإجابة: ارتفاع برج المملكة نحو ٣٠٢ متر.", "للصور: اختر قسم «صور» واكتب «صقر الشاهين»."], "t1-u3-3": ["ابحث بكلمات مثل: «عدد مناطق المملكة».", "افتح أكثر من نتيجة وقارن بينها.", "المصدر الموثوق هو «الأطلس المدرسي»: موقع تعليمي كاتبه معروف.", "المنتدى والرسالة المنتشرة لا يُعرف كاتبهما، فلا نثق بهما.", "الإجابة: ١٣ منطقة إدارية."], "t1-u3-4": ["كلمة المرور القوية: ٨ رموز فأكثر، فيها حرف إنجليزي كبير وصغير ورقم ورمز، مثل Nj#7tamr!", "أطفئ كل خيارات الخصوصية الأربعة.", "الرسالة التي تطلب كلمة المرور احتيال: اضغط «أبلغ واحذف».", "لا تفتح الرابط الموجود في الرسالة المخادعة."], "t1-u3-p": ["ابحث بكلمات مثل: «أكبر صحراء في المملكة».", "أغلق الإعلان بزر ✕ الصغير، ولا تضغط «استلم الجائزة».", "افتح نتيجة «الأطلس المدرسي» الموثوقة.", "الإجابة: الربع الخالي."], "t1-u4-1": ["الشخصية تنظر إلى اليمين والنجمة أمامها.", "ضع لبنة «تحرك خطوة» ٤ مرات.", "اضغط «تشغيل»."], "t1-u4-2": ["الشخصية تنظر إلى الأعلى.", "ضع «تحرك خطوة» ٤ مرات لتصل إلى الصف العلوي.", "ضع «استدر يمينًا».", "ضع «تحرك خطوة» ٤ مرات لتصل إلى النجمة."], "t1-u4-3": ["اختر «كرر» واجعل العدد ٥.", "داخل التكرار: تحرك خطوة، استدر يمينًا، تحرك خطوة، استدر يسارًا.", "ثم ضع «نهاية التكرار» واضغط «تشغيل»."], "t1-u4-4": ["ضع «أنزل القلم» أولًا.", "اختر «كرر» واجعل العدد ٤.", "داخل التكرار: «تحرك 100 خطوة» ثم «استدر 90 درجة».", "ثم «نهاية التكرار»."], "t1-u4-p": ["ضع «أنزل القلم».", "للمثلث: كرر ٣ مرات: تحرك 100، ثم استدر 120 درجة.", "للمربع: كرر ٤ مرات: تحرك 100، ثم استدر 90 درجة.", "ثم «نهاية التكرار» واضغط «تشغيل»."], "t2-u1-1": ["اكتب عنوانًا رئيسًا مثل «وطني» وعنوانًا فرعيًا.", "اختر تصميمًا للشريحة.", "اضغط WordArt ليصبح العنوان فنيًا."], "t2-u1-2": ["اختر صورة من الصور أو من جهازك.", "حرّك مؤشر الحجم لتغيير حجمها.", "حرّك مؤشر التدوير لتدويرها.", "اختر نمطًا: إطار أو ظل أو دائري."], "t2-u1-3": ["اختر انتقالًا للشريحة مثل «تلاشي».", "اختر حركة للعنوان مثل «طيران للداخل».", "اضغط «شغّل العرض» لتشاهد النتيجة."], "t2-u1-4": ["اختر الشريحة الثانية «رحلتي» أولًا.", "اضغط تبويب «إدراج» ثم «فيديو» ثم «هذا الجهاز».", "اختر الملف «رحلة_العلا.mp4» ثم اضغط «إدراج».", "من «عرض الشرائح» اختر «من البداية» (F5)، ثم أنهِ العرض بزر Esc."], "t2-u1-p": ["اكتب عنوانًا رئيسًا وفرعيًا عن مدينتك، واختر تصميمًا.", "أدرج صورة، ثم غيّر حجمها ودوّرها واختر لها نمطًا.", "اختر انتقالًا للشريحة وحركة للعنوان.", "اضغط «شغّل العرض»."], "t2-u2-1": ["اسم الخلية = حرف العمود من الأعلى، ثم رقم الصف من الجانب.", "مثال: B3 تعني العمود B والصف 3.", "ابحث عن الحرف أولًا، ثم انزل إلى الرقم."], "t2-u2-2": ["المعادلة تبدأ دائمًا بعلامة =", "في D2 اكتب: =B2+C2 والنتيجة 7.", "في D3 اكتب: =B3+C3 والنتيجة 8.", "في D4 اكتب: =B4+C4 والنتيجة 10."], "t2-u2-p": ["في B7 اكتب: =SUM(B2:B6) والنتيجة 20.", "في B8 اكتب: =B7/5 والنتيجة 4.", "علامة القسمة في Excel هي / وعلامة الضرب هي *."], "t2-u3-1": ["افتح تطبيق المسجّل في الجوال أو الحاسب.", "اختر مكانًا هادئًا، وسجّل من ٢٠ إلى ٤٠ ثانية بصوت واضح.", "احفظ التسجيل، ثم اختر ملفه في المنصة.", "شغّل التسجيل لتستمع إليه."], "t2-u3-2": ["تنقّل بالأسهم حتى تشاهد الصور الأربع.", "اضغط «تكبير» لرؤية التفاصيل.", "اضغط «عرض الشرائح».", "شغّل مقطع الفيديو حتى نهايته."], "t2-u3-3": ["الصورة مقلوبة: اضغط «دوّر 90°» مرتين.", "اختر قصًّا «مربعة» أو «عريضة».", "اضغط «تحسين تلقائي».", "اضغط «إزالة العين الحمراء»."], "t2-u3-4": ["حرّك مؤشر السطوع أو التباين.", "اختر مرشحًا مثل «أبيض وأسود» أو «بني قديم»."], "t2-u3-p": ["اختر صورة من جهازك أو الصورة الجاهزة.", "قصّ الصورة «مربعة» أو «عريضة».", "اضغط «تحسين تلقائي».", "اختر مرشحًا يناسب الصورة."], "t2-u4-1": ["حساس المسافة في مقدمة الروبوت ليرى ما أمامه.", "وحدة التحكم داخل الجسم، فهي عقل الروبوت.", "المحركان للعجلتين اليمنى واليسرى.", "البطارية في حجرة الطاقة.", "ثم اضغط «شغّل الروبوت»."], "t2-u4-2": ["الروبوت ينظر إلى الأعلى.", "تقدّم للأمام مرتين.", "انعطف يمينًا.", "تقدّم للأمام ٤ مرات حتى تصل إلى الراية."], "t2-u4-x": ["الرسائل التي فيها «ربحت» أو «جائزة» أو «اضغط الرابط» أو «أرسل كلمة المرور» مخادعة.", "الرسائل العادية مثل مواعيد المدرسة والتشجيع لطيفة.", "اضغط «درّب النموذج» ثم «اختبر النموذج».", "النموذج يتعلم من تصنيفك: إذا أخطأت في التدريب أخطأ في الاختبار."], "t2-u4-p": ["الروبوت ينظر إلى الأعلى: تقدّم مرتين.", "انعطف يمينًا، ثم تقدّم ٣ مرات.", "انعطف يسارًا، ثم تقدّم ٣ مرات.", "انعطف يمينًا، ثم تقدّم مرتين حتى تصل إلى الراية."]};
 /* فهرسة الدروس */
-const LESSONS={},ORDER=[];
+const LESSONS={},ORDER=[];const GRADE_TERMS={4:TERMS};let CUR_GRADE=4;const GRADE_NAMES={4:'الصف الرابع الابتدائي',5:'الصف الخامس الابتدائي',6:'الصف السادس الابتدائي'};
+const gradeOfClass=c=>{const t=String(c||'').replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d));return /خامس|^\s*5\D|\D5\s*\/|^5$/.test(t)?5:/سادس|^\s*6\D|\D6\s*\/|^6$/.test(t)?6:4};
+const gradeOfLesson=id=>(LESSONS[id]&&LESSONS[id].grade)||4;
 TERMS.forEach(T=>T.units.forEach((U,ui)=>{let li=0;U.lessons.forEach(L=>{L.term=T;L.unit=U;L.ui=ui;
   if(L.project){L.id=`t${T.n}-u${ui+1}-p`;L.label='مشروع الوحدة'}
   else if(L.extra){L.id=`t${T.n}-u${ui+1}-x`;L.label='قسم إثرائي'}
   else{li++;L.id=`t${T.n}-u${ui+1}-${li}`;L.label='الدرس '+ORD[li-1]}
-  L.unitLabel='الوحدة '+UNIT_ORD[ui];LESSONS[L.id]=L;ORDER.push(L.id)})}));
-const TYPE_TAG={sort:'تصنيف',order:'ترتيب خطوات',hotspot:'محاكاة',settings:'محاكاة',text:'تحرير نص',format:'تنسيق',grid:'برمجة',pen:'رسم بالبرمجة',sheet:'جدول بيانات',slide:'تصميم شريحة',audio:'تسجيل صوتي',gallery:'عارض الصور',photo:'تحرير صور',mcq:'مواقف',assemble:'تركيب واختبار',shutdown:'محاكاة',web:'متصفح تجريبي',search:'بحث عملي',safety:'محاكاة أمان',pptvideo:'محاكاة PowerPoint',aitrain:'تدريب نموذج ذكاء اصطناعي'};
+  L.unitLabel='الوحدة '+UNIT_ORD[ui];L.grade=4;LESSONS[L.id]=L;ORDER.push(L.id)})}));
+Object.defineProperty(INFO,'grade',{get:()=>GRADE_NAMES[CUR_GRADE]||GRADE_NAMES[4],configurable:true});
+const TYPE_TAG={sort:'تصنيف',order:'ترتيب خطوات',hotspot:'محاكاة',settings:'محاكاة',text:'تحرير نص',format:'تنسيق',grid:'برمجة',pen:'رسم بالبرمجة',sheet:'جدول بيانات',slide:'تصميم شريحة',audio:'تسجيل صوتي',gallery:'عارض الصور',photo:'تحرير صور',mcq:'مواقف',assemble:'تركيب واختبار',shutdown:'محاكاة',web:'متصفح تجريبي',search:'بحث عملي',safety:'محاكاة أمان',pptvideo:'محاكاة PowerPoint',aitrain:'تدريب نموذج ذكاء اصطناعي',files:'ملفات ومجلدات',wordimg:'مستند وصور',audioedit:'تحرير صوت',video:'تحرير فيديو',fillcode:'برمجة',email:'بريد إلكتروني',share:'مشاركة ملفات',blog:'تدوين',coords:'إحداثيات',chart:'مخطط بياني',dbcreate:'قاعدة بيانات',dbtable:'قاعدة بيانات',doctable:'جدول في مستند',pagesetup:'تنسيق الصفحة',site:'تصميم موقع',model3d:'تصميم ثلاثي الأبعاد'};
 
 /* ====== محركات المهام ====== */
 const ENG={};
+/* ====== دروس الصفين الخامس والسادس (تظهر للمعلم عند إضافة فصول لهما) ====== */
+/* ====== محاكيات إضافية للصفين الخامس والسادس ====== */
+/* مساعد عام: يقيس المطلوبات ويعرضها ويرسل النتيجة */
+function goalRun(gl,goals,st,report,detail,silent){const g=goals.map(x=>[x.label,!!x.test(st)]);goalsUpd(gl,g);const m=g.filter(x=>x[1]).length;
+  if(!silent)report({score:m/g.length,done:m===g.length,detail:(detail?detail(st)+' — ':'')+`حقق ${m} من ${g.length} مطلوبات`})}
+const tbtn=(label,act,on,extra)=>h('button',{type:'button',class:'rb wide','data-act':act,onclick:on,...(extra||{})},label);
+const FICO={folder:SVG.folder,doc:SVG.doc,img:'<svg viewBox="0 0 48 48"><rect x="8" y="6" width="32" height="36" rx="3" fill="#fff" stroke="#9fb3c8" stroke-width="2"/><rect x="12" y="12" width="24" height="18" rx="2" fill="#bfe3ff"/><path d="M12 30l8-9 6 6 4-4 6 7z" fill="#3fa36b"/><circle cx="30" cy="17" r="3" fill="#f6c445"/></svg>',
+  txt:'<svg viewBox="0 0 48 48"><path d="M10 4h20l8 8v32H10z" fill="#fff" stroke="#9fb3c8" stroke-width="2"/><path d="M15 18h18M15 24h18M15 30h12" stroke="#9fb3c8" stroke-width="2.4"/></svg>',
+  vid:'<svg viewBox="0 0 48 48"><rect x="6" y="10" width="36" height="28" rx="4" fill="#3b4f66"/><path d="M20 18v12l10-6z" fill="#fff"/></svg>',
+  mus:'<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="18" fill="#7656c4"/><path d="M20 30V16l10-2v13" stroke="#fff" stroke-width="2.6" fill="none"/><circle cx="18" cy="30" r="3" fill="#fff"/><circle cx="28" cy="27" r="3" fill="#fff"/></svg>',
+  ppt:'<svg viewBox="0 0 48 48"><rect x="8" y="6" width="32" height="36" rx="3" fill="#fff" stroke="#e0a48e" stroke-width="2"/><rect x="13" y="13" width="22" height="14" rx="2" fill="#f2c4b3"/><path d="M15 33h18" stroke="#e0a48e" stroke-width="2.4"/></svg>'};
+const extOf=n=>{const e=(n.split('.').pop()||'').toLowerCase();return /jpe?g|png|gif/.test(e)?'img':/docx?|pdf/.test(e)?'doc':/txt/.test(e)?'txt':/mp4|mov/.test(e)?'vid':/mp3|wav/.test(e)?'mus':/pptx?/.test(e)?'ppt':'txt'};
+
+/* ===== مستكشف الملفات ===== */
+ENG.files=(cfg,report)=>{let uid=0;const items=cfg.start.map(x=>({id:++uid,n:x.n,t:x.t||'file',parent:x.parent||null}));let cur=null,sel=null,editing=null,moving=false;
+  const st={items};const gl=h('div',{style:'margin-top:10px'});const body=h('div',{class:'fx-body'}),path=h('div',{class:'fx-path'}),tools=h('div',{class:'aw-ribbon fx-tools'});
+  const kids=p=>items.filter(i=>i.parent===p);const byName=n=>items.find(i=>i.n===n);
+  function draw(){const f=cur?items.find(i=>i.id===cur):null;
+    path.replaceChildren(h('button',{type:'button',class:'fx-crumb','data-act':'root',onclick:()=>{cur=null;sel=null;draw()}},'📁 المستندات'),f?h('span',{},' › '):null,f?h('b',{},f.n):null);
+    const s=sel?items.find(i=>i.id===sel):null;
+    tools.replaceChildren(tbtn('＋ مجلد جديد','newfolder',()=>{const it={id:++uid,n:'مجلد جديد',t:'folder',parent:cur};items.push(it);sel=it.id;editing=it.id;draw();upd()}),
+      tbtn('✎ إعادة تسمية','rename',()=>{if(s){editing=s.id;draw()}},{disabled:!s}),
+      tbtn('🗑 حذف','delete',()=>{if(!s)return;const rm=id=>{kids(id).forEach(k=>rm(k.id));const i=items.findIndex(x=>x.id===id);items.splice(i,1)};rm(s.id);sel=null;draw();upd()},{disabled:!s}),
+      tbtn('↪ نقل إلى…','move',()=>{if(s){moving=!moving;draw()}},{disabled:!s}),
+      cur?tbtn('→ رجوع','back',()=>{const f2=items.find(i=>i.id===cur);cur=f2?f2.parent:null;sel=null;draw()}):null);
+    const list=kids(cur);
+    body.replaceChildren(...(list.length?list.map(it=>{const isEd=editing===it.id;
+      const el=h('div',{class:'fx-item'+(sel===it.id?' sel':''),'data-n':it.n,role:'button',tabindex:'0',onclick:()=>{if(editing)return;sel=it.id;moving=false;draw()},ondblclick:()=>{if(it.t==='folder'){cur=it.id;sel=null;draw()}}},
+        h('span',{class:'fx-ic',html:it.t==='folder'?FICO.folder:FICO[extOf(it.n)]}),
+        isEd?h('input',{type:'text',class:'fx-name-in',value:it.n,'aria-label':'الاسم الجديد',onkeydown:e=>{if(e.key==='Enter')e.target.blur()},onblur:e=>{const v=e.target.value.trim();if(v&&!items.some(o=>o!==it&&o.parent===it.parent&&o.n===v))it.n=v;editing=null;draw();upd()}}):h('span',{class:'fx-name'},it.n),
+        it.t==='folder'&&!isEd?h('button',{type:'button',class:'fx-open','data-act':'open',onclick:e=>{e.stopPropagation();cur=it.id;sel=null;draw()}},'فتح'):null);return el}):[h('p',{class:'muted',style:'padding:16px'},'هذا المجلد فارغ.')]));
+    if(moving&&s){const dests=[{id:null,n:'المستندات'},...items.filter(i=>i.t==='folder'&&i.id!==s.id)];
+      body.append(h('div',{class:'fx-move'},h('b',{},`انقل «${s.n}» إلى:`),...dests.map(d=>h('button',{type:'button',class:'rb wide','data-dest':d.n,onclick:()=>{s.parent=d.id;moving=false;sel=null;draw();upd()}},'📁 '+d.n))))}
+    const inp=body.querySelector('.fx-name-in');if(inp){inp.focus();inp.select()}}
+  const G={folder:g=>({label:`أنشئ مجلدًا باسم «${g.name}»`+(g.in?` داخل «${g.in}»`:''),test:()=>items.some(i=>i.t==='folder'&&i.n===g.name&&(g.in?(i.parent&&items.find(p=>p.id===i.parent)||{}).n===g.in:true))}),
+    move:g=>({label:`انقل «${g.file}» إلى مجلد «${g.to}»`,test:()=>{const f=byName(g.file),d=byName(g.to);return f&&d&&f.parent===d.id}}),
+    rename:g=>({label:`غيّر اسم «${g.from}» إلى «${g.to}»`,test:()=>!!byName(g.to)&&!byName(g.from)}),
+    del:g=>({label:`احذف الملف «${g.file}»`,test:()=>!byName(g.file)}),
+    keep:g=>({label:`حافظ على «${g.file}» ولا تحذفه`,test:()=>!!byName(g.file)})};
+  const goals=cfg.goals.map(g=>G[g.k](g));
+  const upd=()=>goalRun(gl,goals,st,report,()=>`محتوى المستندات: ${items.map(i=>(i.parent?items.find(p=>p.id===i.parent).n+'/':'')+i.n).join('، ')}`);
+  draw();goalRun(gl,goals,st,report,null,true);
+  return h('div',{},appWin({app:'files',title:'مستكشف الملفات',body:h('div',{},path,body),ribbon:tools}),h('p',{class:'hint',style:'margin-top:8px'},'اضغط على الملف لتحديده ثم اختر الأمر. افتح المجلد بزر «فتح».'),gl)};
+
+/* ===== صورة داخل المستند ===== */
+const DOCPICS={palm:['نخلة','<svg viewBox="0 0 120 120"><rect width="120" height="120" fill="#ffe7b3"/><path d="M58 118c2-30 2-55-2-78" stroke="#8a5a2b" stroke-width="7" fill="none"/><path d="M56 40c-18-14-36-10-44 0 16-4 30-2 44 0zM56 40c18-16 38-12 46-2-18-6-32-4-46 2zM56 40c-6-18-20-26-34-24 14 6 24 14 34 24zM56 40c8-18 22-24 36-20-14 4-26 12-36 20z" fill="#2f8a4c"/></svg>'],
+  camel:['جمل','<svg viewBox="0 0 120 120"><rect width="120" height="120" fill="#cfe9ff"/><rect y="88" width="120" height="32" fill="#f0c97a"/><path d="M20 88V66c0-10 10-12 16-6 4-14 14-16 20-4 4-10 14-10 18 0l14-14c6-4 10 0 8 6l-8 10v30" fill="#b9853f"/><path d="M28 88V70M44 88V72M74 88V70M88 88V72" stroke="#8a5a2b" stroke-width="5"/></svg>'],
+  falcon:['صقر','<svg viewBox="0 0 120 120"><rect width="120" height="120" fill="#e8f1fb"/><path d="M60 30c14 0 22 10 22 22 0 18-12 34-22 44-10-10-22-26-22-44 0-12 8-22 22-22z" fill="#8a6a4a"/><path d="M60 30c10 0 16 6 18 14H66l-6 6-6-6H42c2-8 8-14 18-14z" fill="#f2efe8"/><circle cx="54" cy="42" r="3" fill="#13263a"/><path d="M60 46l6 4-6 3z" fill="#f6c445"/><path d="M38 60L8 74l30-2zM82 60l30 14-30-2z" fill="#6b5034"/></svg>']};
+ENG.wordimg=(cfg,report)=>{const s={img:null,size:40,wrap:'مع النص',align:'يمين',border:false,tab:'الصفحة الرئيسية',pick:false};const gl=h('div',{style:'margin-top:10px'});const win=h('div');
+  const WRAPS=['مع النص','مربع','خلف النص','أمام النص'],ALS=['يمين','وسط','يسار'];
+  function draw(){const tabs=['ملف','الصفحة الرئيسية','إدراج','تخطيط'].concat(s.img?['تنسيق الصورة']:[]);
+    const tabEls=tabs.map(t=>h('button',{type:'button',class:'aw-tab'+(t===s.tab?' on':'')+(t==='تنسيق الصورة'?' ctx':''),'data-tab':t,onclick:()=>{s.tab=t;draw()}},t));
+    let rib=[];if(s.tab==='إدراج')rib=[rgroup('رسومات',tbtn('🖼 صور','pics',()=>{s.pick=!s.pick;draw()}),h('span',{class:'rb wide dim'},'أشكال'),h('span',{class:'rb wide dim'},'رموز'))];
+    else if(s.tab==='تنسيق الصورة'&&s.img)rib=[rgroup('التفاف النص',h('select',{class:'rsel','aria-label':'التفاف النص','data-ctl':'wrap',onchange:e=>{s.wrap=e.target.value;draw();upd()}},WRAPS.map(w=>h('option',{selected:w===s.wrap},w)))),
+      rgroup('الموضع',...ALS.map(a=>h('button',{type:'button',class:'rb wide','aria-pressed':String(s.align===a),'data-al':a,onclick:()=>{s.align=a;draw();upd()}},a))),
+      rgroup('الحجم',h('input',{type:'range',min:20,max:90,value:s.size,'aria-label':'حجم الصورة','data-ctl':'size',oninput:e=>{s.size=+e.target.value;paint();upd()}})),
+      rgroup('أنماط',h('button',{type:'button',class:'rb wide','aria-pressed':String(s.border),'data-act':'border',onclick:()=>{s.border=!s.border;draw();upd()}},'▢ إطار'))];
+    else rib=[rgroup('الخط',h('span',{class:'rb dim'},'B'),h('span',{class:'rb dim',style:'font-style:italic'},'I')),rgroup('فقرة',h('span',{class:'rb ico dim',html:ICO.alignR}))];
+    const picker=s.pick?h('div',{class:'pic-pick'},h('b',{},'اختر صورة:'),...Object.entries(DOCPICS).map(([k,[n,svg]])=>h('button',{type:'button',class:'pic-opt','data-pic':k,onclick:()=>{s.img=k;s.pick=false;s.tab='تنسيق الصورة';draw();upd()}},h('span',{html:svg}),n))):null;
+    win.replaceChildren(appWin({app:'word',title:'مستند1.docx — معالج النصوص',tabs:tabEls,ribbon:rib,body:h('div',{},picker,page=h('div',{class:'page'},h('div',{class:'ruler'}),docBody=h('div',{class:'wi-doc'})))}));paint()}
+  let page,docBody;
+  function paint(){if(!docBody)return;const txt=cfg.text;const im=s.img?h('span',{class:'wi-img'+(s.border?' bd':''),html:DOCPICS[s.img][1],style:`width:${s.size}%;`+(s.wrap==='مربع'?(s.align==='يسار'?'float:left;margin:0 0 6px 10px':s.align==='وسط'?'display:block;margin:6px auto':'float:right;margin:0 10px 6px 0'):s.wrap==='خلف النص'?'position:absolute;inset-inline-start:20%;top:10px;opacity:.35;z-index:0':s.wrap==='أمام النص'?'position:absolute;inset-inline-start:20%;top:10px;z-index:2':'display:block;margin:6px '+(s.align==='وسط'?'auto':s.align==='يسار'?'0 6px auto':'auto 6px 0'))}):null;
+    docBody.replaceChildren(h('h3',{style:'margin:0 0 6px'},cfg.heading),im,h('p',{style:'position:relative;z-index:1;margin:0'},txt))}
+  const goals=[{label:`أدرج صورة «${DOCPICS[cfg.goals.img][0]}» في المستند`,test:()=>s.img===cfg.goals.img}];
+  if(cfg.goals.wrap)goals.push({label:`اجعل التفاف النص «${cfg.goals.wrap}»`,test:()=>s.img&&s.wrap===cfg.goals.wrap});
+  if(cfg.goals.align)goals.push({label:`ضع الصورة في ال${cfg.goals.align==='وسط'?'وسط':cfg.goals.align}`,test:()=>s.img&&s.align===cfg.goals.align});
+  if(cfg.goals.border)goals.push({label:'أضف إطارًا للصورة',test:()=>s.img&&s.border});
+  if(cfg.goals.size)goals.push({label:`اجعل حجم الصورة بين ${ar(cfg.goals.size[0])}٪ و${ar(cfg.goals.size[1])}٪`,test:()=>s.img&&s.size>=cfg.goals.size[0]&&s.size<=cfg.goals.size[1]});
+  const upd=()=>goalRun(gl,goals,s,report,()=>`الصورة: ${s.img?DOCPICS[s.img][0]:'لا يوجد'}، الالتفاف: ${s.wrap}، الموضع: ${s.align}، الحجم: ${s.size}٪${s.border?'، بإطار':''}`);
+  draw();goalRun(gl,goals,s,report,null,true);return h('div',{},win,h('p',{class:'hint',style:'margin-top:8px'},'ابدأ من تبويب «إدراج». بعد إدراج الصورة يظهر تبويب «تنسيق الصورة».'),gl)};
+
+/* ===== تحرير الصوت ===== */
+ENG.audioedit=(cfg,report)=>{const segs=cfg.segs.map((x,i)=>({...x,i,on:true}));const s={sel:null,fade:false,louder:false,fmt:'',exported:false,played:false};const gl=h('div',{style:'margin-top:10px'});const box=h('div');
+  function bars(seed,n,amp){const out=[];let v=seed;for(let k=0;k<n;k++){v=(v*9301+49297)%233280;out.push(.15+amp*(v/233280))}return out}
+  function draw(){const live=segs.filter(x=>x.on);const total=live.reduce((a,x)=>a+x.d,0);
+    const track=h('div',{class:'ae-track',dir:'ltr'},...live.map(x=>{const amp=x.kind==='silence'?.05:x.kind==='noise'?.85:.6;const b=bars(x.i*7+3,Math.max(4,Math.round(x.d*4)),amp);
+      return h('button',{type:'button',class:'ae-seg '+x.kind+(s.sel===x.i?' sel':''),'data-seg':x.name,style:`flex:${x.d}`,onclick:()=>{s.sel=s.sel===x.i?null:x.i;draw()}},h('span',{class:'ae-bars'},b.map((v,k)=>h('i',{style:`height:${Math.round(v*100*(s.fade&&x===live[live.length-1]?(1-k/b.length):1)*(s.louder?1.25:1))}%`}))),h('small',{},x.name))}));
+    box.replaceChildren(h('div',{class:'appwin',style:'--app:#2b3a4a'},h('div',{class:'aw-title'},h('b',{},'محرر الصوت — تسجيلي.wav'),h('span',{class:'aw-ctl','aria-hidden':'true'},'—  ▢  ✕')),
+      h('div',{class:'aw-ribbon'},rgroup('تحرير',tbtn('✂ احذف المقطع المحدد','cut',()=>{const x=segs.find(q=>q.i===s.sel);if(x){x.on=false;s.sel=null;s.exported=false;draw();upd()}},{disabled:s.sel==null})),
+        rgroup('تأثيرات',h('button',{type:'button',class:'rb wide','aria-pressed':String(s.fade),'data-act':'fade',onclick:()=>{s.fade=!s.fade;s.exported=false;draw();upd()}},'↘ تلاشي في النهاية'),h('button',{type:'button',class:'rb wide','aria-pressed':String(s.louder),'data-act':'louder',onclick:()=>{s.louder=!s.louder;s.exported=false;draw();upd()}},'🔊 رفع الصوت')),
+        rgroup('تشغيل',tbtn('▶ استمع','play',()=>{s.played=true;draw();upd()})),
+        rgroup('تصدير',h('select',{class:'rsel','aria-label':'صيغة الملف','data-ctl':'fmt',onchange:e=>{s.fmt=e.target.value;s.exported=false;upd()}},h('option',{value:'',selected:!s.fmt},'اختر الصيغة'),['MP3','WAV'].map(f=>h('option',{selected:s.fmt===f},f))),tbtn('⇩ تصدير','export',()=>{if(s.fmt){s.exported=true;draw();upd()}}))),
+      h('div',{class:'aw-body'},track,h('div',{class:'ae-info'},`المدة: ${ar(total)} ثانية`,s.played?' · ▶ استمعت إلى التسجيل':'',s.exported?` · ✓ صُدّر الملف تسجيلي.${s.fmt.toLowerCase()}`:''))))}
+  const G={rm:g=>({label:`احذف مقطع «${g.name}»`,test:()=>!segs.find(x=>x.name===g.name).on}),keep:g=>({label:`أبقِ مقطع «${g.name}»`,test:()=>segs.find(x=>x.name===g.name).on}),
+    fade:()=>({label:'أضف تأثير التلاشي في النهاية',test:()=>s.fade}),louder:()=>({label:'ارفع مستوى الصوت',test:()=>s.louder}),play:()=>({label:'استمع إلى التسجيل بعد التعديل',test:()=>s.played}),
+    export:g=>({label:`صدّر الملف بصيغة ${g.fmt}`,test:()=>s.exported&&s.fmt===g.fmt})};
+  const goals=cfg.goals.map(g=>G[g.k](g));const upd=()=>goalRun(gl,goals,s,report,()=>`المقاطع الباقية: ${segs.filter(x=>x.on).map(x=>x.name).join('، ')}`);
+  draw();goalRun(gl,goals,s,report,null,true);return h('div',{},box,h('p',{class:'hint',style:'margin-top:8px'},'اضغط على المقطع في الشريط لتحديده، ثم استخدم الأدوات.'),gl)};
+
+/* ===== تحرير الفيديو ===== */
+ENG.video=(cfg,report)=>{const s={tl:[],title:'',music:'',trans:'',exported:false,q:'',sel:null};const gl=h('div',{style:'margin-top:10px'});const box=h('div');
+  const lib=cfg.clips;
+  function draw(){box.replaceChildren(h('div',{class:'appwin',style:'--app:#5a2e8a'},h('div',{class:'aw-title'},h('b',{},'محرر الفيديو — مشروعي'),h('span',{class:'aw-ctl','aria-hidden':'true'},'—  ▢  ✕')),
+    h('div',{class:'aw-body vd'},
+      h('div',{class:'vd-lib'},h('b',{},'مكتبة الوسائط'),...lib.map(c=>h('button',{type:'button',class:'vd-clip','data-clip':c,onclick:()=>{s.tl.push(c);s.exported=false;draw();upd()}},h('span',{html:FICO.vid}),c,h('small',{},'＋ أضف'))),
+        h('label',{class:'vd-f'},'موسيقى خلفية',h('select',{'data-ctl':'music',onchange:e=>{s.music=e.target.value;s.exported=false;upd()}},h('option',{value:''},'بلا موسيقى'),cfg.music.map(m=>h('option',{selected:s.music===m},m)))),
+        h('label',{class:'vd-f'},'انتقال بين المقاطع',h('select',{'data-ctl':'trans',onchange:e=>{s.trans=e.target.value;s.exported=false;upd()}},h('option',{value:''},'بلا انتقال'),['تلاشي','انزلاق','تكبير'].map(m=>h('option',{selected:s.trans===m},m)))),
+        h('label',{class:'vd-f'},'نص العنوان',h('input',{type:'text','data-ctl':'title',value:s.title,placeholder:'اكتب عنوان الفيديو',oninput:e=>{s.title=e.target.value;s.exported=false;upd()}}))),
+      h('div',{class:'vd-main'},h('div',{class:'vd-screen'},s.title?h('b',{},s.title):h('span',{},s.tl.length?'معاينة: '+s.tl[0]:'أضف مقاطع إلى الشريط الزمني')),
+        h('div',{class:'vd-tl',dir:'rtl'},...(s.tl.length?s.tl.map((c,i)=>h('div',{class:'vd-tc'+(s.sel===i?' sel':''),'data-tc':c},h('button',{type:'button',class:'vd-tsel',onclick:()=>{s.sel=s.sel===i?null:i;draw()}},`${ar(i+1)}. ${c}`),
+            h('span',{class:'vd-tb'},h('button',{type:'button','aria-label':'قدّم','data-act':'up',onclick:()=>{if(i>0){[s.tl[i-1],s.tl[i]]=[s.tl[i],s.tl[i-1]];s.exported=false;draw();upd()}}},'→'),h('button',{type:'button','aria-label':'أخّر','data-act':'down',onclick:()=>{if(i<s.tl.length-1){[s.tl[i+1],s.tl[i]]=[s.tl[i],s.tl[i+1]];s.exported=false;draw();upd()}}},'←'),h('button',{type:'button','aria-label':'احذف','data-act':'rm',onclick:()=>{s.tl.splice(i,1);s.exported=false;draw();upd()}},'✕')))):[h('span',{class:'muted'},'الشريط الزمني فارغ')])),
+        h('div',{class:'row',style:'gap:8px;margin-top:8px'},h('select',{class:'rsel','data-ctl':'q','aria-label':'الجودة',onchange:e=>{s.q=e.target.value;s.exported=false;upd()}},h('option',{value:''},'جودة التصدير'),['720p','1080p'].map(q=>h('option',{selected:s.q===q},q))),tbtn('⇩ تصدير الفيديو','export',()=>{if(s.tl.length&&s.q){s.exported=true;draw();upd()}}),s.exported?h('span',{class:'vd-ok'},'✓ صُدّر: مشروعي.mp4'):null)))))}
+  const G={order:g=>({label:`رتّب المقاطع في الشريط الزمني: ${g.seq.join(' ثم ')}`,test:()=>s.tl.join('|')===g.seq.join('|')}),title:()=>({label:'أضف عنوانًا للفيديو',test:()=>s.title.trim().length>=3}),
+    music:()=>({label:'أضف موسيقى خلفية',test:()=>!!s.music}),trans:()=>({label:'أضف انتقالًا بين المقاطع',test:()=>!!s.trans}),export:g=>({label:`صدّر الفيديو بجودة ${g.q}`,test:()=>s.exported&&s.q===g.q})};
+  const goals=cfg.goals.map(g=>G[g.k](g));const upd=()=>goalRun(gl,goals,s,report,()=>`الشريط: ${s.tl.join('، ')||'فارغ'}${s.title?'، العنوان: '+s.title:''}${s.music?'، الموسيقى: '+s.music:''}${s.trans?'، الانتقال: '+s.trans:''}`);
+  draw();goalRun(gl,goals,s,report,null,true);return h('div',{},box,gl)};
+
+/* ===== إكمال برنامج سكراتش ===== */
+ENG.fillcode=(cfg,report)=>{const ans=cfg.lines.map(()=>null);let ran=false,lastOk=false;const gl=h('div',{style:'margin-top:10px'});const out=h('div',{class:'fc-out',role:'status'});const prog=h('div',{class:'fc-prog'});
+  function line(L,i){const parts=L.t.split(/(\{\d\})/);return h('div',{class:'fc-line blk '+(L.c||'motion'),style:`margin-inline-start:${(L.d||0)*20}px`},...parts.map(p=>{const m=p.match(/^\{(\d)\}$/);if(!m)return p;const k=+m[1];const S=cfg.slots[k];
+      return h('select',{class:'fc-slot','data-slot':k,'aria-label':'اختر قيمة',onchange:e=>{ans[k]=e.target.value;ran=false;out.replaceChildren();upd()}},h('option',{value:'',selected:ans[k]==null},'؟'),S.opts.map(o=>h('option',{selected:ans[k]===o},o)))}))}
+  prog.replaceChildren(h('div',{class:'fc-line blk events',html:'عند نقر '+FLAG}),...cfg.lines.map(line));
+  const runBtn=h('button',{type:'button',class:'btn flag','data-act':'run',html:FLAG+'<span>تشغيل</span>',onclick:()=>{ran=true;const ok=cfg.slots.every((S,k)=>ans[k]===S.ok);lastOk=ok;
+    out.replaceChildren(h('span',{class:'fc-sprite',html:SVG.critter}),h('div',{class:'fc-bubble'},ok?cfg.win:(ans.some(a=>a==null)?'البرنامج ناقص: أكمل كل الفراغات.':cfg.fail)));upd()}});
+  const goals=[{label:'أكمل كل الفراغات في البرنامج بالقيم الصحيحة',test:()=>cfg.slots.every((S,k)=>ans[k]===S.ok)},{label:'شغّل البرنامج وتحقق من النتيجة',test:()=>ran&&lastOk}];
+  const upd=()=>{const c=cfg.slots.filter((S,k)=>ans[k]===S.ok).length;const g=goals.map(x=>[x.label,x.test()]);goalsUpd(gl,g);report({score:(c/cfg.slots.length)*.85+(ran&&lastOk?.15:0),done:g.every(x=>x[1]),detail:`فراغات صحيحة ${c} من ${cfg.slots.length}: `+cfg.slots.map((S,k)=>ans[k]||'—').join(' | ')+(ran?' — شغّل البرنامج':'')})};
+  goalsUpd(gl,goals.map(x=>[x.label,false]));
+  return h('div',{class:'code'},h('div',{class:'stack',style:'gap:10px'},h('div',{class:'fc-stage'},out),runBtn),h('div',{class:'stack',style:'gap:8px'},h('div',{class:'hint'},'برنامجك: اختر القيمة المناسبة لكل فراغ'),prog,gl))};
+
+/* ===== البريد الإلكتروني ===== */
+ENG.email=(cfg,report)=>{const s={view:'inbox',to:'',cc:'',sub:'',body:'',att:'',sent:false,read:false};const gl=h('div',{style:'margin-top:10px'});const box=h('div');
+  const inbox=cfg.inbox||[['معلم المهارات الرقمية','موعد تسليم المشروع','السلام عليكم، أرسل مشروعك قبل يوم الخميس.'],['إدارة المدرسة','الإذاعة المدرسية','نرحب بمشاركتكم في الإذاعة.']];
+  function draw(){let main;if(s.view==='compose')main=h('div',{class:'em-comp'},
+      h('label',{},'إلى',h('input',{type:'email',dir:'ltr','data-ctl':'to',value:s.to,oninput:e=>{s.to=e.target.value.trim();upd()}})),
+      h('label',{},'نسخة',h('input',{type:'email',dir:'ltr','data-ctl':'cc',value:s.cc,oninput:e=>{s.cc=e.target.value.trim();upd()}})),
+      h('label',{},'الموضوع',h('input',{type:'text','data-ctl':'sub',value:s.sub,oninput:e=>{s.sub=e.target.value;upd()}})),
+      h('textarea',{'data-ctl':'body','aria-label':'نص الرسالة',placeholder:'اكتب رسالتك هنا…',oninput:e=>{s.body=e.target.value;upd()}},s.body),
+      h('div',{class:'row',style:'gap:8px;align-items:center'},h('select',{class:'rsel','data-ctl':'att','aria-label':'إرفاق ملف',onchange:e=>{s.att=e.target.value;upd()}},h('option',{value:''},'📎 إرفاق ملف'),cfg.files.map(f=>h('option',{selected:s.att===f},f))),s.att?h('span',{class:'em-att'},'📎 '+s.att):null,
+        h('button',{type:'button',class:'btn','data-act':'send',style:'margin-inline-start:auto',onclick:()=>{if(!s.to){alertBox.textContent='اكتب عنوان المستلم أولًا.';return}s.sent=true;s.view='sent';draw();upd()}},'إرسال ➤')),alertBox);
+    else if(s.view==='sent')main=h('div',{class:'em-list'},s.sent?h('div',{class:'em-row'},h('b',{},'إلى: '+s.to),h('span',{},s.sub||'(بلا موضوع)'),s.att?h('small',{},'📎 '+s.att):null):h('p',{class:'muted'},'لا توجد رسائل مرسلة.'));
+    else main=h('div',{class:'em-list'},inbox.map((m,i)=>h('button',{type:'button',class:'em-row','data-mail':i,onclick:()=>{s.read=true;s.open=i;draw();upd()}},h('b',{},m[0]),h('span',{},m[1]),s.open===i?h('small',{style:'display:block'},m[2]):null)));
+    box.replaceChildren(h('div',{class:'appwin',style:'--app:#1a73a8'},h('div',{class:'aw-title'},h('b',{},'البريد الإلكتروني — '+cfg.me),h('span',{class:'aw-ctl','aria-hidden':'true'},'—  ▢  ✕')),
+      h('div',{class:'aw-body em'},h('div',{class:'em-side'},h('button',{type:'button',class:'btn','data-act':'compose',onclick:()=>{s.view='compose';draw()}},'✎ رسالة جديدة'),
+        h('button',{type:'button',class:'em-nav'+(s.view==='inbox'?' on':''),'data-act':'inbox',onclick:()=>{s.view='inbox';draw()}},'📥 الوارد'),h('button',{type:'button',class:'em-nav'+(s.view==='sent'?' on':''),'data-act':'sentbox',onclick:()=>{s.view='sent';draw()}},'📤 المرسل')),main)))}
+  const alertBox=h('p',{class:'msg bad'});
+  const G={to:g=>({label:`أرسل الرسالة إلى ${g.v}`,test:()=>s.sent&&s.to.toLowerCase()===g.v}),cc:g=>({label:`أضف ${g.v} في خانة «نسخة»`,test:()=>s.sent&&s.cc.toLowerCase()===g.v}),
+    sub:g=>({label:`اكتب موضوعًا مناسبًا يحتوي كلمة «${g.v}»`,test:()=>s.sent&&s.sub.includes(g.v)}),body:()=>({label:'اكتب نص رسالة واضحًا (١٥ حرفًا على الأقل) فيه تحية',test:()=>s.sent&&s.body.trim().length>=15&&/السلام|مرحب|أهل/.test(s.body)}),
+    att:g=>({label:`أرفق الملف «${g.v}»`,test:()=>s.sent&&s.att===g.v}),read:()=>({label:'افتح رسالة المعلم في صندوق الوارد واقرأها',test:()=>s.read})};
+  const goals=cfg.goals.map(g=>G[g.k](g));const upd=()=>goalRun(gl,goals,s,report,()=>s.sent?`أرسل إلى ${s.to}${s.cc?' ونسخة إلى '+s.cc:''} بموضوع «${s.sub}»${s.att?' ومرفق '+s.att:''}`:'لم يرسل الرسالة بعد');
+  draw();goalRun(gl,goals,s,report,null,true);return h('div',{},box,gl)};
+
+/* ===== التخزين السحابي ومشاركة الملفات ===== */
+ENG.share=(cfg,report)=>{const s={cloud:[...(cfg.cloud||[])],sel:null,dlg:false,shares:{},link:{},copied:null,up:false};const gl=h('div',{style:'margin-top:10px'});const box=h('div');let em='',perm='عارض';
+  function draw(){const f=s.sel;box.replaceChildren(h('div',{class:'appwin',style:'--app:#2d7d46'},h('div',{class:'aw-title'},h('b',{},'السحابة — ملفاتي'),h('span',{class:'aw-ctl','aria-hidden':'true'},'—  ▢  ✕')),
+    h('div',{class:'aw-ribbon'},rgroup('ملف',tbtn('⇧ رفع ملف','upload',()=>{s.up=!s.up;draw()}),tbtn('👥 مشاركة','share',()=>{if(f){s.dlg=true;em='';perm='عارض';draw()}},{disabled:!f}),tbtn('🔗 نسخ الرابط','copylink',()=>{if(f){s.copied=f;draw();upd()}},{disabled:!f}))),
+    h('div',{class:'aw-body'},s.up?h('div',{class:'fx-move'},h('b',{},'اختر ملفًا من جهازك لرفعه:'),...cfg.local.filter(n=>!s.cloud.includes(n)).map(n=>h('button',{type:'button',class:'rb wide','data-up':n,onclick:()=>{s.cloud.push(n);s.up=false;draw();upd()}},'📄 '+n))):null,
+      h('div',{class:'fx-body'},...(s.cloud.length?s.cloud.map(n=>h('div',{class:'fx-item'+(f===n?' sel':''),'data-n':n,role:'button',tabindex:'0',onclick:()=>{s.sel=n;s.dlg=false;draw()}},h('span',{class:'fx-ic',html:FICO[extOf(n)]}),h('span',{class:'fx-name'},n),s.shares[n]?h('small',{class:'sh-tag'},'👥 '+Object.keys(s.shares[n]).length):null)):[h('p',{class:'muted',style:'padding:16px'},'لا توجد ملفات في السحابة بعد. ارفع ملفًا.')])),
+      s.dlg&&f?h('div',{class:'sh-dlg'},h('b',{},`مشاركة «${f}»`),h('div',{class:'row',style:'gap:8px'},h('input',{type:'email',dir:'ltr',placeholder:'أضف بريدًا إلكترونيًا','data-ctl':'shemail',oninput:e=>{em=e.target.value.trim().toLowerCase()}}),
+          h('select',{class:'rsel','data-ctl':'perm','aria-label':'الصلاحية',onchange:e=>{perm=e.target.value}},['عارض','معلّق','محرر'].map(p=>h('option',{},p)))),
+        h('label',{class:'row',style:'gap:8px'},'الوصول العام:',h('select',{class:'rsel','data-ctl':'linkmode',onchange:e=>{s.link[f]=e.target.value;upd()}},['مقيّد','أي شخص لديه الرابط'].map(p=>h('option',{selected:(s.link[f]||'مقيّد')===p},p)))),
+        h('div',{class:'row',style:'gap:8px'},h('button',{type:'button',class:'btn','data-act':'doshare',onclick:()=>{if(!em)return;(s.shares[f]=s.shares[f]||{})[em]=perm;s.dlg=false;draw();upd()}},'إرسال'),h('button',{type:'button',class:'btn ghost',onclick:()=>{s.dlg=false;draw()}},'إلغاء'))):null,
+      s.copied?h('p',{class:'vd-ok'},`✓ نُسخ رابط «${s.copied}»`):null)))}
+  const G={up:g=>({label:`ارفع الملف «${g.file}» إلى السحابة`,test:()=>s.cloud.includes(g.file)}),share:g=>({label:`شارك «${g.file}» مع ${g.email} بصلاحية «${g.perm}»`,test:()=>(s.shares[g.file]||{})[g.email]===g.perm}),
+    link:g=>({label:`اجعل الوصول العام إلى «${g.file}»: ${g.mode}`,test:()=>(s.link[g.file]||'مقيّد')===g.mode}),copy:g=>({label:`انسخ رابط «${g.file}»`,test:()=>s.copied===g.file})};
+  const goals=cfg.goals.map(g=>G[g.k](g));const upd=()=>goalRun(gl,goals,s,report,()=>`السحابة: ${s.cloud.join('، ')}؛ المشاركات: ${Object.entries(s.shares).map(([n,o])=>n+' ← '+Object.entries(o).map(([e,p])=>e+' ('+p+')').join('، ')).join(' | ')||'لا يوجد'}`);
+  draw();goalRun(gl,goals,s,report,null,true);return h('div',{},box,h('p',{class:'hint',style:'margin-top:8px'},'اضغط على الملف لتحديده، ثم اختر «مشاركة» أو «نسخ الرابط».'),gl)};
+
+/* ===== المدوّنة ===== */
+ENG.blog=(cfg,report)=>{const s={title:'',body:'',cat:'',src:'',pub:false,cm:(cfg.comments||[]).map(c=>({...c,st:'بانتظار المراجعة'}))};const gl=h('div',{style:'margin-top:10px'});const box=h('div');
+  function draw(){box.replaceChildren(h('div',{class:'appwin',style:'--app:#c2410c'},h('div',{class:'aw-title'},h('b',{},'لوحة تحكم المدوّنة — '+cfg.blog),h('span',{class:'aw-ctl','aria-hidden':'true'},'—  ▢  ✕')),
+    h('div',{class:'aw-body bl'},h('div',{class:'em-comp'},h('b',{},s.pub?'✓ نُشرت التدوينة':'تدوينة جديدة'),
+        h('label',{},'العنوان',h('input',{type:'text','data-ctl':'btitle',value:s.title,oninput:e=>{s.title=e.target.value;s.pub=false;upd()}})),
+        h('textarea',{'data-ctl':'bbody','aria-label':'نص التدوينة',placeholder:'اكتب تدوينتك…',oninput:e=>{s.body=e.target.value;s.pub=false;upd()}},s.body),
+        h('div',{class:'row',style:'gap:8px'},h('select',{class:'rsel','data-ctl':'bcat','aria-label':'التصنيف',onchange:e=>{s.cat=e.target.value;s.pub=false;upd()}},h('option',{value:''},'التصنيف'),cfg.cats.map(c=>h('option',{selected:s.cat===c},c))),
+          cfg.needSrc?h('input',{type:'text','data-ctl':'bsrc',value:s.src,placeholder:'المصدر (من أين أخذت المعلومة أو الصورة؟)',style:'flex:1',oninput:e=>{s.src=e.target.value;s.pub=false;upd()}}):null),
+        h('button',{type:'button',class:'btn','data-act':'publish',onclick:()=>{s.pub=true;draw();upd()}},'نشر')),
+      s.cm.length?h('div',{class:'stack',style:'gap:6px'},h('b',{},'تعليقات بانتظار المراجعة'),...s.cm.map((c,i)=>h('div',{class:'bl-cm','data-cm':i},h('p',{style:'margin:0'},h('b',{},c.who+': '),c.t),h('div',{class:'row',style:'gap:6px'},h('small',{class:'muted'},c.st),
+          h('button',{type:'button',class:'rb wide','data-act':'approve',onclick:()=>{c.st='موافَق عليه';draw();upd()}},'✓ موافقة'),h('button',{type:'button',class:'rb wide','data-act':'remove',onclick:()=>{c.st='محذوف';draw();upd()}},'🗑 حذف'))))):null)))}
+  const G={title:()=>({label:'اكتب عنوانًا للتدوينة',test:()=>s.pub&&s.title.trim().length>=4}),body:g=>({label:`اكتب تدوينة لا تقل عن ${ar(g.min)} حرفًا`,test:()=>s.pub&&s.body.trim().length>=g.min}),
+    cat:g=>({label:`اختر التصنيف «${g.v}»`,test:()=>s.pub&&s.cat===g.v}),src:()=>({label:'اذكر مصدر المعلومات (احترام الملكية الفكرية)',test:()=>s.pub&&s.src.trim().length>=3}),
+    pub:()=>({label:'انشر التدوينة',test:()=>s.pub}),cm:()=>({label:'وافق على التعليقات المفيدة، واحذف المسيء والمخادع',test:()=>s.cm.every(c=>c.st===(c.ok?'موافَق عليه':'محذوف'))})};
+  const goals=cfg.goals.map(g=>G[g.k](g));const upd=()=>goalRun(gl,goals,s,report,()=>`${s.pub?'نشر':'لم ينشر'} تدوينة «${s.title}»؛ التعليقات: ${s.cm.map(c=>c.st).join('، ')}`);
+  draw();goalRun(gl,goals,s,report,null,true);return h('div',{},box,gl)};
+
+/* ===== الإحداثيات في سكراتش ===== */
+ENG.coords=(cfg,report)=>{let pos={x:0,y:0},hit=0;const tg=cfg.targets;const gl=h('div',{style:'margin-top:10px'});
+  const W=240,H=180;const map=(x,y)=>[(x+W)/(2*W)*100,(H-y)/(2*H)*100];
+  const stage=h('div',{class:'co-stage',dir:'ltr'});const xi=h('input',{type:'number',id:'co-x',value:0,step:10,'aria-label':'قيمة x'}),yi=h('input',{type:'number',id:'co-y',value:0,step:10,'aria-label':'قيمة y'});const msg=h('p',{class:'msg'});
+  function paint(){stage.replaceChildren(h('i',{class:'co-ax x'}),h('i',{class:'co-ax y'}),...tg.map((t,i)=>{const[l,tp]=map(t[0],t[1]);return h('span',{class:'co-t'+(i<hit?' got':i===hit?' now':''),style:`left:${l}%;top:${tp}%`,html:SVG.star})}),
+    (()=>{const[l,tp]=map(pos.x,pos.y);return h('span',{class:'co-sp',style:`left:${l}%;top:${tp}%`,html:SVG.critter})})(),h('small',{class:'co-lbl'},`x: ${pos.x}  y: ${pos.y}`))}
+  const go=()=>{const x=Math.max(-W,Math.min(W,parseInt(toEnDigits(xi.value))||0)),y=Math.max(-H,Math.min(H,parseInt(toEnDigits(yi.value))||0));pos={x,y};
+    if(hit<tg.length&&x===tg[hit][0]&&y===tg[hit][1]){hit++;msg.textContent=hit<tg.length?`وصلت إلى النجمة ${ar(hit)}. انتقل إلى التالية.`:'وصلت إلى كل النجوم.'}else msg.textContent='تحركت الشخصية. هل وصلت إلى النجمة؟';paint();upd()};
+  const goals=tg.map((t,i)=>({label:`انقل الشخصية إلى النجمة ${ar(i+1)} عند (x: ${t[0]}، y: ${t[1]})`,test:()=>hit>i}));
+  const upd=()=>goalRun(gl,goals,{},report,()=>`وصل إلى ${hit} من ${tg.length} نجوم`);paint();goalRun(gl,goals,{},report,null,true);
+  return h('div',{class:'code'},h('div',{class:'stack',style:'gap:8px'},stage,msg),h('div',{class:'stack',style:'gap:8px'},h('div',{class:'hint'},'برنامجك'),
+    h('div',{class:'fc-line blk motion'},'اذهب إلى x: ',xi,' y: ',yi),h('button',{type:'button',class:'btn flag','data-act':'go',html:FLAG+'<span>نفّذ اللبنة</span>',onclick:go}),h('p',{class:'hint'},'مركز المنصة (0، 0). x يزيد لليمين، وy يزيد للأعلى.'),gl))};
+
+/* ===== المخططات البيانية ===== */
+ENG.chart=(cfg,report)=>{const s={type:'',title:'',labels:false,legend:false,ins:false};const gl=h('div',{style:'margin-top:10px'});const box=h('div');const D=cfg.data;
+  function chartSvg(){const max=Math.max(...D.map(d=>d[1]));const C=['#1d6fb8','#1f9e8a','#e9a400','#c4532b','#5b5fc7','#2a8a55'];let g='';
+    if(s.type==='عمودي'){const bw=240/D.length;D.forEach((d,i)=>{const hh=d[1]/max*120;g+=`<rect x="${30+i*bw+bw*.15}" y="${150-hh}" width="${bw*.7}" height="${hh}" fill="${C[0]}"/>`+(s.labels?`<text x="${30+i*bw+bw/2}" y="${145-hh}" font-size="10" text-anchor="middle">${d[1]}</text>`:'')+`<text x="${30+i*bw+bw/2}" y="165" font-size="9" text-anchor="middle">${d[0]}</text>`})}
+    else if(s.type==='خطي'){const pts=D.map((d,i)=>[30+i*(240/(D.length-1||1)),150-d[1]/max*120]);g+=`<polyline points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="${C[1]}" stroke-width="3"/>`;pts.forEach((p,i)=>{g+=`<circle cx="${p[0]}" cy="${p[1]}" r="4" fill="${C[1]}"/>`+(s.labels?`<text x="${p[0]}" y="${p[1]-8}" font-size="10" text-anchor="middle">${D[i][1]}</text>`:'')+`<text x="${p[0]}" y="165" font-size="9" text-anchor="middle">${D[i][0]}</text>`})}
+    else if(s.type==='دائري'){const tot=D.reduce((a,d)=>a+d[1],0);let a0=-Math.PI/2;D.forEach((d,i)=>{const a1=a0+d[1]/tot*Math.PI*2;const x0=150+60*Math.cos(a0),y0=90+60*Math.sin(a0),x1=150+60*Math.cos(a1),y1=90+60*Math.sin(a1);g+=`<path d="M150 90L${x0} ${y0}A60 60 0 ${a1-a0>Math.PI?1:0} 1 ${x1} ${y1}Z" fill="${C[i%C.length]}" stroke="#fff"/>`;if(s.labels){const am=(a0+a1)/2;g+=`<text x="${150+40*Math.cos(am)}" y="${94+40*Math.sin(am)}" font-size="10" fill="#fff" text-anchor="middle">${d[1]}</text>`}a0=a1})}
+    const leg=s.legend?`<g font-size="9">${D.map((d,i)=>`<rect x="${s.type==='دائري'?225:285}" y="${30+i*14}" width="9" height="9" fill="${s.type==='دائري'?C[i%C.length]:s.type==='خطي'?C[1]:C[0]}"/><text x="${s.type==='دائري'?238:298}" y="${38+i*14}">${d[0]}</text>`).join('')}</g>`:'';
+    return `<svg viewBox="0 0 340 175" class="ch-svg" role="img" aria-label="مخطط ${s.type}"><text x="170" y="16" font-size="12" font-weight="700" text-anchor="middle">${(s.title||'عنوان المخطط').replace(/[<&]/g,'')}</text>${g}${leg}</svg>`}
+  function draw(){const tbl=h('table',{class:'sheet'},h('tr',{},h('th',{class:'corner'}),h('th',{},'A'),h('th',{},'B')),h('tr',{},h('th',{},1),h('td',{class:'ch-h'},cfg.head[0]),h('td',{class:'ch-h'},cfg.head[1])),...D.map((d,i)=>h('tr',{},h('th',{},i+2),h('td',{},d[0]),h('td',{},d[1]))));
+    box.replaceChildren(appWin({app:'excel',title:cfg.file+' — جداول البيانات',tabs:['ملف','الصفحة الرئيسية','إدراج','تصميم المخطط'],active:'إدراج',
+      ribbon:[rgroup('المخططات',...['عمودي','خطي','دائري'].map(t=>h('button',{type:'button',class:'rb wide','aria-pressed':String(s.type===t),'data-ct':t,onclick:()=>{s.type=t;s.ins=true;draw();upd()}},(t==='عمودي'?'📊 ':t==='خطي'?'📈 ':'◔ ')+t))),
+        rgroup('عناصر المخطط',h('button',{type:'button',class:'rb wide','aria-pressed':String(s.labels),'data-act':'labels',onclick:()=>{s.labels=!s.labels;draw();upd()}},'تسميات البيانات'),h('button',{type:'button',class:'rb wide','aria-pressed':String(s.legend),'data-act':'legend',onclick:()=>{s.legend=!s.legend;draw();upd()}},'وسيلة الإيضاح')),
+        rgroup('العنوان',h('input',{type:'text',class:'rsel','data-ctl':'ctitle',value:s.title,placeholder:'عنوان المخطط',style:'width:150px',oninput:e=>{s.title=e.target.value;const t=box.querySelector('.ch-svg text');if(t)t.textContent=s.title||'عنوان المخطط';upd()}}))],
+      body:h('div',{class:'ch-wrap'},h('div',{class:'scroll-x xl-grid'},tbl),s.ins?h('div',{class:'ch-box',html:chartSvg()}):h('p',{class:'muted',style:'padding:12px'},'اختر نوع المخطط من تبويب «إدراج».'))}))}
+  const G={type:g=>({label:`أدرج مخططًا ${g.v}`,test:()=>s.ins&&s.type===g.v}),title:g=>({label:`اكتب عنوان المخطط: «${g.v}»`,test:()=>s.title.trim()===g.v}),labels:()=>({label:'أظهر تسميات البيانات',test:()=>s.labels}),legend:()=>({label:'أظهر وسيلة الإيضاح',test:()=>s.legend})};
+  const goals=cfg.goals.map(g=>G[g.k](g));const upd=()=>goalRun(gl,goals,s,report,()=>`مخطط ${s.type||'—'} بعنوان «${s.title}»${s.labels?' مع تسميات':''}${s.legend?' ووسيلة إيضاح':''}`);
+  draw();goalRun(gl,goals,s,report,null,true);return h('div',{},box,gl)};
+
+/* ===== إنشاء قاعدة بيانات ===== */
+ENG.dbcreate=(cfg,report)=>{const s={fields:[{n:'المعرّف',t:'ترقيم تلقائي',pk:true}],view:'design',recs:[]};const gl=h('div',{style:'margin-top:10px'});const box=h('div');const TYPES=['نص قصير','رقم','تاريخ/وقت','نعم/لا','ترقيم تلقائي'];
+  function draw(){const tabs=[h('button',{type:'button',class:'aw-tab'+(s.view==='design'?' on':''),'data-tab':'design',onclick:()=>{s.view='design';draw()}},'عرض التصميم'),h('button',{type:'button',class:'aw-tab'+(s.view==='data'?' on':''),'data-tab':'data',onclick:()=>{s.view='data';draw()}},'عرض ورقة البيانات')];
+    let body;if(s.view==='design')body=h('div',{},h('table',{class:'db-t'},h('tr',{},h('th',{},'🔑'),h('th',{},'اسم الحقل'),h('th',{},'نوع البيانات'),h('th',{})),...s.fields.map((f,i)=>h('tr',{'data-f':i},
+        h('td',{},h('button',{type:'button',class:'rb','aria-pressed':String(!!f.pk),'aria-label':'مفتاح أساسي','data-act':'pk',onclick:()=>{s.fields.forEach(x=>x.pk=false);f.pk=true;draw();upd()}},'🔑')),
+        h('td',{},h('input',{type:'text',value:f.n,'data-ctl':'fname','aria-label':'اسم الحقل',oninput:e=>{f.n=e.target.value.trim();upd()}})),
+        h('td',{},h('select',{'data-ctl':'ftype','aria-label':'نوع البيانات',onchange:e=>{f.t=e.target.value;upd()}},TYPES.map(t=>h('option',{selected:f.t===t},t)))),
+        h('td',{},i?h('button',{type:'button',class:'rb','aria-label':'حذف الحقل',onclick:()=>{s.fields.splice(i,1);draw();upd()}},'✕'):null)))),
+      h('button',{type:'button',class:'btn ghost','data-act':'addfield',style:'margin-top:8px',onclick:()=>{s.fields.push({n:'',t:'نص قصير'});draw()}},'＋ إضافة حقل'));
+    else{const nf=s.fields.filter(f=>f.t!=='ترقيم تلقائي');const ins={};
+      body=h('div',{},h('div',{class:'scroll-x'},h('table',{class:'db-t'},h('tr',{},s.fields.map(f=>h('th',{},f.n||'—'))),...s.recs.map((r,ri)=>h('tr',{},s.fields.map(f=>h('td',{},f.t==='ترقيم تلقائي'?ri+1:(r[f.n]||''))))),
+        h('tr',{class:'db-new'},s.fields.map(f=>h('td',{},f.t==='ترقيم تلقائي'?'(جديد)':(ins[f.n]=h('input',{type:f.t==='رقم'?'number':f.t==='تاريخ/وقت'?'date':'text','data-in':f.n,'aria-label':f.n}))))))),
+        h('button',{type:'button',class:'btn','data-act':'addrec',style:'margin-top:8px',onclick:()=>{const r={};nf.forEach(f=>{r[f.n]=ins[f.n].value.trim()});if(nf.every(f=>r[f.n])){s.recs.push(r);draw();upd()}else err.textContent='املأ كل الخانات ثم أضف السجل.'}},'＋ إضافة السجل'),err)}
+    box.replaceChildren(h('div',{class:'appwin',style:'--app:#a4373a'},h('div',{class:'aw-title'},h('b',{},'قاعدة البيانات — '+cfg.table),h('span',{class:'aw-ctl','aria-hidden':'true'},'—  ▢  ✕')),h('div',{class:'aw-tabs'},tabs),h('div',{class:'aw-body'},body)))}
+  const err=h('p',{class:'msg bad'});
+  const goals=cfg.fields.map(([n,t])=>({label:`أضف الحقل «${n}» من نوع «${t}»`,test:()=>s.fields.some(f=>f.n===n&&f.t===t)}));
+  if(cfg.pk)goals.push({label:`اجعل «${cfg.pk}» المفتاح الأساسي`,test:()=>s.fields.some(f=>f.n===cfg.pk&&f.pk)});
+  if(cfg.recs)goals.push({label:`أدخل ${ar(cfg.recs)} سجلات على الأقل في عرض ورقة البيانات`,test:()=>s.recs.length>=cfg.recs});
+  const upd=()=>goalRun(gl,goals,s,report,()=>`الحقول: ${s.fields.map(f=>(f.n||'—')+' ('+f.t+')').join('، ')}؛ السجلات: ${s.recs.length}`);
+  draw();goalRun(gl,goals,s,report,null,true);return h('div',{},box,h('p',{class:'hint',style:'margin-top:8px'},'صمّم الحقول في «عرض التصميم»، ثم أدخل السجلات في «عرض ورقة البيانات».'),gl)};
+
+/* ===== الفرز والتصفية في قاعدة البيانات ===== */
+ENG.dbtable=(cfg,report)=>{const s={sort:null,dir:'asc',filter:null};const gl=h('div',{style:'margin-top:10px'});const box=h('div');const F=cfg.fields;
+  function view(){let r=cfg.rows.map(x=>x);if(s.filter){const i=F.indexOf(s.filter[0]);r=r.filter(x=>String(x[i])===s.filter[1])}if(s.sort){const i=F.indexOf(s.sort);r.sort((a,b)=>{const A=a[i],B=b[i];const c=typeof A==='number'?A-B:String(A).localeCompare(String(B),'ar');return s.dir==='asc'?c:-c})}return r}
+  let ff=F[0],fv='';
+  function draw(){const vals=[...new Set(cfg.rows.map(x=>String(x[F.indexOf(ff)])))];
+    box.replaceChildren(h('div',{class:'appwin',style:'--app:#a4373a'},h('div',{class:'aw-title'},h('b',{},'قاعدة البيانات — '+cfg.table),h('span',{class:'aw-ctl','aria-hidden':'true'},'—  ▢  ✕')),
+      h('div',{class:'aw-ribbon'},rgroup('فرز وتصفية',h('select',{class:'rsel','data-ctl':'sortf','aria-label':'الفرز حسب',onchange:e=>{s.sort=e.target.value||null;draw();upd()}},h('option',{value:''},'فرز حسب…'),F.map(f=>h('option',{selected:s.sort===f},f))),
+          h('button',{type:'button',class:'rb wide','aria-pressed':String(s.dir==='asc'),'data-act':'asc',onclick:()=>{s.dir='asc';draw();upd()}},'↑ تصاعدي'),h('button',{type:'button',class:'rb wide','aria-pressed':String(s.dir==='desc'),'data-act':'desc',onclick:()=>{s.dir='desc';draw();upd()}},'↓ تنازلي')),
+        rgroup('تصفية',h('select',{class:'rsel','data-ctl':'filtf','aria-label':'حقل التصفية',onchange:e=>{ff=e.target.value;fv='';draw()}},F.map(f=>h('option',{selected:ff===f},f))),
+          h('select',{class:'rsel','data-ctl':'filtv','aria-label':'قيمة التصفية',onchange:e=>{fv=e.target.value}},h('option',{value:''},'القيمة…'),vals.map(v=>h('option',{selected:fv===v},v))),
+          tbtn('تطبيق','applyf',()=>{if(fv){s.filter=[ff,fv];draw();upd()}}),tbtn('إزالة','clearf',()=>{s.filter=null;draw();upd()}))),
+      h('div',{class:'aw-body'},h('div',{class:'scroll-x'},h('table',{class:'db-t'},h('tr',{},F.map(f=>h('th',{},f+(s.sort===f?(s.dir==='asc'?' ↑':' ↓'):'')+(s.filter&&s.filter[0]===f?' ⧩':'')))),...view().map(r=>h('tr',{},r.map(v=>h('td',{},v)))))),
+        h('p',{class:'ae-info'},`عدد السجلات المعروضة: ${ar(view().length)} من ${ar(cfg.rows.length)}`))))}
+  const G={sort:g=>({label:`افرز السجلات حسب «${g.f}» ${g.dir==='asc'?'تصاعديًا':'تنازليًا'}`,test:()=>s.sort===g.f&&s.dir===g.dir}),filter:g=>({label:`صفِّ السجلات لتظهر فقط التي «${g.f}» فيها «${g.v}»`,test:()=>!!s.filter&&s.filter[0]===g.f&&s.filter[1]===g.v}),
+    nofilter:()=>({label:'أزل التصفية لتظهر كل السجلات',test:()=>!s.filter})};
+  const goals=cfg.goals.map(g=>G[g.k](g));const upd=()=>goalRun(gl,goals,s,report,()=>`الفرز: ${s.sort?s.sort+' '+(s.dir==='asc'?'تصاعدي':'تنازلي'):'بلا'}؛ التصفية: ${s.filter?s.filter.join(' = '):'بلا'}`);
+  draw();goalRun(gl,goals,s,report,null,true);return h('div',{},box,gl)};
+
+/* ===== الجداول في معالج النصوص ===== */
+ENG.doctable=(cfg,report)=>{const s={tab:'إدراج',pick:false,r:0,c:0,cells:[],style:'',merged:false,hover:[0,0]};const gl=h('div',{style:'margin-top:10px'});const box=h('div');
+  if(cfg.start){s.r=cfg.start.length;s.c=cfg.start[0].length;s.cells=cfg.start.map(r=>[...r]);s.tab='تخطيط'}
+  const STY={'أزرق':['#2b579a','#e8eef8'],'أخضر':['#2d7d46','#e7f4ea'],'برتقالي':['#c55a11','#fbeee4']};
+  function setRC(r,c){const old=s.cells;s.cells=Array.from({length:r},(_,i)=>Array.from({length:c},(_,j)=>(old[i]&&old[i][j])||''));s.r=r;s.c=c}
+  function draw(){const tabs=['ملف','الصفحة الرئيسية','إدراج'].concat(s.r?['تصميم الجدول','تخطيط']:[]).map(t=>h('button',{type:'button',class:'aw-tab'+(t===s.tab?' on':'')+(t==='تصميم الجدول'||t==='تخطيط'?' ctx':''),'data-tab':t,onclick:()=>{s.tab=t;draw()}},t));
+    let rib=[];if(s.tab==='إدراج')rib=[rgroup('جداول',tbtn('▦ جدول','table',()=>{s.pick=!s.pick;draw()}))];
+    else if(s.tab==='تصميم الجدول')rib=[rgroup('أنماط الجدول',...Object.keys(STY).map(k=>h('button',{type:'button',class:'rb wide','aria-pressed':String(s.style===k),'data-sty':k,style:`border-bottom:4px solid ${STY[k][0]}`,onclick:()=>{s.style=k;draw();upd()}},k)))];
+    else if(s.tab==='تخطيط')rib=[rgroup('صفوف وأعمدة',tbtn('إدراج صف أسفل','addrow',()=>{setRC(s.r+1,s.c);draw();upd()}),tbtn('إدراج عمود','addcol',()=>{setRC(s.r,s.c+1);draw();upd()}),tbtn('حذف آخر صف','delrow',()=>{if(s.r>1){setRC(s.r-1,s.c);draw();upd()}})),rgroup('دمج',h('button',{type:'button',class:'rb wide','aria-pressed':String(s.merged),'data-act':'merge',onclick:()=>{s.merged=!s.merged;draw();upd()}},'دمج خلايا الصف الأول'))];
+    const picker=s.pick?h('div',{class:'tp'},h('b',{},`جدول ${ar(s.hover[1]||0)}×${ar(s.hover[0]||0)}`),h('div',{class:'tp-g',dir:'rtl'},...Array.from({length:6},(_,r)=>Array.from({length:7},(_,c)=>h('button',{type:'button',class:'tp-c'+(r<s.hover[0]&&c<s.hover[1]?' on':''),'data-rc':`${r+1}x${c+1}`,'aria-label':`${r+1} صفوف و${c+1} أعمدة`,onmouseenter:()=>{s.hover=[r+1,c+1];draw()},onclick:()=>{setRC(r+1,c+1);s.pick=false;s.tab='تصميم الجدول';draw();upd()}}))).flat())):null;
+    const sty=STY[s.style];const tbl=s.r?h('table',{class:'dt'},...s.cells.map((row,i)=>h('tr',{},...(i===0&&s.merged?[h('td',{colspan:s.c,style:sty?`background:${sty[0]};color:#fff;font-weight:700`:'font-weight:700'},h('input',{type:'text',value:row[0],'data-cell':'0-0','aria-label':'خلية العنوان',oninput:e=>{row[0]=e.target.value;upd()}}))]:row.map((v,j)=>h('td',{style:sty?(i===0?`background:${sty[0]};color:#fff;font-weight:700`:i%2?`background:${sty[1]}`:''):''},h('input',{type:'text',value:v,'data-cell':`${i}-${j}`,'aria-label':`خلية ${i+1}-${j+1}`,oninput:e=>{row[j]=e.target.value;upd()}}))))))):h('p',{class:'muted'},'أدرج جدولًا من تبويب «إدراج».');
+    box.replaceChildren(appWin({app:'word',title:cfg.file+' — معالج النصوص',tabs,ribbon:rib,body:h('div',{},picker,h('div',{class:'page'},h('div',{class:'ruler'}),h('h3',{style:'margin:0 0 8px'},cfg.heading),h('div',{class:'scroll-x'},tbl)))}))}
+  const G={size:g=>({label:`أدرج جدولًا من ${ar(g.r)} صفوف و${ar(g.c)} أعمدة`,test:()=>s.r===g.r&&s.c===g.c}),
+    head:g=>({label:`اكتب عناوين الأعمدة في الصف الأول: ${g.v.join('، ')}`,test:()=>g.v.every((t,j)=>(s.cells[0]||[])[j]&&s.cells[0][j].trim()===t)}),
+    fill:()=>({label:'املأ كل خلايا الجدول',test:()=>s.r>0&&s.cells.every((r,i)=>i===0&&s.merged?r[0].trim():r.every(v=>v.trim()))}),
+    style:g=>({label:`طبّق نمط الجدول «${g.v}»`,test:()=>s.style===g.v}),merge:()=>({label:'ادمج خلايا الصف الأول ليصبح عنوانًا واحدًا',test:()=>s.merged}),
+    rows:g=>({label:`اجعل عدد الصفوف ${ar(g.v)}`,test:()=>s.r===g.v}),cols:g=>({label:`اجعل عدد الأعمدة ${ar(g.v)}`,test:()=>s.c===g.v})};
+  const goals=cfg.goals.map(g=>G[g.k](g));const upd=()=>goalRun(gl,goals,s,report,()=>`جدول ${s.r}×${s.c}${s.style?'، النمط: '+s.style:''}${s.merged?'، الصف الأول مدمج':''}`);
+  draw();goalRun(gl,goals,s,report,null,true);return h('div',{},box,gl)};
+
+/* ===== إعداد الصفحة ===== */
+ENG.pagesetup=(cfg,report)=>{const s={orient:'عمودي',margin:'عادية',cols:'1',border:false,header:'',color:'أبيض'};const gl=h('div',{style:'margin-top:10px'});const box=h('div');const PC={'أبيض':'#fff','أزرق فاتح':'#eaf3fc','أصفر فاتح':'#fff8e1'};
+  function sel(k,label,opts){return rgroup(label,h('select',{class:'rsel','data-ctl':k,'aria-label':label,onchange:e=>{s[k]=e.target.value;draw();upd()}},opts.map(o=>h('option',{selected:s[k]===o},o))))}
+  function draw(){const land=s.orient==='أفقي';const pad=s.margin==='ضيقة'?'8px':s.margin==='عريضة'?'30px':'18px';
+    box.replaceChildren(appWin({app:'word',title:cfg.file+' — معالج النصوص',tabs:['ملف','الصفحة الرئيسية','إدراج','تخطيط','تصميم'],active:'تخطيط',
+      ribbon:[sel('orient','الاتجاه',['عمودي','أفقي']),sel('margin','الهوامش',['عادية','ضيقة','عريضة']),sel('cols','الأعمدة',['1','2','3']),sel('color','لون الصفحة',Object.keys(PC)),
+        rgroup('حدود الصفحة',h('button',{type:'button',class:'rb wide','aria-pressed':String(s.border),'data-act':'pborder',onclick:()=>{s.border=!s.border;draw();upd()}},'▢ حدود')),
+        rgroup('الرأس',h('input',{type:'text',class:'rsel','data-ctl':'header',value:s.header,placeholder:'نص الرأس',style:'width:140px',oninput:e=>{s.header=e.target.value;const hd=box.querySelector('.ps-head');if(hd)hd.textContent=s.header||'';upd()}}))],
+      body:h('div',{class:'ps-page'+(land?' land':''),style:`background:${PC[s.color]};padding:${pad};${s.border?'outline:3px double #2b579a;outline-offset:-6px':''}`},h('div',{class:'ps-head'},s.header),h('h3',{style:'margin:0 0 6px'},cfg.heading),h('div',{style:`column-count:${s.cols};column-gap:14px;font-size:12.5px;line-height:1.7`},cfg.text))}))}
+  const L={orient:'اجعل اتجاه الصفحة',margin:'اجعل الهوامش',cols:'اجعل عدد الأعمدة',color:'اجعل لون الصفحة'};
+  const goals=Object.entries(cfg.goals).map(([k,v])=>k==='border'?{label:'أضف حدودًا للصفحة',test:()=>s.border}:k==='header'?{label:`اكتب في رأس الصفحة: «${v}»`,test:()=>s.header.trim()===v}:{label:`${L[k]} «${v}»`,test:()=>s[k]===v});
+  const upd=()=>goalRun(gl,goals,s,report,()=>`الاتجاه: ${s.orient}، الهوامش: ${s.margin}، الأعمدة: ${s.cols}، اللون: ${s.color}${s.border?'، بحدود':''}${s.header?'، الرأس: '+s.header:''}`);
+  draw();goalRun(gl,goals,s,report,null,true);return h('div',{},box,gl)};
+
+/* ===== منشئ المواقع ===== */
+ENG.site=(cfg,report)=>{const s={name:'',theme:'',pages:['الرئيسية'],cur:'الرئيسية',blocks:{'الرئيسية':[]},pub:false,addr:'',vis:'',dlg:false,nav:false};const gl=h('div',{style:'margin-top:10px'});const box=h('div');let np='';
+  const TH={'سماوي':['#1d6fb8','#eaf3fc'],'صحراوي':['#b7791f','#fdf3e1'],'أخضر':['#2a8a55','#e8f5ec']};
+  function draw(){const th=TH[s.theme]||['#5d6f81','#f2f5f8'];const bl=s.blocks[s.cur]||[];
+    box.replaceChildren(h('div',{class:'appwin',style:'--app:#4a3aa8'},h('div',{class:'aw-title'},h('b',{},'منشئ المواقع — '+(s.name||'موقع بلا اسم')),h('span',{class:'aw-ctl','aria-hidden':'true'},'—  ▢  ✕')),
+      h('div',{class:'aw-body stb'},h('div',{class:'st-side'},
+          h('label',{class:'vd-f'},'اسم الموقع',h('input',{type:'text','data-ctl':'sname',value:s.name,oninput:e=>{s.name=e.target.value;s.pub=false;upd();const t=box.querySelector('.st-site-t');if(t)t.textContent=s.name||'اسم الموقع'}})),
+          h('b',{},'السمة'),h('div',{class:'row',style:'gap:6px'},Object.keys(TH).map(k=>h('button',{type:'button',class:'rb wide','aria-pressed':String(s.theme===k),'data-theme':k,style:`border-bottom:4px solid ${TH[k][0]}`,onclick:()=>{s.theme=k;s.pub=false;draw();upd()}},k))),
+          h('b',{},'الصفحات'),...s.pages.map(p=>h('button',{type:'button',class:'em-nav'+(s.cur===p?' on':''),'data-page':p,onclick:()=>{s.cur=p;draw()}},'📄 '+p)),
+          h('div',{class:'row',style:'gap:6px'},h('input',{type:'text','data-ctl':'newpage',placeholder:'اسم الصفحة',style:'flex:1;min-width:0',oninput:e=>{np=e.target.value.trim()}}),tbtn('＋ صفحة','addpage',()=>{if(np&&!s.pages.includes(np)){s.pages.push(np);s.blocks[np]=[];s.cur=np;np='';s.pub=false;draw();upd()}})),
+          h('label',{class:'row',style:'gap:6px'},h('input',{type:'checkbox','data-ctl':'nav',checked:s.nav,onchange:e=>{s.nav=e.target.checked;s.pub=false;draw();upd()}}),'إظهار قائمة التنقل'),
+          h('b',{},'إدراج في الصفحة'),h('div',{class:'row',style:'gap:6px'},['نص','صورة','زر'].map(b=>tbtn('＋ '+b,'blk-'+b,()=>{(s.blocks[s.cur]=s.blocks[s.cur]||[]).push(b);s.pub=false;draw();upd()}))),
+          h('button',{type:'button',class:'btn','data-act':'publish',onclick:()=>{s.dlg=true;draw()}},'نشر')),
+        h('div',{class:'st-prev',style:`background:${th[1]}`},h('div',{class:'st-bar',style:`background:${th[0]}`},h('b',{class:'st-site-t'},s.name||'اسم الموقع'),s.nav?h('span',{class:'st-nav'},s.pages.map(p=>h('span',{class:p===s.cur?'on':''},p))):null),
+          h('div',{class:'st-pg'},h('h3',{style:'margin:0'},s.cur),...(bl.length?bl.map(b=>b==='نص'?h('p',{class:'st-blk'},'فقرة نصية تعرّف بالموضوع…'):b==='صورة'?h('div',{class:'st-blk img',html:DOCPICS.palm[1]}):h('span',{class:'st-blk btnb',style:`background:${th[0]}`},'زر')):[h('p',{class:'muted'},'الصفحة فارغة. أدرج نصًا أو صورة.')]))),
+        s.dlg?h('div',{class:'sh-dlg'},h('b',{},'نشر الموقع'),h('label',{class:'row',style:'gap:6px'},'عنوان الويب:',h('span',{dir:'ltr'},'sites.example.sa/'),h('input',{type:'text',dir:'ltr','data-ctl':'addr',value:s.addr,style:'width:120px',oninput:e=>{s.addr=e.target.value.trim().toLowerCase()}})),
+          h('label',{class:'row',style:'gap:6px'},'من يمكنه المشاهدة:',h('select',{class:'rsel','data-ctl':'vis',onchange:e=>{s.vis=e.target.value}},h('option',{value:''},'اختر'),['الجميع','مدرستي فقط','أنا فقط'].map(v=>h('option',{selected:s.vis===v},v)))),
+          h('div',{class:'row',style:'gap:8px'},h('button',{type:'button',class:'btn','data-act':'dopublish',onclick:()=>{if(/^[a-z0-9-]{3,}$/.test(s.addr)&&s.vis){s.pub=true;s.dlg=false;draw();upd()}else pe.textContent='اكتب عنوانًا بالإنجليزية (٣ أحرف فأكثر) واختر من يمكنه المشاهدة.'}},'نشر'),h('button',{type:'button',class:'btn ghost',onclick:()=>{s.dlg=false;draw()}},'إلغاء')),pe):null,
+        s.pub?h('p',{class:'vd-ok'},`✓ نُشر الموقع: sites.example.sa/${s.addr}`):null)))}
+  const pe=h('p',{class:'msg bad'});
+  const G={name:g=>({label:`سمِّ الموقع «${g.v}»`,test:()=>s.name.trim()===g.v}),theme:()=>({label:'اختر سمة للموقع',test:()=>!!s.theme}),
+    pages:g=>({label:`أضف الصفحات: ${g.v.join('، ')}`,test:()=>g.v.every(p=>s.pages.includes(p))}),blocks:g=>({label:`أدرج في الصفحة الرئيسية: ${g.v.join(' و')}`,test:()=>g.v.every(b=>(s.blocks['الرئيسية']||[]).includes(b))}),
+    nav:()=>({label:'أظهر قائمة التنقل بين الصفحات',test:()=>s.nav}),pub:g=>({label:`انشر الموقع${g.vis?' بحيث يشاهده «'+g.vis+'»':''}`,test:()=>s.pub&&(!g.vis||s.vis===g.vis)})};
+  const goals=cfg.goals.map(g=>G[g.k](g));const upd=()=>goalRun(gl,goals,s,report,()=>`موقع «${s.name}»، الصفحات: ${s.pages.join('، ')}${s.pub?'، منشور ('+s.vis+')':''}`);
+  draw();goalRun(gl,goals,s,report,null,true);return h('div',{},box,gl)};
+
+/* ===== النمذجة ثلاثية الأبعاد ===== */
+ENG.model3d=(cfg,report)=>{const s={objs:[],sel:null};let uid=0;const gl=h('div',{style:'margin-top:10px'});const box=h('div');
+  const COL={'أحمر':'#d94b3d','أزرق':'#2f78c4','أخضر':'#2f9a57','أصفر':'#e9b100','رمادي':'#9aa6b2'};const SH={cube:'مكعب',cyl:'أسطوانة',pyr:'هرم',sph:'كرة'};
+  const P=(x,y,z)=>[160+(x-y)*0.87,150+(x+y)*0.5-z];
+  function shade(hex,f){const n=parseInt(hex.slice(1),16);const r=Math.min(255,Math.round((n>>16)*f)),g=Math.min(255,Math.round((n>>8&255)*f)),b=Math.min(255,Math.round((n&255)*f));return`rgb(${r},${g},${b})`}
+  function draw3(o){const c=COL[o.col];const{x,y,z,w,d,h:hh}=o;let svg='';const poly=(pts,f)=>`<polygon points="${pts.map(p=>P(...p).join(',')).join(' ')}" fill="${f}" stroke="${shade(c,.55)}" stroke-width="1"/>`;
+    if(o.t==='cube'){svg+=poly([[x,y+d,z],[x+w,y+d,z],[x+w,y+d,z+hh],[x,y+d,z+hh]],shade(c,.8))+poly([[x+w,y,z],[x+w,y+d,z],[x+w,y+d,z+hh],[x+w,y,z+hh]],shade(c,.65))+poly([[x,y,z+hh],[x+w,y,z+hh],[x+w,y+d,z+hh],[x,y+d,z+hh]],shade(c,1.1))}
+    else if(o.t==='pyr'){const ap=[x+w/2,y+d/2,z+hh];svg+=poly([[x,y+d,z],[x+w,y+d,z],ap],shade(c,.85))+poly([[x+w,y,z],[x+w,y+d,z],ap],shade(c,.65))}
+    else if(o.t==='cyl'){const[cx,cy]=P(x+w/2,y+d/2,z),[tx,ty]=P(x+w/2,y+d/2,z+hh);const rx=w*.62,ry=w*.36;svg+=`<rect x="${cx-rx}" y="${ty}" width="${rx*2}" height="${cy-ty}" fill="${shade(c,.75)}"/><ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="${shade(c,.75)}"/><ellipse cx="${tx}" cy="${ty}" rx="${rx}" ry="${ry}" fill="${shade(c,1.1)}" stroke="${shade(c,.55)}"/>`}
+    else{const[cx,cy]=P(x+w/2,y+d/2,z+hh/2);svg+=`<circle cx="${cx}" cy="${cy}" r="${w*.6}" fill="${c}"/><circle cx="${cx-w*.18}" cy="${cy-w*.2}" r="${w*.18}" fill="rgba(255,255,255,.45)"/>`}
+    if(s.sel===o.id){const[a,b]=P(x+w/2,y+d/2,z+hh+8);svg+=`<circle cx="${a}" cy="${b}" r="4" fill="#ff8a00"/>`}return svg}
+  function draw(){const o=s.objs.find(q=>q.id===s.sel);let grid='';for(let i=0;i<=100;i+=20){grid+=`<line x1="${P(i,0,0)[0]}" y1="${P(i,0,0)[1]}" x2="${P(i,100,0)[0]}" y2="${P(i,100,0)[1]}" stroke="#c9d6e3"/><line x1="${P(0,i,0)[0]}" y1="${P(0,i,0)[1]}" x2="${P(100,i,0)[0]}" y2="${P(100,i,0)[1]}" stroke="#c9d6e3"/>`}
+    const objs=[...s.objs].sort((a,b)=>(a.x+a.y+a.z)-(b.x+b.y+b.z));
+    const sl=(k,label,min,max)=>h('label',{class:'m3-sl'},label,h('input',{type:'range',min,max,step:5,value:o[k],'data-ctl':k,oninput:e=>{o[k]=+e.target.value;paint();upd()}}),h('output',{},o[k]));
+    box.replaceChildren(h('div',{class:'appwin',style:'--app:#1f6f6a'},h('div',{class:'aw-title'},h('b',{},'التصميم ثلاثي الأبعاد — '+cfg.file),h('span',{class:'aw-ctl','aria-hidden':'true'},'—  ▢  ✕')),
+      h('div',{class:'aw-ribbon'},rgroup('الأشكال',...Object.entries(SH).map(([k,n])=>tbtn('＋ '+n,'add-'+k,()=>{const it={id:++uid,t:k,x:40,y:40,z:0,w:30,d:30,h:30,col:'رمادي'};s.objs.push(it);s.sel=it.id;draw();upd()}))),
+        rgroup('تحرير',tbtn('🗑 حذف','del3',()=>{s.objs=s.objs.filter(q=>q.id!==s.sel);s.sel=null;draw();upd()},{disabled:!o}),tbtn('⧉ تكرار','dup3',()=>{if(o){const it={...o,id:++uid,x:o.x+10};s.objs.push(it);s.sel=it.id;draw();upd()}},{disabled:!o}))),
+      h('div',{class:'aw-body m3'},h('div',{class:'m3-view',html:`<svg viewBox="0 0 320 260" role="img" aria-label="مساحة العمل">${grid}<g class="m3-objs"></g></svg>`}),
+        h('div',{class:'m3-panel'},h('b',{},'الأشكال في المشهد'),...(s.objs.length?s.objs.map(q=>h('button',{type:'button',class:'em-nav'+(q.id===s.sel?' on':''),'data-obj':SH[q.t],onclick:()=>{s.sel=q.id;draw()}},`${SH[q.t]} (${q.col})`)):[h('p',{class:'muted'},'أضف شكلًا من الشريط.')]),
+          o?h('div',{class:'stack',style:'gap:4px'},h('b',{},'خصائص '+SH[o.t]),sl('w','العرض',10,60),sl('d','العمق',10,60),sl('h','الارتفاع',10,60),sl('x','الموضع س',0,80),sl('y','الموضع ص',0,80),sl('z','الارتفاع عن الأرض',0,60),
+            h('div',{class:'row',style:'gap:4px'},Object.keys(COL).map(k=>h('button',{type:'button',class:'m3-col','aria-label':k,'aria-pressed':String(o.col===k),'data-col':k,style:`background:${COL[k]}`,onclick:()=>{o.col=k;draw();upd()}})))):null))));paint()}
+  function paint(){const g=box.querySelector('.m3-objs');if(!g)return;g.innerHTML=[...s.objs].sort((a,b)=>(a.x+a.y+a.z)-(b.x+b.y+b.z)).map(draw3).join('');box.querySelectorAll('.m3-sl').forEach(l=>{const i=l.querySelector('input');l.querySelector('output').textContent=i.value})}
+  const cnt=t=>s.objs.filter(q=>q.t===t).length;
+  const G={has:g=>({label:`أضف ${g.n>1?ar(g.n)+' ':''}${SH[g.t]}${g.n>1?'ات':''}`,test:()=>cnt(g.t)>=(g.n||1)}),
+    color:g=>({label:`لوّن ${SH[g.t]} باللون ال${g.c}`,test:()=>s.objs.some(q=>q.t===g.t&&q.col===g.c)}),
+    size:g=>({label:`اجعل ${g.dim==='h'?'ارتفاع':'عرض'} ${SH[g.t]} ${ar(g.v)}`,test:()=>s.objs.some(q=>q.t===g.t&&q[g.dim]===g.v)}),
+    on:g=>({label:`ضع ${SH[g.top]} فوق ${SH[g.base]} تمامًا`,test:()=>s.objs.some(b=>b.t===g.base&&s.objs.some(t=>t.t===g.top&&t.z===b.z+b.h&&Math.abs((t.x+t.w/2)-(b.x+b.w/2))<=5&&Math.abs((t.y+t.d/2)-(b.y+b.d/2))<=5))}),
+    apart:()=>({label:'باعد بين الأشكال حتى لا تتداخل',test:()=>s.objs.length>1&&s.objs.every((a,i)=>s.objs.every((b,j)=>i>=j||a.z!==b.z||a.x+a.w<=b.x||b.x+b.w<=a.x||a.y+a.d<=b.y||b.y+b.d<=a.y))})};
+  const goals=cfg.goals.map(g=>G[g.k](g));const upd=()=>goalRun(gl,goals,s,report,()=>`المشهد: ${s.objs.map(q=>`${SH[q.t]} ${q.col} (${q.w}×${q.d}×${q.h}، ارتفاعه عن الأرض ${q.z})`).join('، ')||'فارغ'}`);
+  draw();goalRun(gl,goals,s,report,null,true);return h('div',{},box,h('p',{class:'hint',style:'margin-top:8px'},'أضف الشكل، ثم غيّر أبعاده وموضعه ولونه من لوحة الخصائص.'),gl)};
+
+/* ====== دروس الصف الخامس ====== */
+function pathWalls(W,H,path){const on=new Set(path.map(p=>p.join(',')));const w=[];for(let y=0;y<H;y++)for(let x=0;x<W;x++)if(!on.has(x+','+y))w.push([x,y]);return w}
+const G5=[
+{n:1,title:'الفصل الدراسي الأول',units:[
+ {title:'تعلّم الأساسيات',lessons:[
+  {title:'أجهزة الحاسب',idea:'للحاسب أنواع كثيرة: المكتبي، والمحمول، والجهاز اللوحي، والهاتف الذكي. تختلف في الحجم وطريقة الاستخدام، لكنها كلها تستقبل البيانات وتعالجها.',
+   goals:['تتعرّف أنواع أجهزة الحاسب.','تقارن بين الحاسب المكتبي والمحمول واللوحي.','تختار الجهاز المناسب للمهمة.'],
+   explain:['الحاسب المكتبي يوضع على الطاولة، وتكون شاشته ولوحة مفاتيحه وفأرته منفصلة عن صندوق النظام، ويعمل بالكهرباء مباشرة.','الحاسب المحمول يجمع الشاشة ولوحة المفاتيح ولوحة اللمس في جهاز واحد يُطوى، ويعمل ببطارية فنحمله معنا.','الجهاز اللوحي والهاتف الذكي يعملان باللمس، وصغيران خفيفان، ونستخدم فيهما التطبيقات ونتصل بالإنترنت في أي مكان.'],
+   terms:[['الحاسب المكتبي','حاسب ثابت أجزاؤه منفصلة.'],['الحاسب المحمول','حاسب يُطوى ويعمل ببطارية.'],['الجهاز اللوحي','جهاز بشاشة لمس دون لوحة مفاتيح منفصلة.']],
+   sum:['المكتبي: ثابت وأجزاؤه منفصلة.','المحمول: جهاز واحد يُطوى ويعمل ببطارية.','اللوحي والذكي: شاشة لمس وتطبيقات.'],
+   task:{type:'sort',intro:'صنّف كل وصف تحت نوع الجهاز الذي يناسبه.',buckets:['حاسب مكتبي','حاسب محمول','جهاز لوحي وهاتف ذكي'],items:[['شاشته ولوحة مفاتيحه منفصلتان عن صندوق النظام',0],['يبقى في مكانه على الطاولة',0],['يُطوى ونحمله في الحقيبة',1],['شاشة ولوحة مفاتيح ولوحة لمس في جهاز واحد',1],['نستخدمه بلمس الشاشة بأصابعنا',2],['صغير ونحمله في الجيب',2]]},
+   quiz:[['أي الأجهزة يعمل ببطارية ونحمله في الحقيبة؟','الحاسب المحمول','الحاسب المكتبي','الطابعة'],['الجهاز الذي نستخدمه بلمس الشاشة هو:','الجهاز اللوحي','لوحة المفاتيح','صندوق النظام'],['ما الذي تشترك فيه كل أجهزة الحاسب؟','تستقبل البيانات وتعالجها','كلها تُطوى','كلها بلا شاشة']],
+   sol:['الحاسب المكتبي: أجزاؤه منفصلة ويبقى على الطاولة.','الحاسب المحمول: يُطوى، وفيه الشاشة ولوحة المفاتيح ولوحة اللمس معًا.','الجهاز اللوحي والهاتف الذكي: شاشة لمس، وصغير الحجم.']},
+  {title:'أجزاء الحاسب',idea:'يتكوّن الحاسب من أجزاء لكل منها عمل: أجهزة إدخال، وأجهزة إخراج، ووحدة معالجة، ووحدات تخزين.',
+   goals:['تصنّف أجزاء الحاسب حسب وظيفتها.','تعرّف وحدة المعالجة المركزية.','تميّز وحدات التخزين.'],
+   explain:['أجهزة الإدخال ننقل بها البيانات إلى الحاسب، مثل لوحة المفاتيح والفأرة والماسح الضوئي والميكروفون.','وحدة المعالجة المركزية (المعالج) هي عقل الحاسب؛ تنفّذ الأوامر وتجري العمليات الحسابية.','أجهزة الإخراج تعرض النتائج، مثل الشاشة والطابعة والسماعات. ووحدات التخزين تحفظ الملفات، مثل القرص الصلب وذاكرة الفلاش.'],
+   terms:[['المعالج','عقل الحاسب الذي ينفّذ الأوامر.'],['وحدة التخزين','جزء يحفظ الملفات والبرامج.'],['الماسح الضوئي','جهاز إدخال ينقل صور الأوراق إلى الحاسب.']],
+   sum:['الإدخال: لوحة المفاتيح، الفأرة، الماسح الضوئي.','المعالجة: المعالج عقل الحاسب.','الإخراج: الشاشة، الطابعة، السماعات.','التخزين: القرص الصلب، ذاكرة الفلاش.'],
+   task:{type:'sort',intro:'صنّف أجزاء الحاسب حسب وظيفة كل جزء.',buckets:['إدخال','إخراج','معالجة','تخزين'],items:[['لوحة المفاتيح',0],['الماسح الضوئي',0],['الطابعة',1],['السماعات',1],['المعالج (CPU)',2],['القرص الصلب',3],['ذاكرة الفلاش USB',3]]},
+   quiz:[['عقل الحاسب الذي ينفّذ الأوامر هو:','المعالج','الطابعة','الفأرة'],['أي مما يلي وحدة تخزين؟','ذاكرة الفلاش','الشاشة','الميكروفون'],['الطابعة من أجهزة:','الإخراج','الإدخال','المعالجة']],
+   sol:['الإدخال: لوحة المفاتيح والماسح الضوئي.','الإخراج: الطابعة والسماعات.','المعالجة: المعالج (CPU).','التخزين: القرص الصلب وذاكرة الفلاش.']},
+  {title:'الملفات والمجلدات',idea:'نحفظ أعمالنا في ملفات، وننظّم الملفات داخل مجلدات حتى نجدها بسهولة. ويمكننا إنشاء المجلدات وتسميتها ونقل الملفات إليها وحذفها.',
+   goals:['تنشئ مجلدًا جديدًا وتسميه.','تنقل الملفات إلى المجلدات.','تعيد تسمية الملفات وتحذف غير المهم.'],
+   explain:['الملف عمل محفوظ مثل مستند أو صورة، ولكل ملف اسم وامتداد يدل على نوعه، مثل .docx للمستند و.jpg للصورة.','المجلد مكان نجمع فيه الملفات المتشابهة. نفتح مستكشف الملفات، ثم نختار «مجلد جديد» ونكتب اسمه.','نحدد الملف ثم نختار الأمر المناسب: إعادة تسمية، أو نقل إلى مجلد، أو حذف. والملف المحذوف يذهب إلى سلة المحذوفات.'],
+   terms:[['الملف','عمل محفوظ له اسم وامتداد.'],['المجلد','حاوية ننظّم فيها الملفات.'],['الامتداد','الحروف بعد النقطة في اسم الملف، وتدل على نوعه.']],
+   sum:['الملف عمل محفوظ، والمجلد ينظّم الملفات.','الامتداد يدل على نوع الملف: .docx مستند، .jpg صورة.','الأوامر: مجلد جديد، إعادة تسمية، نقل، حذف.'],
+   task:{type:'files',intro:'نظّم مجلد «المستندات»: أنشئ مجلد «مشاريعي»، وانقل إليه واجب العلوم، وغيّر اسم «ملاحظات.txt» إلى «أفكاري.txt»، واحذف الصورة القديمة.',
+    start:[{n:'رحلة العلا.jpg'},{n:'واجب العلوم.docx'},{n:'ملاحظات.txt'},{n:'صورة قديمة.png'}],
+    goals:[{k:'folder',name:'مشاريعي'},{k:'move',file:'واجب العلوم.docx',to:'مشاريعي'},{k:'rename',from:'ملاحظات.txt',to:'أفكاري.txt'},{k:'del',file:'صورة قديمة.png'},{k:'keep',file:'رحلة العلا.jpg'}]},
+   quiz:[['الحاوية التي ننظّم فيها الملفات تسمى:','المجلد','الامتداد','الأيقونة'],['الامتداد .jpg يدل على ملف:','صورة','مستند','صوت'],['أين يذهب الملف بعد حذفه؟','سلة المحذوفات','سطح المكتب','الطابعة']],
+   sol:['اضغط «＋ مجلد جديد» واكتب الاسم «مشاريعي» ثم Enter.','حدّد «واجب العلوم.docx» واضغط «نقل إلى…» ثم اختر «مشاريعي».','حدّد «ملاحظات.txt» واضغط «إعادة تسمية» واكتب «أفكاري.txt».','حدّد «صورة قديمة.png» واضغط «حذف».','لا تحذف «رحلة العلا.jpg».'],tips:['اختر أسماء واضحة للمجلدات تدل على محتواها.']},
+  {project:true,title:'تنظيم ملفاتي',idea:'في مشروع الوحدة تنظّم ملفات مبعثرة في مجلدات مرتبة حسب نوعها، وتحذف المكرر.',
+   goals:['تنشئ مجلدات حسب نوع الملفات.','تنقل كل ملف إلى مجلده.','تحذف الملفات المكررة.'],
+   explain:['التنظيم الجيد يوفر الوقت: نجمع الصور في مجلد، والمستندات في مجلد آخر، ونحذف النسخ المكررة.'],terms:[],
+   sum:['مجلد لكل نوع من الملفات.','انقل كل ملف إلى مجلده.','احذف المكرر.'],
+   task:{type:'files',intro:'أنشئ مجلدين «صوري» و«مستنداتي»، وانقل كل ملف إلى المجلد المناسب، واحذف الملف المكرر.',
+    start:[{n:'درس1.docx'},{n:'درس2.docx'},{n:'الحديقة.jpg'},{n:'البحر.jpg'},{n:'البحر - نسخة.jpg'}],
+    goals:[{k:'folder',name:'صوري'},{k:'folder',name:'مستنداتي'},{k:'move',file:'الحديقة.jpg',to:'صوري'},{k:'move',file:'البحر.jpg',to:'صوري'},{k:'move',file:'درس1.docx',to:'مستنداتي'},{k:'move',file:'درس2.docx',to:'مستنداتي'},{k:'del',file:'البحر - نسخة.jpg'}]},
+   quiz:[['أين نضع ملف «الحديقة.jpg»؟','في مجلد الصور','في مجلد المستندات','في سلة المحذوفات'],['لماذا نحذف الملفات المكررة؟','لتوفير المساحة وتسهيل البحث','لأنها تفيد الحاسب','لا نحذفها أبدًا'],['ما فائدة تسمية المجلدات بأسماء واضحة؟','نجد ملفاتنا بسرعة','يصبح الحاسب أسرع','تتغير ألوانها']],
+   sol:['أنشئ مجلد «صوري» ثم مجلد «مستنداتي».','انقل «الحديقة.jpg» و«البحر.jpg» إلى «صوري».','انقل «درس1.docx» و«درس2.docx» إلى «مستنداتي».','احذف «البحر - نسخة.jpg» لأنه مكرر.']}
+ ]},
+ {title:'التعامل مع المستندات',lessons:[
+  {title:'الصور والرسومات',idea:'نضيف الصور إلى المستند لتوضيح الموضوع، ونتحكم في التفاف النص حولها وموضعها وحجمها.',
+   goals:['تدرج صورة في المستند.','تضبط التفاف النص حول الصورة.','تغيّر موضع الصورة وحجمها.'],
+   explain:['ندرج الصورة من تبويب «إدراج» ← «صور». بعد الإدراج يظهر تبويب «تنسيق الصورة».','التفاف النص يحدد علاقة الصورة بالنص: «مع النص» تكون في سطر مستقل، و«مربع» يجعل النص يلتف حولها، و«خلف النص» و«أمام النص» تضعها تحت الكتابة أو فوقها.','نغيّر موضع الصورة إلى اليمين أو الوسط أو اليسار، ونكبّرها أو نصغّرها.'],
+   terms:[['التفاف النص','طريقة ترتيب النص حول الصورة.'],['تنسيق الصورة','تبويب يظهر عند تحديد الصورة ويحوي أدواتها.']],
+   sum:['إدراج ← صور.','التفاف «مربع» يجعل النص حول الصورة.','غيّر الموضع والحجم من «تنسيق الصورة».'],
+   task:{type:'wordimg',intro:'أدرج صورة الصقر في المستند، واجعل النص يلتف حولها «مربع»، وضعها على اليسار.',heading:'الصقر العربي',text:'الصقر طائر جارح سريع، اشتهر به أهل الجزيرة العربية منذ القدم، ويُدرَّب على الصيد. ويتميز بحدة بصره وقوة مخالبه، وتقام له مهرجانات ومسابقات في المملكة.',goals:{img:'falcon',wrap:'مربع',align:'يسار'}},
+   quiz:[['من أي تبويب ندرج الصورة؟','إدراج','تخطيط','مراجعة'],['أي التفاف يجعل النص يحيط بالصورة؟','مربع','مع النص','خلف النص'],['متى يظهر تبويب «تنسيق الصورة»؟','عند تحديد الصورة','عند فتح البرنامج','عند الطباعة']],
+   sol:['اضغط تبويب «إدراج» ثم «صور» واختر صورة «صقر».','من تبويب «تنسيق الصورة» اختر التفاف النص «مربع».','اختر الموضع «يسار».']},
+  {title:'التنسيق المتقدم',idea:'نستخدم أكثر من تنسيق معًا لنجعل المستند منظمًا وجذابًا: نمط الخط وحجمه ولونه، والمحاذاة.',
+   goals:['تطبّق أكثر من تنسيق على النص.','تختار الحجم واللون المناسبين.','تحاذي الفقرة.'],
+   explain:['نحدد النص ثم نطبّق عليه تنسيقات عدة: الخط المائل، والحجم الكبير للعناوين، واللون المناسب.','العناوين نحاذيها في الوسط غالبًا، ونستخدم اللون باعتدال حتى يبقى المستند مريحًا للقراءة.'],
+   terms:[['التنسيق','تغيير شكل النص دون تغيير معناه.']],
+   sum:['حدّد النص قبل التنسيق.','العناوين: حجم كبير ومحاذاة في الوسط.','استخدم الألوان باعتدال.'],
+   task:{type:'format',intro:'نسّق العنوان: اجعله مائلًا، وبحجم كبير، وباللون الأزرق، وفي الوسط.',text:'رؤية المملكة ٢٠٣٠',tools:['bold','italic','underline','size','color','align'],goals:{italic:true,size:'كبير',color:'أزرق',align:'وسط'}},
+   quiz:[['الزر I يجعل النص:','مائلًا','غامقًا','مسطرًا'],['العناوين تُحاذى غالبًا في:','الوسط','اليسار','أسفل الصفحة'],['قبل تطبيق أي تنسيق يجب:','تحديد النص','حذف النص','حفظ الملف']],
+   sol:['اضغط على النص لتحديده.','اضغط I ليصبح مائلًا.','اختر الحجم 28 (كبير).','اختر اللون الأزرق.','اختر المحاذاة في الوسط.']},
+  {title:'إدراج الرسومات التوضيحية',idea:'الرسومات التوضيحية (SmartArt) تعرض المعلومات بأشكال مرتبة، مثل مراحل عملية أو دورة حياة.',
+   goals:['تتعرّف الرسومات التوضيحية.','ترتّب المعلومات في رسم توضيحي.'],
+   explain:['ندرج الرسم التوضيحي من «إدراج» ← «SmartArt»، ونختار نوعه: قائمة، أو عملية، أو دورة.','نكتب في كل شكل جملة قصيرة، ونرتّب الأشكال بالترتيب الصحيح لتوضيح الفكرة.'],
+   terms:[['SmartArt','رسومات توضيحية جاهزة لعرض المعلومات.'],['رسم الدورة','رسم يعرض مراحل تتكرر.']],
+   sum:['إدراج ← SmartArt.','اختر النوع: قائمة، عملية، دورة.','رتّب المراحل بالترتيب الصحيح.'],
+   task:{type:'order',intro:'رتّب مراحل دورة حياة الفراشة في الرسم التوضيحي بالترتيب الصحيح.',steps:['البيضة','اليرقة','الشرنقة','الفراشة']},
+   quiz:[['من أي تبويب ندرج SmartArt؟','إدراج','الصفحة الرئيسية','عرض'],['أي نوع يناسب مراحل تتكرر؟','دورة','جدول','صورة'],['ما فائدة الرسم التوضيحي؟','عرض المعلومات بشكل مرتب','حذف النص','زيادة حجم الملف']],
+   sol:['المرحلة الأولى: البيضة.','الثانية: اليرقة.','الثالثة: الشرنقة.','الرابعة: الفراشة، ثم تبيض فتتكرر الدورة.']},
+  {title:'التدقيق والطباعة',idea:'قبل طباعة المستند ندققه: نصحح الأخطاء الإملائية، ثم نعاين الصفحة ونطبعها.',
+   goals:['تدقق المستند وتصحح الأخطاء الإملائية.','تعاين المستند قبل الطباعة.','تختار إعدادات الطباعة.'],
+   explain:['المدقق الإملائي يضع خطًا أحمر تحت الكلمة الخاطئة. نصححها بأنفسنا أو نختار الاقتراح الصحيح.','قبل الطباعة نفتح «ملف» ← «طباعة» لنعاين الصفحة، ونختار الطابعة وعدد النسخ والصفحات.'],
+   terms:[['التدقيق الإملائي','البحث عن الأخطاء الإملائية وتصحيحها.'],['معاينة الطباعة','رؤية شكل الصفحة قبل طباعتها.']],
+   sum:['الخط الأحمر يدل على خطأ إملائي.','ملف ← طباعة للمعاينة.','اختر عدد النسخ قبل الطباعة.'],
+   task:{type:'text',intro:'في هذا المستند ثلاثة أخطاء إملائية. صححها، ثم احفظ المستند.',start:'ذهبت الى المدرسه مبكرا وقرات كتابا مفيدا',target:'ذهبت إلى المدرسة مبكرا وقرأت كتابا مفيدا'},
+   quiz:[['الخط الأحمر تحت الكلمة يعني:','خطأ إملائي','كلمة مهمة','رابط'],['لمعاينة الصفحة قبل الطباعة نختار:','ملف ثم طباعة','إدراج ثم صورة','عرض ثم تكبير'],['قبل الطباعة يجب أن:','ندقق المستند','نحذف العنوان','نغلق الحاسب']],
+   sol:['«الى» تُكتب «إلى».','«المدرسه» تُكتب «المدرسة» بتاء مربوطة.','«قرات» تُكتب «قرأت».','ثم احفظ المستند.']},
+  {project:true,title:'تقرير عن مدينتي',idea:'في مشروع الوحدة تكتب تقريرًا قصيرًا عن مدينتك وتنسّقه بما تعلمته.',
+   goals:['تكتب تقريرًا قصيرًا.','تنسّقه تنسيقًا متقدمًا.'],explain:['اكتب ثلاثة أسطر على الأقل عن مدينتك: اسمها، ومعالمها، وما تحبه فيها، ثم نسّقها.'],terms:[],
+   sum:['اكتب ثلاثة أسطر.','نسّق: غامق، لون أخضر، وسط، تباعد 1.5.'],
+   task:{type:'format',intro:'اكتب تقريرك في المربع، ثم اجعله غامقًا، وباللون الأخضر، وفي الوسط، بتباعد أسطر 1.5.',editable:true,file:'تقريري',lineGoal:'اكتب تقريرك في ثلاثة أسطر على الأقل',placeholder:'اكتب تقريرك هنا:\nاسم مدينتي …\nمن معالمها …\nأحب فيها …',text:'',tools:['bold','size','color','align','spacing'],goals:{bold:true,color:'أخضر',align:'وسط',spacing:'1.5'}},
+   quiz:[['أي تباعد للأسطر يسهّل القراءة؟','1.5','0','10'],['الزر B يجعل النص:','غامقًا','مائلًا','أصغر'],['التقرير الجيد يكون:','واضحًا ومنظمًا','بلا عنوان','كله بخط صغير']],
+   sol:['اكتب ثلاثة أسطر على الأقل عن مدينتك.','حدّد الكل ثم اضغط B.','اختر اللون الأخضر.','اختر المحاذاة في الوسط، والتباعد 1.5.']}
+ ]},
+ {title:'الوسائط المتعددة',lessons:[
+  {title:'استخدام أجهزة الالتقاط وتحرير مقاطع الصوت',idea:'نلتقط الصوت بالميكروفون، ثم نحرّر التسجيل: نحذف الصمت والأصوات المزعجة، ونضيف التأثيرات، ونصدّره.',
+   goals:['تتعرّف أجهزة الالتقاط.','تحذف الأجزاء غير المرغوبة من التسجيل.','تضيف تأثيرًا وتصدّر الملف.'],
+   explain:['أجهزة الالتقاط تنقل الصوت والصورة إلى الحاسب، مثل الميكروفون والكاميرا والماسح الضوئي.','في محرر الصوت نرى التسجيل موجات. نحدد الجزء غير المرغوب، مثل الصمت أو السعال، ونحذفه.','نضيف تأثير التلاشي ليختفي الصوت تدريجيًا في النهاية، ثم نصدّر الملف بصيغة MP3 لأنها صغيرة الحجم.'],
+   terms:[['التلاشي','انخفاض الصوت تدريجيًا.'],['التصدير','حفظ العمل في ملف بصيغة معينة.'],['MP3','صيغة صوت صغيرة الحجم.']],
+   sum:['الميكروفون والكاميرا أجهزة التقاط.','احذف الصمت والأصوات المزعجة.','أضف التلاشي، وصدّر بصيغة MP3.'],
+   task:{type:'audioedit',intro:'حرّر تسجيلك: احذف الصمت في البداية والسعال، وأبقِ الكلام، وأضف التلاشي في النهاية، ثم صدّر الملف بصيغة MP3.',
+    segs:[{name:'صمت البداية',d:2,kind:'silence'},{name:'المقدمة',d:5,kind:'voice'},{name:'سعال',d:1,kind:'noise'},{name:'الخاتمة',d:4,kind:'voice'}],
+    goals:[{k:'rm',name:'صمت البداية'},{k:'rm',name:'سعال'},{k:'keep',name:'المقدمة'},{k:'keep',name:'الخاتمة'},{k:'fade'},{k:'export',fmt:'MP3'}]},
+   quiz:[['أي مما يلي جهاز التقاط؟','الميكروفون','الطابعة','السماعات'],['تأثير التلاشي يجعل الصوت:','ينخفض تدريجيًا','يرتفع فجأة','يتوقف'],['صيغة الصوت صغيرة الحجم هي:','MP3','DOCX','JPG']],
+   sol:['اضغط مقطع «صمت البداية» ثم «احذف المقطع المحدد».','اضغط مقطع «سعال» ثم احذفه.','فعّل «تلاشي في النهاية».','اختر صيغة MP3 ثم اضغط «تصدير».']},
+  {title:'البحث عن الوسائط المتعددة وإنشاء وتحرير مقاطع الفيديو',idea:'نجمع المقاطع والصور، ثم نرتّبها في الشريط الزمني، ونضيف العنوان والانتقالات، ثم نصدّر الفيديو.',
+   goals:['ترتّب المقاطع في الشريط الزمني.','تضيف عنوانًا وانتقالات.','تصدّر الفيديو.'],
+   explain:['نبحث عن الوسائط من مصادر مسموح باستخدامها، ونحترم حقوق أصحابها.','في محرر الفيديو نضيف المقاطع إلى الشريط الزمني بالترتيب الصحيح: مقدمة، ثم المحتوى، ثم الخاتمة.','نضيف عنوانًا، وانتقالًا بين المقاطع، ثم نصدّر الفيديو بالجودة المناسبة.'],
+   terms:[['الشريط الزمني','المكان الذي نرتّب فيه المقاطع بالتسلسل.'],['الانتقال','تأثير بين مقطع وآخر.']],
+   sum:['رتّب المقاطع: مقدمة، محتوى، خاتمة.','أضف عنوانًا وانتقالًا.','صدّر الفيديو.'],
+   task:{type:'video',intro:'أنشئ فيديو عن الرحلة: رتّب المقاطع (المقدمة ثم الرحلة ثم الخاتمة)، وأضف عنوانًا وانتقالًا، ثم صدّره بجودة 720p.',clips:['الخاتمة.mp4','المقدمة.mp4','الرحلة.mp4'],music:['هادئة.mp3','حماسية.mp3'],
+    goals:[{k:'order',seq:['المقدمة.mp4','الرحلة.mp4','الخاتمة.mp4']},{k:'title'},{k:'trans'},{k:'export',q:'720p'}]},
+   quiz:[['أين نرتّب المقاطع؟','في الشريط الزمني','في سلة المحذوفات','في شريط المهام'],['قبل استخدام فيديو من الإنترنت يجب:','التأكد أن استخدامه مسموح','حذفه','تغيير اسمه'],['آخر خطوة لإنتاج الفيديو:','التصدير','الإدراج','الحذف']],
+   sol:['أضف «المقدمة.mp4» ثم «الرحلة.mp4» ثم «الخاتمة.mp4».','إذا تغيّر الترتيب، استخدم الأسهم لتحريك المقطع.','اكتب عنوان الفيديو، واختر انتقالًا.','اختر الجودة 720p ثم «تصدير الفيديو».']},
+  {project:true,title:'فيديو تعريفي',idea:'في مشروع الوحدة تنتج فيديو قصيرًا متكاملًا: مقاطع مرتبة، وعنوان، وموسيقى، وانتقالات.',
+   goals:['تنتج فيديو متكاملًا.'],explain:['اجمع ما تعلمته: رتّب المقاطع، وأضف العنوان والموسيقى والانتقال، ثم صدّر بجودة عالية.'],terms:[],
+   sum:['ترتيب، عنوان، موسيقى، انتقال، تصدير.'],
+   task:{type:'video',intro:'أنتج فيديو عن مدرستك: رتّب المقاطع (المدخل ثم الفصول ثم الملعب)، وأضف عنوانًا وموسيقى هادئة وانتقالًا، ثم صدّره بجودة 1080p.',clips:['الملعب.mp4','المدخل.mp4','الفصول.mp4'],music:['هادئة.mp3','حماسية.mp3'],
+    goals:[{k:'order',seq:['المدخل.mp4','الفصول.mp4','الملعب.mp4']},{k:'title'},{k:'music'},{k:'trans'},{k:'export',q:'1080p'}]},
+   quiz:[['الجودة 1080p أعلى من:','720p','لا شيء','كل الجودات'],['الموسيقى الخلفية تُضاف:','بصوت مناسب لا يغطي الكلام','بصوت مرتفع جدًا','دائمًا بلا اختيار'],['ما أول مقطع في فيديو عن المدرسة؟','المدخل','الملعب','الخاتمة']],
+   sol:['أضف: المدخل، ثم الفصول، ثم الملعب.','اكتب العنوان، واختر موسيقى، واختر انتقالًا.','اختر 1080p ثم صدّر.']}
+ ]},
+ {title:'البرمجة في سكراتش',lessons:[
+  {title:'كيفية تصميم برنامج',idea:'قبل أن نبرمج نخطط: نحدد المشكلة، ونكتب خطوات الحل، ثم نبرمج ونختبر ونصحح الأخطاء.',
+   goals:['تتعرّف مراحل تصميم البرنامج.','ترتّب خطوات حل المشكلة.'],
+   explain:['البرنامج الجيد يبدأ بفهم المشكلة: ماذا نريد أن يفعل البرنامج؟','ثم نكتب الخوارزمية، وهي خطوات الحل مرتبة، ثم نحولها إلى لبنات في سكراتش.','بعدها نختبر البرنامج بتشغيله، وإذا وجدنا خطأ نصححه ونعيد الاختبار.'],
+   terms:[['الخوارزمية','خطوات مرتبة لحل مشكلة.'],['الاختبار','تشغيل البرنامج للتأكد أنه يعمل.'],['تصحيح الأخطاء','إيجاد الخطأ وإصلاحه.']],
+   sum:['حدّد المشكلة.','خطّط بالخوارزمية.','برمج، ثم اختبر، ثم صحّح.'],
+   task:{type:'order',intro:'رتّب مراحل تصميم البرنامج بالترتيب الصحيح.',steps:['حدّد المشكلة وما المطلوب من البرنامج','خطّط للحل بخطوات مرتبة (خوارزمية)','اكتب البرنامج بلبنات سكراتش','اختبر البرنامج بتشغيله','صحّح الأخطاء وحسّن البرنامج']},
+   quiz:[['الخطوات المرتبة لحل مشكلة تسمى:','الخوارزمية','الكائن','المنصة'],['ماذا نفعل بعد كتابة البرنامج؟','نختبره','نحذفه','نطبعه'],['إذا لم يعمل البرنامج كما نريد:','نبحث عن الخطأ ونصححه','نتركه','نغلق الحاسب']],
+   sol:['تحديد المشكلة.','التخطيط بالخوارزمية.','كتابة البرنامج.','الاختبار.','تصحيح الأخطاء.']},
+  {title:'الكائنات في سكراتش',idea:'الكائن هو الشخصية التي نبرمجها في سكراتش. نحركه، ونجعله يتكلم، ونغيّر مظهره.',
+   goals:['تتعرّف الكائن وخصائصه.','تستخدم لبنات الحركة والمظاهر.'],
+   explain:['لكل كائن خصائص: اسمه، وموقعه على المنصة، واتجاهه، ومظاهره.','لبنات الحركة (زرقاء) تحرّك الكائن، ولبنات المظاهر (بنفسجية) تجعله يتكلم أو يغيّر شكله.'],
+   terms:[['الكائن','شخصية نبرمجها.'],['المظهر','شكل من أشكال الكائن.'],['المنصة','المكان الذي تتحرك فيه الكائنات.']],
+   sum:['الكائن شخصية نبرمجها.','الحركة باللبنات الزرقاء.','المظاهر باللبنات البنفسجية.'],
+   task:{type:'fillcode',intro:'اجعل القطة تتحرك 50 خطوة، ثم تقول «مرحبًا» لمدة ثانيتين، ثم تغيّر مظهرها إلى «مظهر ٢».',
+    lines:[{t:'تحرك {0} خطوة',c:'motion'},{t:'قل {1} لمدة ٢ ثانية',c:'looks'},{t:'غيّر المظهر إلى {2}',c:'looks'}],
+    slots:[{opts:['10','50','100'],ok:'50'},{opts:['مرحبًا','وداعًا'],ok:'مرحبًا'},{opts:['مظهر ١','مظهر ٢'],ok:'مظهر ٢'}],win:'تحركت القطة ٥٠ خطوة وقالت «مرحبًا» ثم غيّرت مظهرها.',fail:'القطة نفّذت البرنامج، لكن ليس كما هو مطلوب. راجع القيم.'},
+   quiz:[['الشخصية التي نبرمجها في سكراتش تسمى:','الكائن','المنصة','الخلفية'],['لون لبنات الحركة:','أزرق','أخضر','أحمر'],['لبنة «قل» من مجموعة:','المظاهر','الحركة','الأصوات']],
+   sol:['في لبنة «تحرك» اختر 50.','في لبنة «قل» اختر «مرحبًا».','في لبنة «غيّر المظهر» اختر «مظهر ٢».','اضغط «تشغيل».']},
+  {title:'المعاملات الشرطية',idea:'الشرط يجعل البرنامج يتخذ قرارًا: «إذا» تحقق الشرط ينفّذ أمرًا، «وإلا» ينفّذ أمرًا آخر.',
+   goals:['تستخدم لبنة «إذا… فإن… وإلا».','تختار الشرط المناسب.'],
+   explain:['لبنة «إذا» تفحص شرطًا: إذا كان صحيحًا تُنفّذ الأوامر داخلها.','لبنة «إذا… وإلا» تنفّذ أوامر عندما يكون الشرط صحيحًا، وأوامر أخرى عندما يكون خاطئًا.','نضع الشرط داخل «كرر باستمرار» ليُفحص في كل لحظة.'],
+   terms:[['الشرط','سؤال جوابه صح أو خطأ.'],['إذا… وإلا','لبنة تختار بين أمرين حسب الشرط.']],
+   sum:['«إذا» تنفّذ الأوامر عندما يتحقق الشرط.','«وإلا» للحالة الأخرى.','ضع الشرط داخل «كرر باستمرار».'],
+   task:{type:'fillcode',intro:'أكمل البرنامج: إذا لمست القطة اللون الأحمر تقول «أوه!»، وإلا تتحرك 10 خطوات.',
+    lines:[{t:'كرر باستمرار',c:'control'},{t:'إذا {0} فإن',c:'control',d:1},{t:'قل {1}',c:'looks',d:2},{t:'وإلا',c:'control',d:1},{t:'تحرك {2} خطوات',c:'motion',d:2}],
+    slots:[{opts:['ملامس للون الأحمر؟','ملامس لحافة المنصة؟','الفأرة مضغوطة؟'],ok:'ملامس للون الأحمر؟'},{opts:['أوه!','مرحبًا'],ok:'أوه!'},{opts:['10','-10','0'],ok:'10'}],win:'القطة تمشي، وعندما تلمس الأحمر تقول «أوه!».',fail:'البرنامج لا يتصرف كما هو مطلوب. راجع الشرط والأوامر.'},
+   quiz:[['الشرط جوابه:','صح أو خطأ','رقم دائمًا','صورة'],['متى تُنفّذ الأوامر بعد «وإلا»؟','عندما يكون الشرط خاطئًا','عندما يكون صحيحًا','لا تُنفّذ أبدًا'],['لنفحص الشرط باستمرار نضعه داخل:','كرر باستمرار','قل','تحرك']],
+   sol:['في الشرط اختر «ملامس للون الأحمر؟».','في «قل» اختر «أوه!».','في «تحرك» اختر 10.','اضغط «تشغيل».']},
+  {title:'الحركة في سكراتش',idea:'منصة سكراتش مثل لوحة إحداثيات: المركز (0، 0)، وx يزيد لليمين، وy يزيد للأعلى. وبلبنة «اذهب إلى» ننقل الكائن إلى أي نقطة.',
+   goals:['تتعرّف إحداثيات المنصة.','تنقل الكائن إلى نقطة محددة.'],
+   explain:['كل نقطة على المنصة لها إحداثيان: x للأفقي، وy للرأسي. المركز (0، 0).','عندما نتحرك يمينًا يزيد x، ويسارًا ينقص، وللأعلى يزيد y، وللأسفل ينقص.'],
+   terms:[['x','الإحداثي الأفقي.'],['y','الإحداثي الرأسي.']],
+   sum:['المركز (0، 0).','x يمين ويسار، y أعلى وأسفل.','«اذهب إلى x: y:» تنقل الكائن.'],
+   task:{type:'coords',intro:'انقل القطة إلى النجوم بالترتيب باستخدام لبنة «اذهب إلى x: y:».',targets:[[100,0],[100,100],[-120,60]]},
+   quiz:[['مركز المنصة هو:','(0، 0)','(100، 100)','(240، 180)'],['إذا تحرك الكائن يمينًا فإن x:','يزيد','ينقص','لا يتغير'],['y يتغير عند الحركة:','للأعلى والأسفل','لليمين واليسار','لا يتغير']],
+   sol:['النجمة الأولى: x = 100، y = 0.','الثانية: x = 100، y = 100.','الثالثة: x = -120، y = 60.','اضغط «نفّذ اللبنة» بعد كتابة كل نقطة.']},
+  {title:'رسائل البث',idea:'رسائل البث تجعل الكائنات تتواصل: كائن يبث رسالة، وكائن آخر يبدأ العمل عندما يتلقاها.',
+   goals:['تستخدم لبنة «بث».','تستخدم لبنة «عند تلقي».'],
+   explain:['لبنة «بث» ترسل رسالة إلى كل الكائنات، ولبنة «عند تلقي» تبدأ أوامر الكائن الذي يستقبلها.','بهذه الطريقة ننظّم حوارًا أو قصة بين أكثر من شخصية.'],
+   terms:[['البث','إرسال رسالة إلى الكائنات.'],['عند تلقي','بداية أوامر تُنفّذ عند استقبال رسالة.']],
+   sum:['«بث» ترسل رسالة.','«عند تلقي» تستقبلها وتبدأ الأوامر.','تنظّم الحوار بين الشخصيات.'],
+   task:{type:'fillcode',intro:'القطة تقول «مرحبًا» ثم تبث الرسالة «ردّ»، والكلب عند تلقي «ردّ» يقول «أهلًا بك!». أكمل البرنامج.',
+    lines:[{t:'قل {0} لمدة ٢ ثانية',c:'looks'},{t:'بث الرسالة {1}',c:'events'},{t:'— برنامج الكلب —',c:'control'},{t:'عند تلقي {2}',c:'events'},{t:'قل «أهلًا بك!» لمدة ٢ ثانية',c:'looks'}],
+    slots:[{opts:['مرحبًا','وداعًا'],ok:'مرحبًا'},{opts:['ردّ','ابدأ'],ok:'ردّ'},{opts:['ردّ','ابدأ'],ok:'ردّ'}],win:'القطة: «مرحبًا» — الكلب: «أهلًا بك!»',fail:'الكلب لم يرد، لأن الرسالة المبثوثة لا تطابق الرسالة المستقبلة.'},
+   quiz:[['لبنة «بث» تقوم بـ:','إرسال رسالة','تحريك الكائن','حذف الكائن'],['متى يبدأ برنامج «عند تلقي»؟','عند استقبال الرسالة','عند نقر العلم دائمًا','لا يبدأ'],['يجب أن تكون الرسالة المبثوثة والمستقبلة:','بالاسم نفسه','مختلفتين','فارغتين']],
+   sol:['في «قل» اختر «مرحبًا».','في «بث» اختر «ردّ».','في «عند تلقي» اختر «ردّ» أيضًا.','اضغط «تشغيل».']},
+  {title:'الاستشعار',idea:'لبنات الاستشعار تجعل البرنامج يتفاعل: يسأل المستخدم وينتظر إجابته، أو يكتشف اللمس والألوان.',
+   goals:['تستخدم لبنة «اسأل وانتظر».','تستخدم «الإجابة» في الشرط.'],
+   explain:['لبنة «اسأل وانتظر» تعرض سؤالًا ومربعًا يكتب فيه المستخدم إجابته، وتُحفظ الإجابة في «الإجابة».','نقارن «الإجابة» بالإجابة الصحيحة داخل لبنة «إذا» لنعرف هل أجاب المستخدم صحيحًا.'],
+   terms:[['الاستشعار','لبنات تكتشف ما يحدث، مثل الإجابة واللمس.'],['الإجابة','ما يكتبه المستخدم بعد السؤال.']],
+   sum:['«اسأل وانتظر» تسأل المستخدم.','الإجابة تُحفظ في «الإجابة».','قارنها في «إذا».'],
+   task:{type:'fillcode',intro:'اصنع سؤالًا: القطة تسأل «ما عاصمة المملكة؟»، وإذا كانت الإجابة «الرياض» تقول «إجابة صحيحة!».',
+    lines:[{t:'اسأل {0} وانتظر',c:'sensing'},{t:'إذا {1} = «الرياض» فإن',c:'control'},{t:'قل {2}',c:'looks',d:1}],
+    slots:[{opts:['ما عاصمة المملكة؟','كم عمرك؟'],ok:'ما عاصمة المملكة؟'},{opts:['الإجابة','المؤقت'],ok:'الإجابة'},{opts:['إجابة صحيحة!','حاول مرة أخرى'],ok:'إجابة صحيحة!'}],win:'القطة: «ما عاصمة المملكة؟» — المستخدم: الرياض — القطة: «إجابة صحيحة!»',fail:'البرنامج لا يتحقق من الإجابة بشكل صحيح.'},
+   quiz:[['أين تُحفظ إجابة المستخدم؟','في «الإجابة»','في «المؤقت»','في «المظهر»'],['لبنة «اسأل وانتظر» من مجموعة:','الاستشعار','الحركة','الأصوات'],['للتحقق من الإجابة نستخدم:','إذا','تحرك','بث']],
+   sol:['في «اسأل» اختر «ما عاصمة المملكة؟».','في الشرط اختر «الإجابة».','في «قل» اختر «إجابة صحيحة!».','اضغط «تشغيل».']},
+  {project:true,title:'متاهة سكراتش',idea:'في مشروع الوحدة تبرمج الشخصية لتعبر متاهة وتصل إلى النجمة، مستخدمًا التكرار لاختصار البرنامج.',
+   goals:['تخطط مسار الشخصية.','تستخدم التكرار.'],explain:['خطط المسار على الورق أولًا، ثم ابنِ البرنامج، واستخدم «كرر» للأوامر المتكررة.'],terms:[],
+   sum:['خطّط، ثم برمج، ثم اختبر.','استخدم التكرار.'],
+   task:{type:'grid',intro:'أوصل الشخصية إلى النجمة. استخدم «كرر» لاختصار البرنامج.',size:[6,6],start:[0,5,0],goal:[5,0],walls:[[1,5],[2,5],[3,5],[4,5],[1,3],[2,3],[3,3],[4,3],[5,3],[2,1],[3,1],[4,1]],blocks:['f','r','l','rep'],needRepeat:true},
+   quiz:[['لبنة «كرر» تفيد في:','اختصار البرنامج','حذف الكائن','تغيير الخلفية'],['قبل البرمجة يجب:','تخطيط المسار','حذف المتاهة','تشغيل البرنامج'],['إذا اصطدمت الشخصية بالجدار:','نصحح البرنامج','نتوقف نهائيًا','نغيّر الخلفية']],
+   sol:['الشخصية تنظر للأعلى: كرر ٥ مرات «تحرك خطوة» ثم «نهاية التكرار».','استدر يمينًا.','كرر ٥ مرات «تحرك خطوة» ثم «نهاية التكرار».','اضغط «تشغيل».']}
+ ]}
+]},
+{n:2,title:'الفصل الدراسي الثاني',units:[
+ {title:'أدوات البحث والاتصال ومشاركة الملفات',lessons:[
+  {title:'الإنترنت والشبكة العنكبوتية',idea:'الإنترنت شبكة عالمية تربط ملايين الأجهزة، والشبكة العنكبوتية (الويب) هي المواقع والصفحات التي نتصفحها عبر الإنترنت.',
+   goals:['تميّز الإنترنت من الشبكة العنكبوتية.','تتعرّف خدمات الإنترنت.'],
+   explain:['الإنترنت هو الشبكة نفسها: أجهزة وأسلاك وأقمار صناعية تربط الحواسب حول العالم.','الشبكة العنكبوتية (الويب) خدمة من خدمات الإنترنت: صفحات ومواقع مرتبطة بروابط، نفتحها بالمتصفح.','ومن خدمات الإنترنت الأخرى: البريد الإلكتروني، والمكالمات، ومشاركة الملفات.'],
+   terms:[['الإنترنت','شبكة عالمية تربط الأجهزة.'],['الويب','مجموعة الصفحات والمواقع المرتبطة بروابط.'],['المتصفح','برنامج لفتح صفحات الويب.']],
+   sum:['الإنترنت: الشبكة التي تربط الأجهزة.','الويب: المواقع والصفحات.','البريد والمكالمات خدمات أخرى للإنترنت.'],
+   task:{type:'sort',intro:'صنّف كل وصف: هل هو عن الإنترنت أم عن الشبكة العنكبوتية (الويب)؟',buckets:['الإنترنت','الشبكة العنكبوتية (الويب)'],items:[['شبكة عالمية تربط ملايين الأجهزة',0],['الأسلاك والأقمار الصناعية التي تنقل البيانات',0],['البريد الإلكتروني يعمل عبرها',0],['صفحات ومواقع نفتحها بالمتصفح',1],['روابط تنقلنا من صفحة إلى أخرى',1],['عناوين تبدأ عادة بـ www',1]]},
+   quiz:[['الويب خدمة من خدمات:','الإنترنت','الطابعة','الحاسب المكتبي فقط'],['نفتح صفحات الويب بـ:','المتصفح','الرسام','الآلة الحاسبة'],['أي مما يلي ليس من الويب؟','البريد الإلكتروني','موقع إلكتروني','صفحة فيها روابط']],
+   sol:['الإنترنت: الشبكة، والأسلاك والأقمار الصناعية، والبريد الإلكتروني.','الويب: الصفحات والمواقع، والروابط، والعناوين www.']},
+  {title:'الإنترنت وأدوات التواصل',idea:'البريد الإلكتروني أداة تواصل نرسل بها رسائل وملفات. لكل رسالة مستلم وموضوع ونص، ويمكن إرفاق ملف.',
+   goals:['تقرأ الرسائل الواردة.','تكتب رسالة بريد إلكتروني صحيحة.','ترفق ملفًا وترسل الرسالة.'],
+   explain:['عنوان البريد الإلكتروني يتكوّن من اسم المستخدم ثم @ ثم اسم الموقع، مثل teacher@school.edu.sa.','الرسالة الجيدة: مستلم صحيح، وموضوع واضح، وتحية، ونص مهذب ومختصر.','نرفق الملفات بزر الإرفاق 📎، ولا نفتح المرفقات من أشخاص لا نعرفهم.'],
+   terms:[['البريد الإلكتروني','رسائل ترسل عبر الإنترنت.'],['المرفق','ملف يُرسل مع الرسالة.'],['@','رمز يفصل اسم المستخدم عن اسم الموقع.']],
+   sum:['عنوان البريد: اسم@موقع.','مستلم، موضوع، تحية، نص مهذب.','أرفق الملف بزر 📎.'],
+   task:{type:'email',intro:'اقرأ رسالة معلمك في صندوق الوارد، ثم أرسل له مشروعك: إلى teacher@school.edu.sa، بموضوع فيه كلمة «مشروع»، وتحية، وأرفق «مشروعي.pptx».',me:'student5@school.edu.sa',files:['مشروعي.pptx','صورتي.jpg','واجب.docx'],
+    goals:[{k:'read'},{k:'to',v:'teacher@school.edu.sa'},{k:'sub',v:'مشروع'},{k:'body'},{k:'att',v:'مشروعي.pptx'}]},
+   quiz:[['أي عنوان بريد صحيح؟','fahad@school.edu.sa','fahad.school','fahad@'],['الملف المرسل مع الرسالة يسمى:','مرفقًا','موضوعًا','عنوانًا'],['رسالة من شخص لا تعرفه فيها مرفق غريب:','لا أفتح المرفق','أفتحه فورًا','أرسله لأصدقائي']],
+   sol:['اضغط رسالة المعلم في «الوارد» لقراءتها.','اضغط «رسالة جديدة».','اكتب في «إلى»: teacher@school.edu.sa.','اكتب موضوعًا مثل «مشروع الوحدة»، ونصًا يبدأ بالتحية.','أرفق «مشروعي.pptx» ثم اضغط «إرسال».']},
+  {title:'مشاركة الملفات',idea:'التخزين السحابي يحفظ ملفاتنا على الإنترنت، فنفتحها من أي جهاز ونشاركها مع غيرنا بصلاحيات نحددها.',
+   goals:['ترفع ملفًا إلى السحابة.','تشارك ملفًا مع زميل.','تختار الصلاحية المناسبة.'],
+   explain:['السحابة مساحة تخزين على الإنترنت. نرفع إليها الملف فنصل إليه من الجوال أو الحاسب.','عند المشاركة نكتب بريد الشخص ونحدد صلاحيته: «عارض» يقرأ فقط، و«معلّق» يضيف ملاحظات، و«محرر» يعدّل الملف.','الوصول العام «مقيّد» يعني أن من أضفناهم فقط يفتحون الملف، وهو الأكثر أمانًا.'],
+   terms:[['التخزين السحابي','حفظ الملفات على الإنترنت.'],['الصلاحية','ما يستطيع الشخص فعله بالملف.']],
+   sum:['ارفع الملف إلى السحابة.','شارك بالبريد وحدد الصلاحية.','عارض يقرأ، محرر يعدّل.'],
+   task:{type:'share',intro:'ارفع «تقرير الرحلة.docx» إلى السحابة، ثم شاركه مع زميلك khaled@school.edu.sa بصلاحية «محرر» ليعدّل معك.',cloud:['جدولي.xlsx'],local:['تقرير الرحلة.docx','صور الرحلة.jpg'],
+    goals:[{k:'up',file:'تقرير الرحلة.docx'},{k:'share',file:'تقرير الرحلة.docx',email:'khaled@school.edu.sa',perm:'محرر'}]},
+   quiz:[['الصلاحية التي تسمح بالتعديل:','محرر','عارض','مقيّد'],['ميزة التخزين السحابي:','نفتح الملف من أي جهاز','يحذف الملفات','يعمل بلا إنترنت دائمًا'],['أكثر إعدادات الوصول أمانًا:','مقيّد','أي شخص لديه الرابط','بلا كلمة مرور']],
+   sol:['اضغط «رفع ملف» واختر «تقرير الرحلة.docx».','حدّد الملف ثم اضغط «مشاركة».','اكتب khaled@school.edu.sa واختر «محرر».','اضغط «إرسال».']},
+  {project:true,title:'مشروع الفريق',idea:'في مشروع الوحدة ترفع عرض فريقك وتشاركه مع زميلك للتحرير، ومع معلمك للعرض فقط.',
+   goals:['ترفع ملفًا وتشاركه بصلاحيات مختلفة.','تنسخ رابط الملف.'],explain:['لكل شخص صلاحية تناسبه: الزميل يحرر، والمعلم يعرض.'],terms:[],
+   sum:['زميل الفريق: محرر.','المعلم: عارض.','انسخ الرابط للمشاركة.'],
+   task:{type:'share',intro:'ارفع «عرض الفريق.pptx»، وشاركه مع fahad@school.edu.sa «محرر»، ومع teacher@school.edu.sa «عارض»، ثم انسخ رابطه.',cloud:[],local:['عرض الفريق.pptx','ملاحظاتي.txt'],
+    goals:[{k:'up',file:'عرض الفريق.pptx'},{k:'share',file:'عرض الفريق.pptx',email:'fahad@school.edu.sa',perm:'محرر'},{k:'share',file:'عرض الفريق.pptx',email:'teacher@school.edu.sa',perm:'عارض'},{k:'copy',file:'عرض الفريق.pptx'}]},
+   quiz:[['المعلم يحتاج إلى صلاحية:','عارض','محرر','لا شيء'],['زميل الفريق الذي يعمل معك يحتاج:','محرر','عارض','حذف'],['نسخ الرابط يفيد في:','إرسال الملف بسرعة','حذف الملف','تغيير اسمه']],
+   sol:['ارفع «عرض الفريق.pptx».','شاركه مع fahad@school.edu.sa بصلاحية «محرر».','شاركه مع teacher@school.edu.sa بصلاحية «عارض».','اضغط «نسخ الرابط».']}
+ ]},
+ {title:'جداول البيانات',lessons:[
+  {title:'الصفوف والأعمدة',idea:'ورقة العمل جدول من أعمدة رموزها حروف وصفوف أرقامها أعداد، والخلية تقاطع عمود وصف.',
+   goals:['تحدد الخلايا بأسمائها.','تميّز الصفوف من الأعمدة.'],
+   explain:['الأعمدة رأسية ورموزها A وB وC، والصفوف أفقية وأرقامها 1 و2 و3.','اسم الخلية: حرف العمود ثم رقم الصف، فالخلية C4 في العمود C والصف 4. ويظهر اسمها في «مربع الاسم».'],
+   terms:[['مربع الاسم','خانة تعرض اسم الخلية المحددة.'],['ورقة العمل','الجدول الذي نعمل فيه.']],
+   sum:['الأعمدة حروف، والصفوف أرقام.','اسم الخلية: حرف ثم رقم.','مربع الاسم يعرض الخلية المحددة.'],
+   task:{type:'hotspot',scene:'sheet',intro:'اضغط على الخلية المطلوبة في كل مرة.',targets:[['C4','اضغط على الخلية C4'],['A2','اضغط على الخلية A2'],['E5','اضغط على الخلية E5'],['D3','اضغط على الخلية D3'],['B6','اضغط على الخلية B6'],['C1','اضغط على الخلية C1']]},
+   quiz:[['الخلية D2 تقع في:','العمود D والصف 2','الصف D والعمود 2','العمود 2 فقط'],['الأعمدة رموزها:','حروف','أرقام','ألوان'],['أين يظهر اسم الخلية المحددة؟','مربع الاسم','شريط المهام','سلة المحذوفات']],
+   sol:['ابحث عن حرف العمود في الأعلى.','انزل إلى رقم الصف من الجانب.','اضغط الخلية عند التقاطع.']},
+  {title:'العمليات الحسابية',idea:'نكتب المعادلات في جداول البيانات لنحسب تلقائيًا: الجمع والطرح والضرب والقسمة. والمعادلة تبدأ بعلامة =.',
+   goals:['تكتب معادلات الضرب والطرح.','تستخدم مراجع الخلايا في المعادلات.'],
+   explain:['المعادلة تبدأ بعلامة =، وتستخدم أسماء الخلايا بدل الأرقام، مثل =B2*C2.','رموز العمليات: + للجمع، - للطرح، * للضرب، / للقسمة. وعندما تتغير الأرقام تتغير النتيجة تلقائيًا.'],
+   terms:[['مرجع الخلية','اسم الخلية نستخدمه في المعادلة.'],['*','رمز الضرب.']],
+   sum:['المعادلة تبدأ بـ =.','استخدم أسماء الخلايا مثل =B2*C2.','* ضرب، / قسمة.'],
+   task:{type:'sheet',file:'المشتريات.xlsx',intro:'احسب إجمالي ثمن كل صنف في العمود D: السعر × الكمية.',cols:['A','B','C','D'],rows:[['الصنف','السعر','الكمية','الإجمالي'],['دفتر',5,3,''],['قلم',2,4,''],['مسطرة',3,2,'']],goals:[['D2',15],['D3',8],['D4',6]]},
+   quiz:[['رمز الضرب في جداول البيانات:','*','x','÷'],['المعادلة =B2*C2 تحسب:','حاصل ضرب الخليتين','مجموعهما','الفرق بينهما'],['ميزة استخدام أسماء الخلايا:','تتغير النتيجة تلقائيًا','يصبح الملف أكبر','لا ميزة لها']],
+   sol:['في D2 اكتب: =B2*C2 والنتيجة 15.','في D3 اكتب: =B3*C3 والنتيجة 8.','في D4 اكتب: =B4*C4 والنتيجة 6.']},
+  {project:true,title:'ميزانية الرحلة',idea:'في مشروع الوحدة تحسب ميزانية رحلة مدرسية: مجموع التكاليف والمبلغ المتبقي.',
+   goals:['تستخدم الدالة SUM.','تحسب المتبقي بالطرح.'],explain:['=SUM(B2:B5) تجمع الخلايا من B2 إلى B5، ثم نطرح المجموع من الميزانية.'],terms:[],
+   sum:['=SUM للجمع.','الطرح للمتبقي.'],
+   task:{type:'sheet',file:'ميزانية الرحلة.xlsx',intro:'الميزانية ٤٠٠ ريال. اكتب في B6 مجموع التكاليف، وفي B7 المتبقي (٤٠٠ - المجموع).',cols:['A','B'],rows:[['البند','التكلفة (ريال)'],['النقل',120],['الطعام',80],['التذاكر',60],['الهدايا',40],['المجموع',''],['المتبقي من ٤٠٠','']],goals:[['B6',300],['B7',100]]},
+   quiz:[['الدالة التي تجمع مجموعة خلايا:','SUM','MAX','DEL'],['إذا كانت التكاليف ٣٠٠ والميزانية ٤٠٠ فالمتبقي:','١٠٠','٧٠٠','٣٠٠'],['B2:B5 تعني:','الخلايا من B2 إلى B5','الخليتين B2 وB5 فقط','العمود B كله']],
+   sol:['في B6 اكتب: =SUM(B2:B5) والنتيجة 300.','في B7 اكتب: =400-B6 والنتيجة 100.']}
+ ]},
+ {title:'وسائل التواصل الاجتماعي',lessons:[
+  {title:'وسائل التواصل الاجتماعي',idea:'وسائل التواصل الاجتماعي تتيح مشاركة الأخبار والصور، ولها قواعد أمان: نحمي خصوصيتنا، ونحترم الآخرين، ونبلّغ عن الإساءة.',
+   goals:['تتعرّف وسائل التواصل الاجتماعي.','تتصرف بأمان في المواقف المختلفة.'],
+   explain:['وسائل التواصل مفيدة للتعلم ومعرفة الأخبار، لكن فيها مخاطر مثل الغرباء والمعلومات الخاطئة والتنمر.','نجعل الحساب خاصًا بكلمة مرور قوية، ولا نقبل طلبات الغرباء، ولا ننشر صور الآخرين دون إذنهم.','إذا رأينا إساءة نبلّغ عنها ونخبر شخصًا بالغًا نثق به.'],
+   terms:[['التنمر الإلكتروني','الإساءة إلى شخص عبر الإنترنت.'],['الحساب الخاص','حساب لا يرى محتواه إلا من تسمح لهم.']],
+   sum:['حساب خاص وكلمة مرور قوية.','لا تقبل الغرباء ولا تشارك معلوماتك.','استأذن قبل نشر صور الآخرين.','بلّغ عن الإساءة.'],
+   task:{type:'mcq',intro:'اختر التصرف الآمن في كل موقف.',items:[['شخص لا تعرفه يطلب صداقتك ويسألك عن اسم مدرستك. ماذا تفعل؟','أرفض الطلب ولا أشارك معلوماتي','أقبله وأخبره','أرسل له صورتي'],['قبل أن تنشر صورة لصديقك:','أستأذنه أولًا','أنشرها مباشرة','أضيف عليها تعليقًا ساخرًا'],['رأيت تعليقًا مسيئًا لزميلك:','أبلّغ عنه وأخبر شخصًا بالغًا','أرد عليه بإساءة','أعيد نشره'],['حسابك على وسائل التواصل يجب أن يكون:','خاصًا وبكلمة مرور قوية','عامًا ليراه الجميع','بلا كلمة مرور']]},
+   quiz:[['الإساءة عبر الإنترنت تسمى:','التنمر الإلكتروني','التدوين','البث'],['قبل نشر صورة شخص آخر:','أستأذنه','أنشرها فورًا','أغيّر لونها'],['الحساب الآمن:','خاص بكلمة مرور قوية','عام للجميع','بلا كلمة مرور']],
+   sol:['ارفض طلبات الغرباء ولا تشارك معلوماتك.','استأذن قبل نشر صور الآخرين.','بلّغ عن الإساءة وأخبر شخصًا بالغًا.','اجعل حسابك خاصًا بكلمة مرور قوية.']},
+  {title:'التدوين',idea:'المدوّنة موقع ننشر فيه مقالات قصيرة (تدوينات)، ونراجع التعليقات: نوافق على المفيد، ونحذف المسيء والمخادع.',
+   goals:['تكتب تدوينة وتنشرها.','تصنّف التدوينة.','تدير التعليقات بمسؤولية.'],
+   explain:['التدوينة الجيدة لها عنوان جذاب، ونص واضح منظم، وتصنيف يناسب موضوعها.','صاحب المدونة يراجع التعليقات قبل ظهورها: يوافق على التعليقات المفيدة، ويحذف التعليقات المسيئة والروابط المخادعة.'],
+   terms:[['المدوّنة','موقع لنشر المقالات القصيرة.'],['التدوينة','مقالة واحدة في المدونة.'],['التصنيف','موضوع التدوينة الذي يجمعها مع مثيلاتها.']],
+   sum:['عنوان جذاب ونص واضح.','اختر التصنيف المناسب.','وافق على المفيد، واحذف المسيء والمخادع.'],
+   task:{type:'blog',intro:'اكتب تدوينة عن فائدة التقنية في التعلم (٦٠ حرفًا على الأقل) في تصنيف «التقنية» وانشرها، ثم راجع التعليقات.',blog:'مدونة الصف الخامس',cats:['العلوم','التقنية','الرياضة'],
+    comments:[{who:'سعد',t:'تدوينة مفيدة، شكرًا لك!',ok:true},{who:'مجهول',t:'أنت لا تفهم شيئًا!!',ok:false},{who:'عرض خاص',t:'اربح جوالًا مجانًا! اضغط هنا www.win-prize.xyz',ok:false}],
+    goals:[{k:'title'},{k:'body',min:60},{k:'cat',v:'التقنية'},{k:'pub'},{k:'cm'}]},
+   quiz:[['المقالة الواحدة في المدونة تسمى:','تدوينة','رسالة','شريحة'],['تعليق فيه رابط جائزة مجانية:','أحذفه','أوافق عليه','أضغط الرابط'],['التصنيف يساعد على:','جمع التدوينات المتشابهة','حذف التدوينة','تغيير الخط']],
+   sol:['اكتب عنوانًا ونصًا لا يقل عن ٦٠ حرفًا.','اختر التصنيف «التقنية» ثم اضغط «نشر».','وافق على تعليق سعد.','احذف التعليق المسيء وتعليق الرابط المخادع.']},
+  {title:'الملكية الفكرية',idea:'الملكية الفكرية حق صاحب العمل في عمله: المقالات والصور والبرامج. نحترمها بذكر المصدر، والاستئذان، وعدم نسخ أعمال الآخرين.',
+   goals:['تعرّف الملكية الفكرية.','تميّز الاستخدام الصحيح من التعدي.'],
+   explain:['كل عمل أبدعه شخص له حق فيه، ولا يجوز نسبته لغيره أو استخدامه دون إذن.','نستخدم الصور المجانية ونذكر مصدرها، ونكتب بأسلوبنا مع ذكر المراجع، ولا نحمّل البرامج من مواقع مقرصنة.'],
+   terms:[['الملكية الفكرية','حق صاحب العمل في عمله.'],['المصدر','المكان الذي أخذنا منه المعلومة.'],['القرصنة','نسخ البرامج أو الأعمال دون إذن.']],
+   sum:['لكل عمل صاحب له حق فيه.','اذكر المصدر دائمًا.','لا تنسخ أعمال الآخرين ولا تستخدم برامج مقرصنة.'],
+   task:{type:'sort',intro:'صنّف كل تصرف: استخدام صحيح، أم تعدٍّ على الملكية الفكرية؟',buckets:['استخدام صحيح','تعدٍّ على الملكية الفكرية'],items:[['أستخدم صورة مجانية وأذكر مصدرها',0],['أكتب بحثي بأسلوبي وأذكر المراجع',0],['أستأذن صاحب الرسم قبل نشره',0],['أنسخ مقالة كاملة وأنسبها لنفسي',1],['أنشر صورة شخص آخر دون إذنه',1],['أحمّل برنامجًا مدفوعًا من موقع مقرصن',1]]},
+   quiz:[['نسخ مقالة ونسبتها لنفسك:','تعدٍّ على الملكية الفكرية','استخدام صحيح','تدوين'],['عند استخدام صورة من الإنترنت:','أذكر مصدرها','أحذف اسم صاحبها','أنسبها لنفسي'],['البرامج المقرصنة:','لا نستخدمها','نستخدمها بحرية','أفضل من الأصلية']],
+   sol:['الصحيح: الصور المجانية مع المصدر، والكتابة بأسلوبك مع المراجع، والاستئذان.','التعدي: نسخ المقالات، ونشر الصور دون إذن، والبرامج المقرصنة.']},
+  {project:true,title:'مدوّنتي العلمية',idea:'في مشروع الوحدة تنشر تدوينة علمية مع ذكر مصدر معلوماتك، احترامًا للملكية الفكرية.',
+   goals:['تنشر تدوينة علمية.','تذكر المصدر.'],explain:['اكتب عن موضوع علمي تحبه، واذكر المصدر الذي أخذت منه المعلومات.'],terms:[],
+   sum:['تدوينة علمية واضحة.','اذكر المصدر.'],
+   task:{type:'blog',intro:'اكتب تدوينة علمية (٨٠ حرفًا على الأقل) في تصنيف «العلوم»، واذكر المصدر، ثم انشرها.',blog:'مدونتي العلمية',cats:['العلوم','التقنية','الرياضة'],needSrc:true,comments:[],
+    goals:[{k:'title'},{k:'body',min:80},{k:'cat',v:'العلوم'},{k:'src'},{k:'pub'}]},
+   quiz:[['لماذا نذكر المصدر؟','احترامًا لحق صاحب المعلومة','لنطيل التدوينة','لا فائدة منه'],['تصنيف تدوينة عن النباتات:','العلوم','الرياضة','الألعاب'],['التدوينة العلمية يجب أن تكون:','صحيحة وموثقة','بلا عنوان','منسوخة']],
+   sol:['اكتب عنوانًا ونصًا علميًا لا يقل عن ٨٠ حرفًا.','اختر «العلوم».','اكتب المصدر، مثل اسم الكتاب أو الموقع.','اضغط «نشر».']}
+ ]},
+ {title:'برمجة الروبوت',lessons:[
+  {title:'الروبوتات في حياتنا اليومية',idea:'تساعدنا الروبوتات في مجالات كثيرة: المصانع، والمستشفيات، والمنازل، فتنجز الأعمال المتكررة والخطرة بدقة.',
+   goals:['تتعرّف استخدامات الروبوت.','تصنّف الروبوتات حسب مجالها.'],
+   explain:['في المصانع تجمّع الأذرع الآلية السيارات وتلحم القطع بدقة وسرعة.','في الطب تساعد الروبوتات الجراحين وتوزع الأدوية، وفي المنازل تنظف الأرض وتجز العشب.'],
+   terms:[['الروبوت','آلة مبرمجة تنفّذ المهام.'],['الذراع الآلية','روبوت يشبه الذراع يعمل في المصانع.']],
+   sum:['المصانع: التجميع واللحام.','الطب: مساعدة الجراحين وتوزيع الأدوية.','المنزل: التنظيف وجز العشب.'],
+   task:{type:'sort',intro:'صنّف كل روبوت حسب المجال الذي يعمل فيه.',buckets:['المصانع','الطب','المنزل'],items:[['ذراع آلية تجمّع السيارات',0],['روبوت يلحم القطع المعدنية',0],['روبوت يساعد الجراح في العمليات',1],['روبوت يوزّع الأدوية في المستشفى',1],['مكنسة روبوتية تنظف الأرض',2],['جزّازة عشب آلية',2]]},
+   quiz:[['الذراع الآلية تعمل غالبًا في:','المصانع','الحدائق','المكتبات'],['ميزة الروبوت في المصانع:','الدقة والسرعة','يحتاج نومًا','لا يعمل إلا ليلًا'],['المكنسة الروبوتية تستخدم في:','المنزل','المستشفى فقط','الفضاء فقط']],
+   sol:['المصانع: الذراع الآلية وروبوت اللحام.','الطب: مساعد الجراح وموزّع الأدوية.','المنزل: المكنسة الروبوتية وجزّازة العشب.']},
+  {title:'استخدام التكرارات',idea:'عندما يكرر الروبوت الحركة نفسها نستخدم التكرار بدل كتابة الأمر مرات كثيرة.',
+   goals:['تستخدم التكرار في برمجة الروبوت.'],explain:['بدل كتابة «تقدّم» خمس مرات، نكتب «كرر ٥ مرات» وفيها «تقدّم». فيصبح البرنامج أقصر وأسهل تعديلًا.'],
+   terms:[['حلقة التكرار','أوامر تُعاد عددًا من المرات.']],sum:['التكرار يختصر البرنامج.','ضع الأوامر المتكررة داخل «كرر».'],
+   task:{type:'grid',robot:true,intro:'أوصل الروبوت إلى الراية مستخدمًا «كرر».',size:[6,6],start:[0,5,1],goal:[5,5],walls:[[0,4],[1,4],[2,4],[3,4],[4,4],[5,4]],blocks:['f','r','l','rep'],needRepeat:true},
+   quiz:[['التكرار يجعل البرنامج:','أقصر','أطول','بلا فائدة'],['لتقدم الروبوت ٥ مرات نستخدم:','كرر ٥ مرات','٥ برامج','انعطف ٥ مرات'],['أين نضع الأمر المتكرر؟','داخل لبنة «كرر»','بعد البرنامج','لا نضعه']],
+   sol:['الروبوت ينظر إلى اليمين.','اختر «كرر» واجعل العدد ٥.','ضع داخله «تقدّم للأمام» ثم «نهاية التكرار».','اضغط «تشغيل».']},
+  {title:'رسم مكعب',idea:'نبرمج الروبوت ليرسم مسارًا مربعًا، وهو وجه المكعب، بتكرار «تقدّم ثم انعطف ٩٠ درجة» أربع مرات.',
+   goals:['ترسم مربعًا بالتكرار.'],explain:['المربع له أربعة أضلاع متساوية وأربع زوايا قائمة (٩٠ درجة). نكرر أربع مرات: تقدّم، ثم استدر ٩٠ درجة.'],
+   terms:[['الزاوية القائمة','زاوية مقدارها ٩٠ درجة.']],sum:['المربع: ٤ أضلاع متساوية.','كرر ٤ مرات: تقدّم ثم استدر ٩٠.'],
+   task:{type:'pen',intro:'ارسم مربعًا (وجه المكعب): أنزل القلم، ثم كرر ٤ مرات «تحرك ثم استدر ٩٠».',goal:'square',needRepeat:true,blocks:['down','mv','r90','l90','up','rep']},
+   quiz:[['زاوية المربع:','٩٠ درجة','١٢٠ درجة','٤٥ درجة'],['عدد أضلاع المربع:','٤','٣','٦'],['قبل الرسم يجب:','إنزال القلم','رفع القلم','حذف البرنامج']],
+   sol:['ضع «أنزل القلم».','اختر «كرر» واجعل العدد ٤.','داخله: «تحرك ١٠٠ خطوة» ثم «استدر ٩٠ درجة».','«نهاية التكرار» ثم «تشغيل».']},
+  {extra:true,label:'قسم الذكاء الاصطناعي',title:'الذكاء الاصطناعي في الواقع العملي',idea:'الذكاء الاصطناعي حولنا: في المساعد الصوتي، وتطبيقات الخرائط، وفتح الجوال بالوجه. فهو يتعلم من البيانات ليتخذ قرارات.',
+   goals:['تتعرّف أمثلة الذكاء الاصطناعي في الحياة.'],explain:['الأجهزة التي تفهم الكلام أو تتعرف على الوجوه أو تقترح الطرق تستخدم الذكاء الاصطناعي. أما الأدوات البسيطة التي تنفّذ أمرًا ثابتًا فلا تستخدمه.'],
+   terms:[['الذكاء الاصطناعي','قدرة الحاسب على التعلم واتخاذ القرار.']],sum:['المساعد الصوتي والخرائط والتعرف على الوجه أمثلة.','الأدوات البسيطة لا تستخدمه.'],
+   task:{type:'sort',intro:'صنّف: هل يستخدم الذكاء الاصطناعي أم لا؟',buckets:['يستخدم الذكاء الاصطناعي','لا يستخدم الذكاء الاصطناعي'],items:[['المساعد الصوتي يفهم سؤالك',0],['تطبيق الخرائط يقترح أسرع طريق',0],['فتح الجوال بالتعرف على الوجه',0],['الآلة الحاسبة البسيطة',1],['مصباح يعمل بمفتاح',1],['المسطرة',1]]},
+   quiz:[['أي مما يلي يستخدم الذكاء الاصطناعي؟','المساعد الصوتي','المسطرة','المصباح'],['الذكاء الاصطناعي يتعلم من:','البيانات','الكهرباء فقط','لا يتعلم'],['فتح الجوال بالوجه مثال على:','الذكاء الاصطناعي','البريد الإلكتروني','الطباعة']],
+   sol:['يستخدمه: المساعد الصوتي، والخرائط، والتعرف على الوجه.','لا يستخدمه: الآلة الحاسبة البسيطة، والمصباح، والمسطرة.']},
+  {project:true,title:'روبوت المستودع',idea:'في مشروع الوحدة تبرمج روبوت مستودع ليصل إلى الرف المطلوب بأقصر برنامج، مستخدمًا التكرار.',
+   goals:['تبرمج مسارًا كاملًا بالتكرار.'],explain:['خطط المسار، ثم استخدم التكرار في كل جزء مستقيم.'],terms:[],sum:['خطط، ثم كرر، ثم اختبر.'],
+   task:{type:'grid',robot:true,intro:'أوصل روبوت المستودع إلى الراية. استخدم «كرر» في الأجزاء المستقيمة.',size:[6,6],start:[0,5,0],goal:[5,0],walls:[[1,5],[2,5],[3,5],[4,5],[5,5],[1,4],[2,4],[3,4],[4,4],[5,4],[2,2],[3,2],[4,2],[5,2],[1,1],[2,1],[3,1],[4,1]],blocks:['f','r','l','rep'],needRepeat:true},
+   quiz:[['أفضل برنامج للروبوت:','قصير ويصل إلى الهدف','طويل جدًا','لا يصل'],['في الأجزاء المستقيمة نستخدم:','التكرار','الحذف','الرسم'],['إذا اصطدم الروبوت:','نعدّل البرنامج','نتركه','نغيّر الراية']],
+   sol:['الروبوت ينظر للأعلى: كرر ٥ مرات «تقدّم».','انعطف يمينًا.','كرر ٥ مرات «تقدّم» حتى الراية.','اضغط «تشغيل».']}
+ ]}
+]}];
+
+/* ====== دروس الصف السادس ====== */
+const G6=[
+{n:1,title:'الفصل الدراسي الأول',units:[
+ {title:'التصميم ثلاثي الأبعاد',lessons:[
+  {title:'مقدمة إلى النمذجة ثلاثية الأبعاد',idea:'النمذجة ثلاثية الأبعاد تصميم أجسام لها طول وعرض وارتفاع على الحاسب، ونبني النماذج من أشكال أساسية: المكعب والأسطوانة والهرم والكرة.',
+   goals:['تتعرّف الأبعاد الثلاثة.','تضيف الأشكال الأساسية إلى مساحة العمل.','تغيّر لون الشكل.'],
+   explain:['الأشكال ثنائية الأبعاد لها طول وعرض فقط، مثل المربع. أما الأشكال ثلاثية الأبعاد فلها ارتفاع أيضًا، مثل المكعب.','في برنامج التصميم ثلاثي الأبعاد نضيف الأشكال الأساسية إلى مساحة العمل، ثم نغيّر ألوانها وأبعادها ونجمعها لنبني نماذج مثل البيوت والسيارات.','تستخدم النمذجة في تصميم الألعاب والمباني والطباعة ثلاثية الأبعاد.'],
+   terms:[['ثلاثي الأبعاد','شكل له طول وعرض وارتفاع.'],['مساحة العمل','المكان الذي نبني فيه النموذج.'],['النموذج','تصميم لجسم على الحاسب.']],
+   sum:['الأبعاد الثلاثة: الطول والعرض والارتفاع.','الأشكال الأساسية: مكعب، أسطوانة، هرم، كرة.','تُستخدم في الألعاب والمباني والطباعة ثلاثية الأبعاد.'],
+   task:{type:'model3d',file:'نموذجي الأول',intro:'أضف إلى مساحة العمل مكعبًا وأسطوانة وكرة، ثم لوّن المكعب باللون الأحمر.',goals:[{k:'has',t:'cube'},{k:'has',t:'cyl'},{k:'has',t:'sph'},{k:'color',t:'cube',c:'أحمر'}]},
+   quiz:[['أي الأشكال ثلاثي الأبعاد؟','المكعب','المربع','الخط'],['البعد الثالث الذي يميز الأشكال المجسمة:','الارتفاع','اللون','الاسم'],['من استخدامات النمذجة ثلاثية الأبعاد:','تصميم الألعاب والمباني','كتابة الرسائل','تسجيل الصوت']],
+   sol:['اضغط «＋ مكعب» ثم «＋ أسطوانة» ثم «＋ كرة».','اختر المكعب من قائمة الأشكال.','اضغط اللون الأحمر.']},
+  {title:'معالجة الأشكال ثلاثية الأبعاد',idea:'نعالج الأشكال بتغيير أبعادها وموضعها ولونها، حتى نرتّبها في المشهد دون أن تتداخل.',
+   goals:['تغيّر أبعاد الشكل.','تحرّك الشكل في مساحة العمل.','ترتّب الأشكال دون تداخل.'],
+   explain:['لكل شكل أبعاد: العرض والعمق والارتفاع. نغيّرها من لوحة الخصائص.','نحرّك الشكل بتغيير موضعه (س، ص)، ونرفعه عن الأرض بتغيير «الارتفاع عن الأرض».','عندما يكون شكلان في المكان نفسه يتداخلان، فنحرك أحدهما ليبتعد عن الآخر.'],
+   terms:[['الأبعاد','العرض والعمق والارتفاع.'],['التداخل','دخول شكل في آخر.']],
+   sum:['غيّر الأبعاد من لوحة الخصائص.','حرّك الشكل بالموضع س وص.','باعد بين الأشكال لتجنب التداخل.'],
+   task:{type:'model3d',file:'مشهد الأشكال',intro:'أضف مكعبًا وأسطوانة، واجعل ارتفاع المكعب ٥٠، ولوّن الأسطوانة بالأزرق، وباعد بينهما حتى لا يتداخلا.',goals:[{k:'has',t:'cube'},{k:'size',t:'cube',dim:'h',v:50},{k:'has',t:'cyl'},{k:'color',t:'cyl',c:'أزرق'},{k:'apart'}]},
+   quiz:[['لرفع الشكل عن الأرض نغيّر:','الارتفاع عن الأرض','اللون','الاسم'],['لتجنب التداخل:','نباعد بين الأشكال','نحذف الألوان','نكبّر الأشكال'],['العرض والعمق والارتفاع هي:','أبعاد الشكل','ألوان الشكل','أسماء الأشكال']],
+   sol:['أضف مكعبًا، واجعل «الارتفاع» ٥٠.','أضف أسطوانة، ولوّنها بالأزرق.','غيّر الموضع س للأسطوانة إلى ٨٠ تقريبًا حتى تبتعد عن المكعب.']},
+  {project:true,title:'تصميم بيت',idea:'في مشروع الوحدة تصمّم بيتًا ثلاثي الأبعاد: مكعب للجدران، وهرم للسقف فوقه تمامًا.',
+   goals:['تجمع شكلين لبناء نموذج.','تضع شكلًا فوق آخر بدقة.'],explain:['السقف يجب أن يكون فوق الجدران تمامًا: ارتفاعه عن الأرض يساوي ارتفاع المكعب، وفي الموضع نفسه.'],terms:[],
+   sum:['مكعب للجدران وهرم للسقف.','ارتفاع الهرم عن الأرض = ارتفاع المكعب.'],
+   task:{type:'model3d',file:'بيتي',intro:'صمّم بيتًا: مكعب أصفر للجدران، وهرم أحمر للسقف فوق المكعب تمامًا.',goals:[{k:'has',t:'cube'},{k:'has',t:'pyr'},{k:'on',top:'pyr',base:'cube'},{k:'color',t:'cube',c:'أصفر'},{k:'color',t:'pyr',c:'أحمر'}]},
+   quiz:[['لوضع الهرم فوق المكعب، ارتفاعه عن الأرض يساوي:','ارتفاع المكعب','صفرًا','عرض المكعب'],['السقف في التصميم شكله:','هرم','كرة','أسطوانة'],['ليكون الهرم فوق المكعب تمامًا يجب أن يكونا:','في الموضع نفسه','متباعدين','بلون واحد']],
+   sol:['أضف مكعبًا ولوّنه بالأصفر (ارتفاعه ٣٠).','أضف هرمًا ولوّنه بالأحمر.','اجعل «الارتفاع عن الأرض» للهرم ٣٠، وأبقِ موضعه س وص مثل المكعب.']}
+ ]},
+ {title:'جداول البيانات',lessons:[
+  {title:'تنفيذ العمليات الحسابية',idea:'للدوال الجاهزة فوائد كثيرة: AVERAGE للمتوسط، وMAX لأعلى قيمة، وMIN لأقل قيمة، وSUM للمجموع.',
+   goals:['تستخدم الدوال AVERAGE وMAX وMIN.','تحدد نطاق الخلايا في الدالة.'],
+   explain:['الدالة صيغة جاهزة نكتبها بعد علامة =، ثم نضع بين القوسين نطاق الخلايا، مثل =AVERAGE(B2:B6).','AVERAGE تحسب المتوسط، وMAX تعطي أعلى قيمة، وMIN تعطي أقل قيمة، وSUM تجمع القيم.'],
+   terms:[['الدالة','صيغة جاهزة تجري عملية حسابية.'],['النطاق','مجموعة خلايا متجاورة مثل B2:B6.']],
+   sum:['=AVERAGE(النطاق) المتوسط.','=MAX(النطاق) أعلى قيمة.','=MIN(النطاق) أقل قيمة.','=SUM(النطاق) المجموع.'],
+   task:{type:'sheet',file:'درجات الاختبار.xlsx',intro:'اكتب في B7 متوسط الدرجات، وفي B8 أعلى درجة، وفي B9 أقل درجة باستخدام الدوال.',cols:['A','B'],rows:[['الطالب','الدرجة'],['أحمد',18],['خالد',15],['سعد',20],['فهد',12],['ماجد',17],['المتوسط',''],['أعلى درجة',''],['أقل درجة','']],goals:[['B7',16.4],['B8',20],['B9',12]]},
+   quiz:[['الدالة التي تحسب المتوسط:','AVERAGE','MAX','SUM'],['=MIN(B2:B6) تعطي:','أقل قيمة','أعلى قيمة','المجموع'],['النطاق B2:B6 يعني:','الخلايا من B2 إلى B6','خليتين فقط','العمود كله']],
+   sol:['في B7 اكتب: =AVERAGE(B2:B6) والنتيجة 16.4.','في B8 اكتب: =MAX(B2:B6) والنتيجة 20.','في B9 اكتب: =MIN(B2:B6) والنتيجة 12.']},
+  {title:'المخططات البيانية',idea:'المخطط البياني يعرض الأرقام بالصور فيسهل فهمها: العمودي للمقارنة، والخطي للتغير مع الزمن، والدائري لأجزاء الكل.',
+   goals:['تدرج مخططًا بيانيًا.','تختار نوع المخطط المناسب.','تضيف عنوانًا وتسميات.'],
+   explain:['نحدد البيانات، ثم نختار من تبويب «إدراج» نوع المخطط.','المخطط الخطي يناسب تغير القيم مع الزمن، مثل درجات الحرارة عبر الأشهر. والعمودي للمقارنة. والدائري لنسب أجزاء الكل.','نضيف عنوانًا واضحًا، وتسميات البيانات لتظهر الأرقام على المخطط.'],
+   terms:[['المخطط البياني','رسم يمثل البيانات.'],['تسميات البيانات','الأرقام الظاهرة على المخطط.'],['وسيلة الإيضاح','مفتاح يوضح ألوان المخطط.']],
+   sum:['الخطي: التغير مع الزمن.','العمودي: المقارنة.','الدائري: أجزاء الكل.','أضف العنوان والتسميات.'],
+   task:{type:'chart',file:'الطقس.xlsx',intro:'أدرج مخططًا خطيًا لدرجات الحرارة، واكتب عنوانه «درجات الحرارة»، وأظهر تسميات البيانات.',head:['الشهر','درجة الحرارة'],data:[['يناير',15],['فبراير',18],['مارس',22],['أبريل',27],['مايو',32]],goals:[{k:'type',v:'خطي'},{k:'title',v:'درجات الحرارة'},{k:'labels'}]},
+   quiz:[['لعرض تغير الحرارة عبر الأشهر نستخدم:','مخططًا خطيًا','مخططًا دائريًا','جدولًا فقط'],['المخطط الدائري يناسب:','أجزاء الكل','التغير مع الزمن','الصور'],['تسميات البيانات تُظهر:','الأرقام على المخطط','اسم الملف','لون الخلفية']],
+   sol:['من تبويب «إدراج» اختر «خطي».','اكتب العنوان «درجات الحرارة».','اضغط «تسميات البيانات».']},
+  {project:true,title:'الرياضة المفضلة',idea:'في مشروع الوحدة تعرض نتائج استبانة الرياضة المفضلة لطلاب فصلك بمخطط دائري.',
+   goals:['تمثّل البيانات بالمخطط المناسب.'],explain:['أعداد الطلاب لكل رياضة أجزاء من الفصل كله، لذا يناسبها المخطط الدائري.'],terms:[],
+   sum:['الدائري لأجزاء الكل.','أضف العنوان ووسيلة الإيضاح والتسميات.'],
+   task:{type:'chart',file:'الاستبانة.xlsx',intro:'أدرج مخططًا دائريًا بعنوان «الرياضة المفضلة»، وأظهر وسيلة الإيضاح وتسميات البيانات.',head:['الرياضة','عدد الطلاب'],data:[['كرة القدم',12],['السباحة',6],['الجري',4],['كرة السلة',8]],goals:[{k:'type',v:'دائري'},{k:'title',v:'الرياضة المفضلة'},{k:'legend'},{k:'labels'}]},
+   quiz:[['وسيلة الإيضاح توضح:','معنى كل لون','عدد الصفحات','اسم الطالب'],['الرياضة الأكثر اختيارًا هي:','كرة القدم','الجري','السباحة'],['عنوان المخطط يجب أن يكون:','واضحًا يدل على البيانات','فارغًا','طويلًا جدًا']],
+   sol:['اختر «دائري» من «إدراج».','اكتب العنوان «الرياضة المفضلة».','اضغط «وسيلة الإيضاح» و«تسميات البيانات».']}
+ ]},
+ {title:'قواعد البيانات',lessons:[
+  {title:'مقدمة في قواعد البيانات',idea:'قاعدة البيانات تنظّم المعلومات في جداول. الجدول فيه سجلات (صفوف)، وكل سجل فيه حقول (أعمدة).',
+   goals:['تعرّف قاعدة البيانات.','تميّز الجدول والسجل والحقل.'],
+   explain:['قاعدة البيانات مجموعة معلومات منظمة، مثل بيانات طلاب المدرسة أو كتب المكتبة.','الجدول يجمع بيانات موضوع واحد، والسجل بيانات عنصر واحد كاملة (صف)، والحقل نوع واحد من المعلومات (عمود)، مثل الاسم أو العمر.'],
+   terms:[['الجدول','بيانات موضوع واحد في صفوف وأعمدة.'],['السجل','صف فيه بيانات عنصر واحد.'],['الحقل','عمود فيه نوع واحد من البيانات.']],
+   sum:['قاعدة البيانات معلومات منظمة.','الجدول: موضوع واحد.','السجل: صف لعنصر واحد.','الحقل: عمود لنوع واحد من البيانات.'],
+   task:{type:'sort',intro:'صنّف كل مثال: هل هو جدول أم سجل أم حقل؟',buckets:['جدول','سجل','حقل'],items:[['بيانات كل طلاب المدرسة',0],['كل كتب المكتبة',0],['بيانات طالب واحد كاملة',1],['بيانات كتاب واحد في المكتبة',1],['عمود «الاسم»',2],['عمود «تاريخ الميلاد»',2]]},
+   quiz:[['الصف الذي فيه بيانات طالب واحد يسمى:','سجلًا','حقلًا','جدولًا'],['عمود «الاسم» في الجدول يسمى:','حقلًا','سجلًا','قاعدة'],['قاعدة البيانات هي:','معلومات منظمة','صورة','برنامج رسم']],
+   sol:['الجدول: كل الطلاب، وكل الكتب.','السجل: بيانات طالب واحد، أو كتاب واحد.','الحقل: عمود «الاسم»، وعمود «تاريخ الميلاد».']},
+  {title:'إنشاء قاعدة بيانات',idea:'ننشئ الجدول في «عرض التصميم» فنحدد الحقول وأنواع بياناتها والمفتاح الأساسي، ثم ندخل السجلات في «عرض ورقة البيانات».',
+   goals:['تنشئ حقولًا بأنواع بيانات مناسبة.','تحدد المفتاح الأساسي.','تدخل السجلات.'],
+   explain:['لكل حقل نوع بيانات: «نص قصير» للأسماء، و«رقم» للأعداد، و«تاريخ/وقت» للتواريخ.','المفتاح الأساسي حقل قيمته لا تتكرر، مثل رقم الطالب، ويميّز كل سجل عن غيره.','بعد التصميم ننتقل إلى «عرض ورقة البيانات» وندخل السجلات.'],
+   terms:[['نوع البيانات','نوع القيم في الحقل: نص، رقم، تاريخ.'],['المفتاح الأساسي','حقل لا تتكرر قيمه ويميز كل سجل.']],
+   sum:['صمّم الحقول في «عرض التصميم».','اختر نوع البيانات المناسب.','المفتاح الأساسي لا يتكرر.','أدخل السجلات في «ورقة البيانات».'],
+   task:{type:'dbcreate',table:'الطلاب',intro:'صمّم جدول «الطلاب»: أضف الحقول «رقم الطالب» (رقم)، و«الاسم» (نص قصير)، و«تاريخ الميلاد» (تاريخ/وقت)، واجعل «رقم الطالب» المفتاح الأساسي، ثم أدخل سجلين.',
+    fields:[['رقم الطالب','رقم'],['الاسم','نص قصير'],['تاريخ الميلاد','تاريخ/وقت']],pk:'رقم الطالب',recs:2},
+   quiz:[['نوع بيانات حقل «الاسم»:','نص قصير','رقم','نعم/لا'],['المفتاح الأساسي قيمه:','لا تتكرر','تتكرر دائمًا','فارغة'],['أين ندخل السجلات؟','عرض ورقة البيانات','عرض التصميم','الطباعة']],
+   sol:['في «عرض التصميم» اضغط «إضافة حقل» واكتب «رقم الطالب» واختر «رقم».','أضف «الاسم» (نص قصير) و«تاريخ الميلاد» (تاريخ/وقت).','اضغط 🔑 بجانب «رقم الطالب».','انتقل إلى «عرض ورقة البيانات» وأدخل سجلين.']},
+  {title:'الفرز والتصفية',idea:'الفرز يرتّب السجلات تصاعديًا أو تنازليًا، والتصفية تُظهر السجلات التي تحقق شرطًا فقط.',
+   goals:['تفرز السجلات.','تصفّي السجلات بشرط.'],
+   explain:['الفرز التصاعدي من الأصغر إلى الأكبر (أو أ إلى ي)، والتنازلي من الأكبر إلى الأصغر.','التصفية تخفي السجلات التي لا تحقق الشرط، مثل إظهار القصص فقط. وعند إزالتها تعود كل السجلات.'],
+   terms:[['الفرز','ترتيب السجلات.'],['التصفية','إظهار السجلات المطابقة لشرط فقط.']],
+   sum:['تصاعدي: من الأصغر إلى الأكبر.','تنازلي: من الأكبر إلى الأصغر.','التصفية تُظهر ما يحقق الشرط فقط.'],
+   task:{type:'dbtable',table:'كتب المكتبة',intro:'افرز الكتب حسب «عدد الصفحات» تنازليًا، ثم صفِّها لتظهر كتب «قصص» فقط.',fields:['العنوان','المؤلف','النوع','عدد الصفحات'],
+    rows:[['رحلة إلى القمر','سعد','قصص',120],['أسرار البحار','فهد','علوم',200],['الصقر الذكي','خالد','قصص',80],['عالم الحاسب','ماجد','تقنية',150],['النخلة','أحمد','علوم',90],['مغامرة في الصحراء','سلمان','قصص',140],['الروبوت الصغير','يوسف','تقنية',110]],
+    goals:[{k:'sort',f:'عدد الصفحات',dir:'desc'},{k:'filter',f:'النوع',v:'قصص'}]},
+   quiz:[['الفرز التنازلي يرتّب الأرقام:','من الأكبر إلى الأصغر','من الأصغر إلى الأكبر','عشوائيًا'],['التصفية:','تُظهر السجلات المطابقة فقط','تحذف الجدول','تغيّر الأسماء'],['بعد إزالة التصفية:','تعود كل السجلات','تُحذف السجلات','يُغلق البرنامج']],
+   sol:['اختر «فرز حسب: عدد الصفحات» ثم «تنازلي».','في التصفية اختر الحقل «النوع» والقيمة «قصص».','اضغط «تطبيق».']},
+  {project:true,title:'قاعدة بيانات الفصل',idea:'في مشروع الوحدة تستخرج من جدول الطلاب طلاب مدينة محددة، مرتبين حسب درجاتهم.',
+   goals:['تجمع الفرز والتصفية.'],explain:['نصفّي أولًا لنُظهر طلاب المدينة المطلوبة، ثم نفرزهم حسب الدرجة تنازليًا.'],terms:[],
+   sum:['صفِّ حسب المدينة.','افرز حسب الدرجة تنازليًا.'],
+   task:{type:'dbtable',table:'الطلاب',intro:'اعرض طلاب «جدة» فقط، مرتبين حسب «الدرجة» تنازليًا.',fields:['الاسم','الفصل','المدينة','الدرجة'],
+    rows:[['أحمد','سادس ١','مكة',88],['خالد','سادس ٢','جدة',95],['فهد','سادس ١','جدة',79],['سعد','سادس ٣','الطائف',91],['ماجد','سادس ٢','جدة',86],['يوسف','سادس ٣','مكة',93]],
+    goals:[{k:'filter',f:'المدينة',v:'جدة'},{k:'sort',f:'الدرجة',dir:'desc'}]},
+   quiz:[['لإظهار طلاب مدينة واحدة نستخدم:','التصفية','الفرز','الحذف'],['لترتيب الأعلى درجة أولًا نفرز:','تنازليًا','تصاعديًا','حسب الاسم'],['أعلى طالب في جدة درجته:','٩٥','٧٩','٨٦']],
+   sol:['التصفية: الحقل «المدينة»، والقيمة «جدة»، ثم «تطبيق».','الفرز: حسب «الدرجة» ثم «تنازلي».']}
+ ]},
+ {title:'البرمجة باستخدام سكراتش',lessons:[
+  {title:'التكرار في سكراتش',idea:'التكرار يعيد مجموعة أوامر، فنبرمج نمطًا متكررًا مثل صعود الدرج ببرنامج قصير.',
+   goals:['تكتشف النمط المتكرر.','تستخدم «كرر» لتنفيذه.'],explain:['انظر إلى المسار: إذا تكررت مجموعة خطوات، ضعها مرة واحدة داخل «كرر» واكتب عدد المرات.'],
+   terms:[['النمط','مجموعة خطوات تتكرر بالترتيب نفسه.']],sum:['ابحث عن النمط.','ضعه داخل «كرر».'],
+   task:{type:'grid',intro:'اصعد الدرج إلى النجمة مستخدمًا «كرر».',size:[6,6],start:[0,5,1],goal:[5,0],walls:pathWalls(6,6,[[0,5],[1,5],[1,4],[2,4],[2,3],[3,3],[3,2],[4,2],[4,1],[5,1],[5,0]]),blocks:['f','r','l','rep'],needRepeat:true},
+   quiz:[['النمط في الدرج:','تحرك، استدر، تحرك، استدر','تحرك فقط','استدر فقط'],['عدد درجات المسار:','٥','٢','١٠'],['ميزة التكرار:','برنامج أقصر','برنامج أطول','لا ميزة']],
+   sol:['الشخصية تنظر لليمين.','كرر ٥ مرات: تحرك خطوة، استدر يسارًا، تحرك خطوة، استدر يمينًا.','«نهاية التكرار» ثم «تشغيل».']},
+  {title:'برمجة العمليات الحسابية',idea:'المتغير صندوق يحفظ قيمة، ولبنات العمليات تحسب: جمع، وطرح، وضرب، وقسمة.',
+   goals:['تستخدم المتغيرات.','تستخدم لبنات العمليات الحسابية.'],explain:['ننشئ متغيرًا مثل «النتيجة»، ونجعل قيمته ناتج عملية حسابية، ثم نجعل الكائن يقول النتيجة.'],
+   terms:[['المتغير','مكان في الذاكرة يحفظ قيمة تتغير.'],['العمليات','لبنات خضراء للحساب والمقارنة.']],sum:['المتغير يحفظ القيمة.','لبنات العمليات خضراء.'],
+   task:{type:'fillcode',intro:'اجعل المتغير «النتيجة» يساوي ٦ × ٧، ثم اجعل القطة تقول النتيجة.',
+    lines:[{t:'اجعل النتيجة = {0} {1} {2}',c:'vars'},{t:'قل {3}',c:'looks'}],
+    slots:[{opts:['5','6','7'],ok:'6'},{opts:['×','+','−'],ok:'×'},{opts:['2','6','7'],ok:'7'},{opts:['النتيجة','6 × 7 كنص'],ok:'النتيجة'}],win:'القطة تقول: 42',fail:'القطة قالت رقمًا خاطئًا. راجع العملية والمتغير.'},
+   quiz:[['المتغير:','يحفظ قيمة','يحرك الكائن','يرسم'],['٦ × ٧ =','٤٢','١٣','٦٧'],['لون لبنات العمليات:','أخضر','أزرق','بنفسجي']],
+   sol:['اختر 6 ثم × ثم 7.','في «قل» اختر المتغير «النتيجة».','اضغط «تشغيل»، فتقول القطة 42.']},
+  {title:'اتخاذ القرارات',idea:'نستخدم «إذا… وإلا» مع المقارنة (أكبر من، أصغر من) ليتخذ البرنامج قرارًا حسب إجابة المستخدم.',
+   goals:['تستخدم لبنات المقارنة.','تبني قرارًا بـ «إذا… وإلا».'],explain:['لبنات المقارنة > و< و= تعطي صح أو خطأ. نضعها في «إذا» ليختار البرنامج ما يفعل.'],
+   terms:[['المقارنة','فحص: أكبر، أصغر، يساوي.']],sum:['> أكبر من، < أصغر من.','«إذا… وإلا» تختار بين أمرين.'],
+   task:{type:'fillcode',intro:'القطة تسأل عن الدرجة: إذا كانت أكبر من ٤٩ تقول «ناجح»، وإلا تقول «حاول مرة أخرى».',
+    lines:[{t:'اسأل «كم درجتك؟» وانتظر',c:'sensing'},{t:'إذا الإجابة {0} 49 فإن',c:'control'},{t:'قل {1}',c:'looks',d:1},{t:'وإلا',c:'control'},{t:'قل {2}',c:'looks',d:1}],
+    slots:[{opts:['>','<','='],ok:'>'},{opts:['ناجح','حاول مرة أخرى'],ok:'ناجح'},{opts:['ناجح','حاول مرة أخرى'],ok:'حاول مرة أخرى'}],win:'الدرجة ٨٠ ← «ناجح»، والدرجة ٣٠ ← «حاول مرة أخرى».',fail:'البرنامج يعطي نتيجة خاطئة لبعض الدرجات.'},
+   quiz:[['الرمز > يعني:','أكبر من','أصغر من','يساوي'],['إذا كانت الدرجة ٣٠ فالرد:','حاول مرة أخرى','ناجح','لا شيء'],['المقارنة تعطي:','صح أو خطأ','رقمًا','صورة']],
+   sol:['اختر الرمز > .','بعد «إذا» اختر «ناجح».','بعد «وإلا» اختر «حاول مرة أخرى».','اضغط «تشغيل».']},
+  {title:'الإحداثيات في سكراتش',idea:'نحدد مكان الكائن بإحداثيين (x، y). المنصة تمتد من ‎-240 إلى 240 أفقيًا، ومن ‎-180 إلى 180 رأسيًا.',
+   goals:['تحدد إحداثيات النقاط.','تنقل الكائن بدقة.'],explain:['الأرقام السالبة لـ x على اليسار، والموجبة على اليمين. والسالبة لـ y في الأسفل، والموجبة في الأعلى.'],
+   terms:[['الإحداثيات','عددان يحددان موقع النقطة.']],sum:['x من ‎-240 إلى 240.','y من ‎-180 إلى 180.','السالب يسار وأسفل.'],
+   task:{type:'coords',intro:'انقل القطة إلى النجوم الأربع بالترتيب.',targets:[[120,80],[-100,80],[-100,-90],[150,-60]]},
+   quiz:[['النقطة (‎-100، 80) تقع في:','اليسار والأعلى','اليمين والأسفل','المركز'],['أقصى قيمة لـ x:','240','180','1000'],['y السالبة تعني:','أسفل المركز','أعلى المركز','يمين المركز']],
+   sol:['(120، 80)، ثم (‎-100، 80).','ثم (‎-100، ‎-90)، ثم (150، ‎-60).','اكتب القيم في اللبنة واضغط «نفّذ اللبنة» كل مرة.']},
+  {title:'القرارات المركبة في سكراتش',idea:'نربط شرطين بـ «و» (يجب تحقق الاثنين) أو «أو» (يكفي أحدهما) لنبني قرارًا مركبًا.',
+   goals:['تستخدم «و» و«أو».','تبني شرطًا مركبًا.'],explain:['مع «و» يجب أن يتحقق الشرطان معًا. ومع «أو» يكفي أن يتحقق أحدهما.'],
+   terms:[['و','يتحقق الشرط المركب إذا تحقق الشرطان.'],['أو','يتحقق إذا تحقق أحد الشرطين.']],sum:['«و»: الاثنان معًا.','«أو»: أحدهما يكفي.'],
+   task:{type:'fillcode',intro:'القطة تقفز فقط إذا كانت على الأرض الخضراء وضُغط مفتاح المسافة في الوقت نفسه.',
+    lines:[{t:'كرر باستمرار',c:'control'},{t:'إذا {0} {1} {2} فإن',c:'control',d:1},{t:'قل {3}',c:'looks',d:2}],
+    slots:[{opts:['ملامس للون الأخضر؟','ملامس للون الأحمر؟'],ok:'ملامس للون الأخضر؟'},{opts:['و','أو'],ok:'و'},{opts:['مفتاح المسافة مضغوط؟','الفأرة مضغوطة؟'],ok:'مفتاح المسافة مضغوط؟'},{opts:['قفزة!','توقف'],ok:'قفزة!'}],win:'القطة تقفز فقط عندما تكون على الأخضر وتضغط المسافة.',fail:'القطة تقفز في وقت غير مناسب. راجع الشرط المركب.'},
+   quiz:[['مع «و» يجب:','تحقق الشرطين معًا','تحقق أحدهما','عدم تحققهما'],['مع «أو» يكفي:','تحقق أحد الشرطين','تحقق الاثنين فقط','لا شيء'],['«ملامس للون؟» من لبنات:','الاستشعار','الحركة','الأصوات']],
+   sol:['الشرط الأول: «ملامس للون الأخضر؟».','اختر «و».','الشرط الثاني: «مفتاح المسافة مضغوط؟».','في «قل» اختر «قفزة!».']},
+  {title:'الألعاب في سكراتش',idea:'نبني لعبة بسيطة: متغير للنقاط يزيد عندما تلتقط الشخصية التفاحة، ثم تنتقل التفاحة إلى مكان عشوائي.',
+   goals:['تستخدم متغير النقاط.','تبرمج حدث الالتقاط.'],explain:['نبدأ النقاط من صفر، ونفحص باستمرار: إذا لمست الشخصية التفاحة نزيد النقاط ١، وننقل التفاحة إلى موقع عشوائي.'],
+   terms:[['النقاط','متغير يعدّ إنجاز اللاعب.'],['موقع عشوائي','مكان غير محدد يختاره البرنامج.']],sum:['النقاط تبدأ من صفر.','عند اللمس: النقاط +١.','التفاحة تنتقل عشوائيًا.'],
+   task:{type:'fillcode',intro:'أكمل لعبة التقاط التفاح: النقاط تبدأ من صفر، وتزيد ١ عند لمس التفاحة، ثم تنتقل التفاحة إلى موقع عشوائي.',
+    lines:[{t:'اجعل النقاط = {0}',c:'vars'},{t:'كرر باستمرار',c:'control'},{t:'إذا ملامس لـ {1} فإن',c:'control',d:1},{t:'غيّر النقاط بمقدار {2}',c:'vars',d:2},{t:'اذهب إلى {3}',c:'motion',d:2}],
+    slots:[{opts:['0','10'],ok:'0'},{opts:['التفاحة','حافة المنصة'],ok:'التفاحة'},{opts:['1','-1'],ok:'1'},{opts:['موقع عشوائي','x: 0 y: 0'],ok:'موقع عشوائي'}],win:'كل تفاحة تلتقطها تضيف نقطة: ١، ٢، ٣…',fail:'العدّ في اللعبة لا يعمل كما ينبغي.'},
+   quiz:[['تبدأ النقاط في اللعبة غالبًا من:','صفر','مئة','ألف'],['عند التقاط التفاحة النقاط:','تزيد','تنقص','تُحذف'],['لماذا تنتقل التفاحة عشوائيًا؟','لتكون اللعبة ممتعة','لتتوقف اللعبة','لا سبب']],
+   sol:['اجعل النقاط = 0.','الشرط: ملامس لـ «التفاحة».','غيّر النقاط بمقدار 1.','اذهب إلى «موقع عشوائي».']},
+  {project:true,title:'لعبة المتاهة',idea:'في مشروع الوحدة تبرمج الشخصية لتعبر متاهة طويلة بأقصر برنامج.',
+   goals:['تخطط المسار وتستخدم التكرار.'],explain:['قسّم المسار إلى أجزاء مستقيمة، واستخدم «كرر» في كل جزء.'],terms:[],sum:['قسّم المسار.','كرر في الأجزاء المستقيمة.'],
+   task:{type:'grid',intro:'أوصل الشخصية إلى النجمة عبر المتاهة. استخدم «كرر».',size:[6,6],start:[0,5,0],goal:[5,5],walls:pathWalls(6,6,[[0,5],[0,4],[0,3],[0,2],[0,1],[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[5,1],[5,2],[5,3],[5,4],[5,5]]),blocks:['f','r','l','rep'],needRepeat:true},
+   quiz:[['المسار المستقيم الطويل نبرمجه بـ:','كرر','أوامر كثيرة منفصلة','الحذف'],['عدد الانعطافات في المسار:','٢','٥','لا شيء'],['قبل التشغيل:','نراجع البرنامج','نحذفه','نغلقه']],
+   sol:['الشخصية تنظر للأعلى: كرر ٥ «تحرك خطوة».','استدر يمينًا، ثم كرر ٥ «تحرك خطوة».','استدر يمينًا، ثم كرر ٥ «تحرك خطوة».','اضغط «تشغيل».']}
+ ]}
+]},
+{n:2,title:'الفصل الدراسي الثاني',units:[
+ {title:'التصميم المتقدم للمستندات',lessons:[
+  {title:'إنشاء الجداول وتنسيقها',idea:'الجدول في المستند ينظّم المعلومات في صفوف وأعمدة. ندرجه، ونكتب عناوين الأعمدة، ونطبق عليه نمطًا جاهزًا.',
+   goals:['تدرج جدولًا بعدد صفوف وأعمدة محدد.','تكتب عناوين الأعمدة.','تطبّق نمط جدول.'],
+   explain:['من «إدراج» ← «جدول» نحدد عدد الأعمدة والصفوف بتمرير الفأرة على المربعات.','نكتب عناوين الأعمدة في الصف الأول، ثم نختار نمطًا من «تصميم الجدول» يلوّن الجدول ويميز صف العناوين.'],
+   terms:[['الجدول','بيانات مرتبة في صفوف وأعمدة.'],['نمط الجدول','تنسيق جاهز بالألوان والحدود.']],
+   sum:['إدراج ← جدول.','الصف الأول للعناوين.','تصميم الجدول ← نمط.'],
+   task:{type:'doctable',file:'جدول المذاكرة',heading:'جدول المذاكرة',intro:'أدرج جدولًا من ٣ صفوف و٤ أعمدة، واكتب العناوين: اليوم، المادة، الوقت، ملاحظات، وطبّق النمط «أزرق».',
+    goals:[{k:'size',r:3,c:4},{k:'head',v:['اليوم','المادة','الوقت','ملاحظات']},{k:'style',v:'أزرق'}]},
+   quiz:[['من أين ندرج الجدول؟','إدراج','مراجعة','عرض'],['الصف الأول في الجدول غالبًا:','للعناوين','فارغ','للمجموع'],['نمط الجدول يغيّر:','الألوان والحدود','عدد الصفحات','اسم الملف']],
+   sol:['من «إدراج» اضغط «جدول» واختر ٤ أعمدة و٣ صفوف.','اكتب في الصف الأول: اليوم، المادة، الوقت، ملاحظات.','من «تصميم الجدول» اختر «أزرق».']},
+  {title:'تحرير الجداول',idea:'نحرّر الجدول بإضافة صفوف وأعمدة أو حذفها، ودمج الخلايا، من تبويب «تخطيط».',
+   goals:['تضيف صفًا وعمودًا.','تملأ الخلايا الجديدة.'],explain:['من «تخطيط» نختار «إدراج صف أسفل» أو «إدراج عمود»، ونحذف الصفوف الزائدة. ويمكن دمج الخلايا لعمل عنوان.'],
+   terms:[['دمج الخلايا','جعل عدة خلايا خلية واحدة.']],sum:['تخطيط ← إدراج صف أو عمود.','احذف الزائد.','ادمج للعناوين.'],
+   task:{type:'doctable',file:'هوايات الفصل',heading:'هوايات طلاب الفصل',intro:'أضف صفًا لطالب جديد، وعمودًا بعنوان «المدينة»، ثم املأ كل الخلايا.',start:[['الاسم','الفصل','الهواية'],['أحمد','سادس ١','القراءة'],['خالد','سادس ٢','الرسم']],
+    goals:[{k:'rows',v:4},{k:'cols',v:4},{k:'fill'}]},
+   quiz:[['لإضافة صف نستخدم تبويب:','تخطيط','إدراج صورة','مراجعة'],['دمج الخلايا يعني:','جعلها خلية واحدة','حذفها','تلوينها'],['بعد إضافة عمود يجب:','كتابة عنوانه وملء خلاياه','حذفه','تجاهله']],
+   sol:['من «تخطيط» اضغط «إدراج صف أسفل».','اضغط «إدراج عمود».','اكتب «المدينة» عنوانًا للعمود الجديد.','املأ كل الخلايا الفارغة.']},
+  {title:'التنسيق المتقدم',idea:'نضبط إعدادات الصفحة: الاتجاه، والهوامش، والأعمدة، والحدود، والرأس، فيصبح المستند احترافيًا.',
+   goals:['تغيّر اتجاه الصفحة.','تقسّم النص إلى أعمدة.','تضيف حدودًا ورأسًا للصفحة.'],
+   explain:['من «تخطيط» نختار اتجاه الصفحة: عمودي أو أفقي، والهوامش، وعدد الأعمدة مثل الصحف.','ونضيف حدودًا للصفحة، ونكتب في الرأس نصًا يظهر أعلى كل صفحة، مثل اسم المدرسة.'],
+   terms:[['الهوامش','المسافة بين النص وحافة الصفحة.'],['الرأس','نص يظهر أعلى كل صفحة.'],['الأعمدة','تقسيم النص إلى أعمدة متجاورة.']],
+   sum:['الاتجاه: عمودي أو أفقي.','الأعمدة مثل الصحف.','الحدود والرأس للمظهر الاحترافي.'],
+   task:{type:'pagesetup',file:'تقرير الرحلة',heading:'رحلة إلى العُلا',intro:'اجعل الصفحة أفقية، وقسّم النص عمودين، وأضف حدودًا للصفحة، واكتب في الرأس «تقرير الصف السادس».',
+    text:'العُلا مدينة تاريخية في شمال غرب المملكة، فيها جبال صخرية مذهلة وآثار قديمة مثل الحِجر، أول موقع سعودي يُسجَّل في قائمة التراث العالمي. وفي العُلا مرايا وهي أكبر مبنى مكسو بالمرايا في العالم، ويزورها السياح من أنحاء العالم للاستمتاع بطبيعتها وتاريخها.',
+    goals:{orient:'أفقي',cols:'2',border:true,header:'تقرير الصف السادس'}},
+   quiz:[['الرأس يظهر في:','أعلى كل صفحة','أسفل الصفحة فقط','منتصف الصفحة'],['الأعمدة تجعل النص مثل:','الصحف','الجداول','الصور'],['الصفحة الأفقية:','عرضها أكبر من طولها','طولها أكبر','مربعة دائمًا']],
+   sol:['اختر الاتجاه «أفقي».','اختر الأعمدة «2».','اضغط «حدود».','اكتب في الرأس: تقرير الصف السادس.']},
+  {project:true,title:'خطة مشروع',idea:'في مشروع الوحدة تصمّم جدول خطة لمشروع فصلك بعنوان مدمج ونمط جذاب.',
+   goals:['تدرج جدولًا وتدمج صف العنوان وتنسّقه.'],explain:['ادمج خلايا الصف الأول لتكتب فيها عنوان الخطة، ثم املأ الجدول وطبّق النمط.'],terms:[],sum:['ادمج صف العنوان.','املأ الخلايا وطبّق النمط.'],
+   task:{type:'doctable',file:'خطة المشروع',heading:'خطة مشروع الفصل',intro:'أدرج جدولًا من ٤ صفوف و٣ أعمدة، وادمج الصف الأول عنوانًا، واملأ كل الخلايا، وطبّق النمط «أخضر».',
+    goals:[{k:'size',r:4,c:3},{k:'merge'},{k:'fill'},{k:'style',v:'أخضر'}]},
+   quiz:[['الصف المدمج يستخدم غالبًا:','للعنوان','للمجموع','للحذف'],['من أين ندمج الخلايا؟','تخطيط','إدراج','ملف'],['الجدول المنسق:','أسهل في القراءة','أصعب','بلا فائدة']],
+   sol:['أدرج جدولًا ٣ أعمدة × ٤ صفوف.','من «تخطيط» اضغط «دمج خلايا الصف الأول» واكتب العنوان.','املأ باقي الخلايا.','طبّق النمط «أخضر».']}
+ ]},
+ {title:'تصميم المواقع الإلكترونية',lessons:[
+  {title:'تصميم صفحة إلكترونية',idea:'نصمّم موقعًا بأداة إنشاء المواقع: نسمّيه، ونختار سمة، ثم نضيف إلى الصفحة نصوصًا وصورًا.',
+   goals:['تسمّي الموقع وتختار سمته.','تضيف نصًا وصورة إلى الصفحة.'],explain:['السمة تحدد ألوان الموقع وخطوطه. ونضيف إلى الصفحة عناصر: نص للتعريف، وصورة للتوضيح، وزر للانتقال.'],
+   terms:[['الموقع الإلكتروني','مجموعة صفحات على الإنترنت.'],['السمة','ألوان الموقع وتصميمه العام.']],sum:['سمِّ الموقع.','اختر سمة.','أضف نصًا وصورة.'],
+   task:{type:'site',intro:'أنشئ موقع «نادي العلوم»: اكتب اسمه، واختر سمة، وأدرج في الصفحة الرئيسية نصًا وصورة.',goals:[{k:'name',v:'نادي العلوم'},{k:'theme'},{k:'blocks',v:['نص','صورة']}]},
+   quiz:[['السمة تحدد:','ألوان الموقع وتصميمه','عدد الزوار','اسم المعلم'],['الصفحة الأولى في الموقع تسمى:','الرئيسية','الأخيرة','المحذوفة'],['من عناصر الصفحة:','النص والصورة','الطابعة','لوحة المفاتيح']],
+   sol:['اكتب اسم الموقع: نادي العلوم.','اختر إحدى السمات.','اضغط «＋ نص» ثم «＋ صورة».']},
+  {title:'إضافة الصفحات',idea:'الموقع يتكون من صفحات عدة، ونربطها بقائمة تنقل تظهر أعلى الموقع.',
+   goals:['تضيف صفحات جديدة.','تُظهر قائمة التنقل.'],explain:['نضيف صفحة لكل موضوع، مثل «أنشطتنا» و«تواصل معنا»، ونُظهر قائمة التنقل ليتنقل الزائر بينها.'],
+   terms:[['قائمة التنقل','روابط الصفحات أعلى الموقع.']],sum:['صفحة لكل موضوع.','قائمة التنقل تربط الصفحات.'],
+   task:{type:'site',intro:'أضف إلى موقعك صفحتين: «أنشطتنا» و«تواصل معنا»، وأظهر قائمة التنقل.',goals:[{k:'pages',v:['أنشطتنا','تواصل معنا']},{k:'nav'}]},
+   quiz:[['قائمة التنقل تساعد الزائر على:','الانتقال بين الصفحات','حذف الموقع','الطباعة'],['نضيف صفحة جديدة لـ:','موضوع جديد','نفس الموضوع دائمًا','لا شيء'],['الموقع الجيد صفحاته:','مرتبة وواضحة','كثيرة بلا ترتيب','فارغة']],
+   sol:['اكتب «أنشطتنا» واضغط «＋ صفحة».','اكتب «تواصل معنا» واضغط «＋ صفحة».','فعّل «إظهار قائمة التنقل».']},
+  {title:'نشر الموقع الإلكتروني',idea:'بعد التصميم ننشر الموقع ليشاهده الآخرون، فنختار عنوانه ومن يمكنه مشاهدته.',
+   goals:['تنشر الموقع.','تختار عنوانه وصلاحية المشاهدة.'],explain:['عند النشر نكتب عنوان الويب بالإنجليزية، ونحدد من يشاهد الموقع: الجميع، أو المدرسة فقط، أو أنت فقط. والأكثر أمانًا لمواقع الطلاب: المدرسة فقط.'],
+   terms:[['النشر','إتاحة الموقع على الإنترنت.'],['عنوان الويب','الرابط الذي نفتح به الموقع.']],sum:['اكتب عنوانًا بالإنجليزية.','اختر من يشاهد الموقع.','ثم انشر.'],
+   task:{type:'site',intro:'سمِّ الموقع «نادي العلوم»، ثم انشره بعنوان إنجليزي واجعل مشاهدته «مدرستي فقط».',goals:[{k:'name',v:'نادي العلوم'},{k:'pub',vis:'مدرستي فقط'}]},
+   quiz:[['عنوان الويب يُكتب:','بالإنجليزية','بالرموز فقط','بلا حروف'],['أكثر خيارات المشاهدة أمانًا لموقع طلاب:','مدرستي فقط','الجميع','بلا قيود'],['بعد النشر:','يستطيع الآخرون فتح الموقع','يُحذف الموقع','لا يتغير شيء']],
+   sol:['اكتب اسم الموقع.','اضغط «نشر».','اكتب عنوانًا مثل science-club.','اختر «مدرستي فقط» ثم «نشر».']},
+  {project:true,title:'موقع مدينتي',idea:'في مشروع الوحدة تبني موقعًا متكاملًا عن مدينتك: صفحات، وعناصر، وقائمة تنقل، ثم تنشره.',
+   goals:['تبني موقعًا متكاملًا وتنشره.'],explain:['اجمع كل ما تعلمته: الاسم والسمة والصفحات والعناصر والتنقل والنشر.'],terms:[],sum:['اسم، سمة، صفحات، عناصر، تنقل، نشر.'],
+   task:{type:'site',intro:'أنشئ موقع «مدينتي»: اختر سمة، وأضف صفحتي «المعالم» و«الصور»، وأدرج نصًا وصورة وزرًا في الرئيسية، وأظهر التنقل، ثم انشره لـ«مدرستي فقط».',
+    goals:[{k:'name',v:'مدينتي'},{k:'theme'},{k:'pages',v:['المعالم','الصور']},{k:'blocks',v:['نص','صورة','زر']},{k:'nav'},{k:'pub',vis:'مدرستي فقط'}]},
+   quiz:[['الموقع المتكامل يحتاج:','صفحات مرتبة وقائمة تنقل','صفحة فارغة','عنوانًا عربيًا فقط'],['الزر في الصفحة يستخدم لـ:','الانتقال أو تنفيذ أمر','الزينة فقط','الحذف'],['قبل النشر:','نراجع الموقع','نحذف الصفحات','نغيّر اللغة']],
+   sol:['اكتب «مدينتي» واختر سمة.','أضف صفحتي «المعالم» و«الصور».','عد إلى «الرئيسية» وأدرج نصًا وصورة وزرًا.','فعّل التنقل، ثم انشر لـ«مدرستي فقط».']}
+ ]},
+ {title:'تصميم ألعاب الحاسب',lessons:[
+  {title:'تخطيط وتصميم ألعاب الحاسب',idea:'قبل برمجة اللعبة نخطط عناصرها: الشخصية، والهدف، والعقبات، والقواعد.',
+   goals:['تتعرّف عناصر اللعبة.','تخطط لعبة بسيطة.'],explain:['الشخصية يتحكم بها اللاعب، والهدف ما يسعى إليه، والعقبات ما يعيقه، والقواعد تحدد الفوز والخسارة.'],
+   terms:[['عناصر اللعبة','الشخصية، والهدف، والعقبات، والقواعد.']],sum:['الشخصية: من يتحكم به اللاعب.','الهدف: ما يسعى إليه.','العقبات والقواعد.'],
+   task:{type:'sort',intro:'صنّف كل عنصر من عناصر لعبة «سباق الصحراء».',buckets:['الشخصية','الهدف','العقبات','القواعد'],items:[['السيارة التي يقودها اللاعب',0],['البطل الذي يجمع النجوم',0],['الوصول إلى خط النهاية',1],['جمع ١٠ نجوم للفوز',1],['الكثبان الرملية في الطريق',2],['الجمال التي تعبر الطريق',2],['تخسر إذا اصطدمت ثلاث مرات',3],['لديك دقيقتان فقط',3]]},
+   quiz:[['ما يسعى إليه اللاعب يسمى:','الهدف','العقبة','القاعدة'],['«تخسر إذا اصطدمت» من:','القواعد','الشخصيات','الأهداف'],['قبل برمجة اللعبة:','نخطط عناصرها','نبرمج مباشرة','نحذف الشخصيات']],
+   sol:['الشخصية: السيارة، والبطل.','الهدف: خط النهاية، وجمع النجوم.','العقبات: الكثبان، والجمال.','القواعد: الخسارة بالاصطدام، والوقت.']},
+  {title:'برمجة ألعاب جهاز الحاسب',idea:'نبرمج تحكم اللاعب: عند الضغط على السهم الأيمن تتحرك الشخصية يمينًا، وعند الأيسر يسارًا.',
+   goals:['تبرمج التحكم بالأسهم.'],explain:['داخل «كرر باستمرار» نفحص المفاتيح: إذا ضُغط السهم الأيمن نزيد x، وإذا ضُغط الأيسر ننقص x.'],
+   terms:[['التحكم','طريقة توجيه اللاعب للشخصية.']],sum:['السهم الأيمن: x يزيد.','السهم الأيسر: x ينقص.'],
+   task:{type:'fillcode',intro:'برمج التحكم: السهم الأيمن يحرك الشخصية يمينًا ١٠، والسهم الأيسر يسارًا ١٠.',
+    lines:[{t:'كرر باستمرار',c:'control'},{t:'إذا مفتاح {0} مضغوط؟ فإن',c:'control',d:1},{t:'غيّر x بمقدار {1}',c:'motion',d:2},{t:'إذا مفتاح السهم الأيسر مضغوط؟ فإن',c:'control',d:1},{t:'غيّر x بمقدار {2}',c:'motion',d:2}],
+    slots:[{opts:['السهم الأيمن','المسافة'],ok:'السهم الأيمن'},{opts:['10','-10'],ok:'10'},{opts:['10','-10'],ok:'-10'}],win:'الشخصية تتحرك يمينًا ويسارًا بالأسهم.',fail:'الشخصية تتحرك في الاتجاه الخطأ.'},
+   quiz:[['للحركة يمينًا x:','يزيد','ينقص','لا يتغير'],['لماذا نستخدم «كرر باستمرار»؟','لنفحص المفاتيح طوال اللعب','لنوقف اللعبة','لا نحتاجها'],['غيّر x بمقدار -10 يحرك:','يسارًا','يمينًا','للأعلى']],
+   sol:['الشرط الأول: «السهم الأيمن».','غيّر x بمقدار 10.','للسهم الأيسر: غيّر x بمقدار -10.']},
+  {project:true,title:'لعبة المؤقت',idea:'في مشروع الوحدة تضيف مؤقتًا للعبة: يبدأ من ٣٠ وينقص كل ثانية، وعندما يصل إلى صفر تنتهي اللعبة.',
+   goals:['تبرمج مؤقتًا تنازليًا.'],explain:['المؤقت متغير يبدأ من ٣٠، وفي «كرر حتى» ننتظر ثانية وننقصه ١، حتى يصبح صفرًا فتنتهي اللعبة.'],terms:[],sum:['ابدأ المؤقت من ٣٠.','انقصه ١ كل ثانية.','عند الصفر تنتهي اللعبة.'],
+   task:{type:'fillcode',intro:'أكمل المؤقت: يبدأ من ٣٠، وينقص ١ كل ثانية حتى يصل إلى صفر، ثم تقول الشخصية «انتهى الوقت!».',
+    lines:[{t:'اجعل الوقت = {0}',c:'vars'},{t:'كرر حتى {1}',c:'control'},{t:'انتظر ١ ثانية',c:'control',d:1},{t:'غيّر الوقت بمقدار {2}',c:'vars',d:1},{t:'قل {3}',c:'looks'}],
+    slots:[{opts:['30','0'],ok:'30'},{opts:['الوقت = 0','النقاط = 0'],ok:'الوقت = 0'},{opts:['-1','1'],ok:'-1'},{opts:['انتهى الوقت!','ابدأ'],ok:'انتهى الوقت!'}],win:'٣٠، ٢٩، ٢٨ … ٠ — «انتهى الوقت!»',fail:'المؤقت لا يعدّ تنازليًا بشكل صحيح.'},
+   quiz:[['المؤقت التنازلي:','ينقص كل ثانية','يزيد كل ثانية','لا يتغير'],['«كرر حتى» تتوقف عندما:','يتحقق الشرط','يبدأ البرنامج','يُضغط العلم'],['قيمة البداية للمؤقت في المهمة:','٣٠','٠','١٠٠']],
+   sol:['اجعل الوقت = 30.','كرر حتى «الوقت = 0».','غيّر الوقت بمقدار -1.','قل «انتهى الوقت!».']}
+ ]},
+ {title:'المستشعرات في علم الروبوت',lessons:[
+  {title:'مستشعرات الروبوت',idea:'المستشعرات حواس الروبوت: مستشعر المسافة يقيس بعد العوائق، ومستشعر اللون يميز الألوان، ومستشعر اللمس يكتشف الاصطدام.',
+   goals:['تتعرّف أنواع المستشعرات.','تربط كل مستشعر بوظيفته.'],explain:['يجمع الروبوت المعلومات من البيئة بالمستشعرات، ثم يتخذ القرار بوحدة التحكم.'],
+   terms:[['مستشعر المسافة','يقيس بُعد العائق.'],['مستشعر اللون','يميز الألوان.'],['مستشعر اللمس','يكتشف التلامس.']],sum:['المسافة: بعد العوائق.','اللون: تمييز الألوان واتباع الخط.','اللمس: الاصطدام.'],
+   task:{type:'sort',intro:'صنّف كل وظيفة حسب المستشعر الذي يؤديها.',buckets:['مستشعر المسافة','مستشعر اللون','مستشعر اللمس'],items:[['يقيس بُعد الجدار أمام الروبوت',0],['يتوقف قبل الاصطدام بالعائق',0],['يتبع خطًا أسود على الأرض',1],['يميّز الأحمر من الأخضر',1],['يكتشف أن الروبوت اصطدم بشيء',2],['يُضغط عندما يلمس الروبوت الجدار',2]]},
+   quiz:[['المستشعر الذي يتبع خطًا على الأرض:','مستشعر اللون','مستشعر اللمس','البطارية'],['المستشعرات بالنسبة للروبوت:','حواسه','عقله','عجلاته'],['ليتوقف الروبوت قبل الجدار نستخدم:','مستشعر المسافة','مستشعر اللون','السماعة']],
+   sol:['المسافة: قياس بعد الجدار، والتوقف قبل العائق.','اللون: اتباع الخط، وتمييز الألوان.','اللمس: اكتشاف الاصطدام والضغط.']},
+  {title:'اتخاذ القرارات',idea:'يتخذ الروبوت القرار بقراءة المستشعر: إذا كانت المسافة إلى العائق صغيرة ينعطف، وإلا يتقدم.',
+   goals:['تبرمج قرارًا بقراءة المستشعر.'],explain:['داخل «كرر باستمرار» نفحص قراءة مستشعر المسافة: إذا كانت أقل من ٥٠ ملم ينعطف الروبوت، وإلا يتقدم.'],
+   terms:[['قراءة المستشعر','القيمة التي يقيسها المستشعر.']],sum:['اقرأ المستشعر.','قرّر بـ «إذا… وإلا».'],
+   task:{type:'fillcode',intro:'برمج الروبوت ليتجنب العوائق: إذا كانت المسافة أقل من ٥٠ ملم ينعطف يمينًا، وإلا يتقدم.',
+    lines:[{t:'كرر باستمرار',c:'control'},{t:'إذا المسافة إلى العائق {0} 50 ملم فإن',c:'control',d:1},{t:'{1}',c:'motion',d:2},{t:'وإلا',c:'control',d:1},{t:'{2}',c:'motion',d:2}],
+    slots:[{opts:['<','>'],ok:'<'},{opts:['انعطف يمينًا 90 درجة','تقدّم للأمام'],ok:'انعطف يمينًا 90 درجة'},{opts:['تقدّم للأمام','توقف'],ok:'تقدّم للأمام'}],win:'الروبوت يتقدم، وعندما يقترب من العائق ينعطف ويكمل طريقه.',fail:'الروبوت يصطدم بالعائق أو لا يتحرك.'},
+   quiz:[['إذا اقترب الروبوت من العائق:','ينعطف','يتقدم أسرع','يتوقف نهائيًا دائمًا'],['< تعني:','أقل من','أكبر من','يساوي'],['القرار يُبنى على:','قراءة المستشعر','لون الروبوت','اسم المبرمج']],
+   sol:['اختر < .','بعد «إذا»: انعطف يمينًا 90 درجة.','بعد «وإلا»: تقدّم للأمام.']},
+  {title:'إنشاء الخرائط',idea:'يستكشف الروبوت المكان ويرسم خريطة للعوائق، ثم يخطط المسار الأفضل للوصول إلى هدفه.',
+   goals:['تخطط مسارًا على خريطة.','تبرمج الروبوت ليتبعه.'],explain:['الخريطة شبكة مربعات، بعضها عوائق. نحدد المسار الذي يتجنبها، ثم نبرمجه بالتقدم والانعطاف.'],
+   terms:[['الخريطة','تمثيل للمكان والعوائق.'],['المسار','الطريق من البداية إلى الهدف.']],sum:['ادرس الخريطة.','خطط مسارًا يتجنب العوائق.','برمج الروبوت ليتبعه.'],
+   task:{type:'grid',robot:true,intro:'ادرس الخريطة، ثم برمج الروبوت ليصل إلى الراية دون أن يصطدم بالعوائق.',size:[6,6],start:[0,5,0],goal:[5,1],walls:[[1,5],[1,4],[2,4],[3,4],[0,1],[1,1],[2,1],[4,3],[4,2],[5,2],[5,3],[3,0]],blocks:['f','r','l','rep']},
+   quiz:[['الخريطة تساعد الروبوت على:','تخطيط المسار','تغيير لونه','زيادة سرعته'],['المسار الجيد:','يتجنب العوائق','يمر بالعوائق','أطول دائمًا'],['قبل البرمجة:','ندرس الخريطة','نحذف العوائق','نشغّل الروبوت']],
+   sol:['الروبوت ينظر للأعلى: تقدّم ٣ مرات.','انعطف يمينًا، ثم تقدّم ٣ مرات.','انعطف يسارًا، ثم تقدّم مرة واحدة.','انعطف يمينًا، ثم تقدّم مرتين حتى الراية.']},
+  {extra:true,label:'قسم الذكاء الاصطناعي',title:'الذكاء الاصطناعي في الواقع العملي',idea:'يدخل الذكاء الاصطناعي في الصحة والنقل والتعليم، فيساعد الإنسان على اتخاذ قرارات أسرع وأدق.',
+   goals:['تتعرّف تطبيقات الذكاء الاصطناعي في المجالات المختلفة.'],explain:['في الصحة يحلل الصور الطبية، وفي النقل يقود السيارات وينظم المرور، وفي التعليم يقترح ما يناسب مستوى الطالب.'],
+   terms:[['التطبيق','استخدام عملي للتقنية.']],sum:['الصحة: تحليل الصور الطبية.','النقل: القيادة الذاتية والمرور الذكي.','التعليم: اقتراحات تناسب الطالب.'],
+   task:{type:'sort',intro:'صنّف كل تطبيق للذكاء الاصطناعي حسب مجاله.',buckets:['الصحة','النقل','التعليم'],items:[['يحلل صور الأشعة لاكتشاف المرض',0],['يتابع نبضات القلب في الساعة الذكية',0],['سيارة ذاتية القيادة',1],['إشارات مرور ذكية تخفف الزحام',1],['منصة تقترح تمارين تناسب مستواك',2],['مصحح آلي للإملاء',2]]},
+   quiz:[['السيارة ذاتية القيادة من مجال:','النقل','الصحة','الزراعة'],['تحليل صور الأشعة من مجال:','الصحة','التعليم','الرياضة'],['المنصة التي تقترح تمارين تناسبك من مجال:','التعليم','النقل','الصحة']],
+   sol:['الصحة: تحليل الأشعة، ومتابعة النبض.','النقل: السيارة ذاتية القيادة، والإشارات الذكية.','التعليم: اقتراح التمارين، والمصحح الآلي.']},
+  {project:true,title:'روبوت الإنقاذ',idea:'في مشروع الوحدة تبرمج روبوت إنقاذ يعبر متاهة طويلة إلى موقع الراية، مستخدمًا التكرار.',
+   goals:['تبرمج مسارًا طويلًا بالتكرار.'],explain:['قسّم المسار إلى أجزاء مستقيمة، واستخدم «كرر» في كل جزء طويل.'],terms:[],sum:['خطط المسار.','استخدم التكرار.'],
+   task:{type:'grid',robot:true,intro:'أوصل روبوت الإنقاذ إلى الراية. استخدم «كرر» في الأجزاء الطويلة.',size:[6,6],start:[0,5,1],goal:[0,0],walls:pathWalls(6,6,[[0,5],[1,5],[2,5],[3,5],[4,5],[5,5],[5,4],[5,3],[4,3],[3,3],[2,3],[1,3],[0,3],[0,2],[0,1],[0,0]]),blocks:['f','r','l','rep'],needRepeat:true},
+   quiz:[['المسار الطويل المستقيم نبرمجه بـ:','كرر','أوامر منفصلة كثيرة','الحذف'],['روبوت الإنقاذ يحتاج:','دقة في الوصول','سرعة فقط','لونًا أحمر'],['إذا اصطدم الروبوت:','نصحح البرنامج','نتركه','نغيّر الخريطة']],
+   sol:['الروبوت ينظر لليمين: كرر ٥ «تقدّم».','انعطف يسارًا، وتقدّم مرتين.','انعطف يسارًا، وكرر ٥ «تقدّم».','انعطف يمينًا، وكرر ٣ «تقدّم» حتى الراية.']}
+ ]}
+]}];
+
+[[5,G5],[6,G6]].forEach(([g,TT])=>{GRADE_TERMS[g]=TT;TT.forEach(T=>T.units.forEach((U,ui)=>{let li=0;U.lessons.forEach(L=>{let id;
+  if(L.project){id=`t${T.n}-u${ui+1}-p`;L.label=L.label||'مشروع الوحدة'}else if(L.extra){id=`t${T.n}-u${ui+1}-x`;L.label=L.label||'قسم إثرائي'}else{li++;id=`t${T.n}-u${ui+1}-${li}`;L.label=L.label||'الدرس '+ORD[li-1]}
+  L.term=T;L.unit=U;L.ui=ui;L.grade=g;L.id=`g${g}-${id}`;L.unitLabel='الوحدة '+UNIT_ORD[ui];LESSONS[L.id]=L;ORDER.push(L.id)})}))});
+
 /* وضع الاختبار: لا يُظهر للطالب أثناء الحل أي إشارة إلى الصواب أو الخطأ */
 const EXAM=true;
 const goalsList=items=>h('ul',{class:'goals'+(EXAM?' plain':'')},items.map(([t,on])=>h('li',{class:!EXAM&&on?'on':'','data-ok':on?'1':'0'},t)));
@@ -1072,15 +2080,15 @@ ENG.format=(cfg,report)=>{const s={bold:false,italic:false,underline:false,size:
   const selAll=h('button',{type:'button',class:'rb wide',onclick:()=>{selected=true;upd()}},'تحديد الكل');
   const ribbon=[cfg.editable?null:rgroup('تحرير',selAll),fontG.length?rgroup('الخط',...fontG):null,paraG.length?rgroup('فقرة',...paraG):null];
   let ta=null;const docEl=h('div',{class:'doc-text',role:'button',tabindex:'0','aria-label':'نص المستند — اضغط لتحديده',onclick:()=>{selected=!selected;upd()}});
-  if(cfg.editable){ta=h('textarea',{id:'card-text',class:'page-ta fmt','aria-label':'نص البطاقة',placeholder:'اكتب بطاقتك هنا:\nأنا اسمي …\nهوايتي …\nحلمي أن أصبح …',oninput:()=>{text=ta.value;upd()}})}
+  if(cfg.editable){ta=h('textarea',{id:'card-text',class:'page-ta fmt','aria-label':'نص البطاقة',placeholder:cfg.placeholder||'اكتب بطاقتك هنا:\nأنا اسمي …\nهوايتي …\nحلمي أن أصبح …',oninput:()=>{text=ta.value;upd()}})}
   const page=h('div',{class:'page'},h('div',{class:'ruler'}),ta||docEl);
-  const win=appWin({app:'word',title:(cfg.editable?'بطاقتي':'مستند1')+'.docx — معالج النصوص',quick:h('span',{class:'rb ico dim',html:ICO.save}),tabs:['ملف','الصفحة الرئيسية','إدراج','تخطيط','مراجعة'],active:'الصفحة الرئيسية',ribbon,body:page,status:[h('span',{},'الصفحة ١ من ١'),h('span',{},'العربية (السعودية)')]});
+  const win=appWin({app:'word',title:(cfg.file||(cfg.editable?'بطاقتي':'مستند1'))+'.docx — معالج النصوص',quick:h('span',{class:'rb ico dim',html:ICO.save}),tabs:['ملف','الصفحة الرئيسية','إدراج','تخطيط','مراجعة'],active:'الصفحة الرئيسية',ribbon,body:page,status:[h('span',{},'الصفحة ١ من ١'),h('span',{},'العربية (السعودية)')]});
   const met=([k,v])=>s[k]===v;
   function upd(first){const lines=(text||'').split('\n').filter(l=>l.trim());const st=`font-weight:${s.bold?800:400};font-style:${s.italic?'italic':'normal'};text-decoration:${s.underline?'underline':'none'};font-size:${SIZES[s.size][0]};color:${COLS[s.color]};text-align:${AL[s.align]};line-height:${({'1':1.3,'1.5':1.9,'2':2.5})[s.spacing]}`;
     if(ta){ta.style.cssText=st}else{docEl.style.cssText=st;docEl.classList.toggle('sel',selected);docEl.replaceChildren(s.bullets?h('ul',{},lines.map(l=>h('li',{},l))):h('div',{},lines.map(l=>h('p',{},l))))}
     win.querySelectorAll('[data-k]').forEach(b=>b.setAttribute('aria-pressed',!!s[b.dataset.k]));win.querySelectorAll('[data-al]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.al===s.align));win.querySelectorAll('[data-c]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c===s.color));
     if(sizeSel)sizeSel.value=s.size;if(spSel)spSel.value=s.spacing;
-    const list=goals.map(g=>[g[2],met(g)]);if(cfg.editable)list.unshift(['اكتب بطاقتك في ثلاثة أسطر على الأقل',lines.length>=3]);gl.replaceChildren(goalsList(list));
+    const list=goals.map(g=>[g[2],met(g)]);if(cfg.editable)list.unshift([cfg.lineGoal||'اكتب بطاقتك في ثلاثة أسطر على الأقل',lines.length>=3]);gl.replaceChildren(goalsList(list));
     const m=list.filter(x=>x[1]).length;
     if(!first)report({score:m/list.length,done:m===list.length,detail:`حقق ${m} من ${list.length} شروط التنسيق`+(cfg.editable&&text.trim()?`\nنص البطاقة: ${text.trim().replace(/\n+/g,' / ')}`:'')})}
   upd(true);return h('div',{},win,tip,gl)};
@@ -1148,7 +2156,7 @@ ENG.sheet=(cfg,report)=>{const data={};const fixed=new Set();cfg.rows.forEach((r
   const toEn=s=>s.replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[×]/g,'*').replace(/[÷]/g,'/');
   function evalRaw(raw,seen){if(raw==null||raw==='')return'';raw=toEn(String(raw)).trim();if(!raw.startsWith('=')){const n=Number(raw);return raw!==''&&!isNaN(n)?n:raw}
     let ex=raw.slice(1).toUpperCase().replace(/\s/g,'');
-    ex=ex.replace(/SUM\(([A-Z])(\d+):([A-Z])(\d+)\)/g,(m,c1,r1,c2,r2)=>{let s=0;for(let c=c1.charCodeAt(0);c<=c2.charCodeAt(0);c++)for(let r=+r1;r<=+r2;r++){const v=val(String.fromCharCode(c)+r,seen);if(typeof v==='number')s+=v}return'('+s+')'});
+    ex=ex.replace(/(SUM|AVERAGE|MAX|MIN|COUNT)\(([A-Z])(\d+):([A-Z])(\d+)\)/g,(m,f,c1,r1,c2,r2)=>{const L=[];for(let c=c1.charCodeAt(0);c<=c2.charCodeAt(0);c++)for(let r=+r1;r<=+r2;r++){const v=val(String.fromCharCode(c)+r,seen);if(typeof v==='number')L.push(v)}const R=f==='SUM'?L.reduce((x,y)=>x+y,0):f==='AVERAGE'?(L.length?L.reduce((x,y)=>x+y,0)/L.length:0):f==='MAX'?Math.max(...L):f==='MIN'?Math.min(...L):L.length;return'('+R+')'});
     ex=ex.replace(/[A-Z]\d+/g,ref=>{const v=val(ref,seen);return typeof v==='number'?'('+v+')':'x'});
     if(!/^[0-9+\-*/().]+$/.test(ex))return'#خطأ';try{const r=Function('"use strict";return('+ex+')')();return typeof r==='number'&&isFinite(r)?Math.round(r*100)/100:'#خطأ'}catch(e){return'#خطأ'}}
   function val(ref,seen=new Set()){if(seen.has(ref))return'#خطأ';seen.add(ref);const r=evalRaw(data[ref],seen);seen.delete(ref);return r}
@@ -1159,7 +2167,7 @@ ENG.sheet=(cfg,report)=>{const data={};const fixed=new Set();cfg.rows.forEach((r
     const st=cfg.goals.map(([ref,exp])=>{const raw=toEn(String(data[ref]||''));return[ref,exp,raw.startsWith('=')&&val(ref)===exp,raw]});const m=st.filter(x=>x[2]).length;
     gl.replaceChildren(goalsList(st.map(([ref,exp,ok])=>[`اكتب في الخلية ${ref} معادلة تعطي النتيجة الصحيحة`,ok])));
     if(!first)report({score:m/st.length,done:m===st.length,detail:`معادلات صحيحة ${m} من ${st.length}: `+st.map(([ref,,ok,raw])=>`${ref}: ${raw||'فارغة'}${ok?' ✓':' ✗'}`).join(' | ')})}
-  refresh(true);return h('div',{},excelWin(cfg.cols.length>2?'الفواكه.xlsx':'مصروفي.xlsx',table,fRef,fRaw),h('p',{class:'hint',style:'margin-top:8px'},'اضغط على الخلية واكتب. المعادلة تبدأ بعلامة = مثل =B2+C2 ثم اضغط Enter.'),gl)};
+  refresh(true);return h('div',{},excelWin(cfg.file||(cfg.cols.length>2?'الفواكه.xlsx':'مصروفي.xlsx'),table,fRef,fRaw),h('p',{class:'hint',style:'margin-top:8px'},'اضغط على الخلية واكتب. المعادلة تبدأ بعلامة = مثل =B2+C2 ثم اضغط Enter.'),gl)};
 
 /* الشرائح */
 ENG.slide=(cfg,report)=>{const F=cfg.features;const s={title:cfg.title0||'',sub:cfg.sub0||'',theme:F.includes('theme')?-1:0,wordart:false,img:null,imgName:'',size:60,rot:0,sizeT:false,rotT:false,style:'بلا',trans:'بدون',anim:'بدون',played:false};let touched=false;
@@ -1479,7 +2487,7 @@ function renderHome(){const total=ORDER.length,doneN=ORDER.filter(id=>progress[i
     h('section',{class:'card foot'},h('h3',{},'كيف أنجز مشروع الدرس؟'),h('ol',{style:'margin:0;padding-inline-start:20px'},h('li',{},'اختر الدرس الذي شرحه المعلم.'),h('li',{},'نفّذ المهمة العملية، ثم أجب عن سؤالين قصيرين.'),h('li',{},'أجب عن «تحدٍّ: طبّق ما تعلمته».'),h('li',{},'اضغط «أرسل لمعلمي عبر واتساب» ثم اختر محادثة المعلم واضغط إرسال.')),
       h('p',{style:'margin-top:8px'},'تعمل المنصة على الجوال والجهاز اللوحي والحاسب، ولا تحتاج إلى معمل حاسب.')),teacherLogin()))}
 
-function renderLesson(L){if(progress[L.id]){renderSent(L,progress[L.id]);return}const QZ=L.quiz;let reviewed=false,initDone=false;const st={task:{score:0,done:false,detail:'لم يبدأ المهمة'},quiz:new Array(QZ.length).fill(null),qa:[],reflect:''};
+function renderLesson(L){CUR_GRADE=L.grade||4;if(progress[L.id]){renderSent(L,progress[L.id]);return}const QZ=L.quiz;let reviewed=false,initDone=false;const st={task:{score:0,done:false,detail:'لم يبدأ المهمة'},quiz:new Array(QZ.length).fill(null),qa:[],reflect:''};
   const locked=ASSIGNED.length>0;const sent=progress[L.id];
   const sendBox=h('section',{class:'card send stack'});let building=true;const report=r=>{if(reviewed||building)return;st.task=r;refresh()};
   const taskEl=ENG[L.task.type](L.task,report);building=false;
@@ -1497,7 +2505,7 @@ function renderLesson(L){if(progress[L.id]){renderSent(L,progress[L.id]);return}
     reviewBox,
     sendBox,
     locked?null:h('div',{class:'row',style:'justify-content:space-between'},prev?h('a',{href:'#'+prev,class:'back'},'→ السابق: '+LESSONS[prev].title):h('span'),next?h('a',{href:'#'+next,class:'back'},'التالي: '+LESSONS[next].title+' ←'):h('span'))));
-  function buildRep(p){return{title:`${L.unitLabel} · ${L.label}: ${L.title}`,term:L.term.title,name:student.name,cls:student.cls,at:Date.now(),t:p.t,q:p.q,r:0,total:p.total,sol:SOL[L.id]||[],type:TYPE_TAG[L.task.type],done:st.task.done,detail:st.task.detail,qa:QZ.map((x,i)=>({q:x[0],a:st.qa[i]||'—',ok:!!st.quiz[i],c:x[1]})),reflect:st.reflect.trim(),ch:L.reflect}}
+  function buildRep(p){return{title:`${L.unitLabel} · ${L.label}: ${L.title}`,term:L.term.title,name:student.name,cls:student.cls,at:Date.now(),t:p.t,q:p.q,r:0,total:p.total,sol:SOL[L.id]||L.sol||[],type:TYPE_TAG[L.task.type],done:st.task.done,detail:st.task.detail,qa:QZ.map((x,i)=>({q:x[0],a:st.qa[i]||'—',ok:!!st.quiz[i],c:x[1]})),reflect:st.reflect.trim(),ch:L.reflect}}
   function pts(){const t=Math.round(st.task.score*7),q=st.quiz.filter(x=>x===true).length;return{t,q,r:0,total:t+q}}
   function message(p){const d=new Date();const date=d.toLocaleDateString('ar-SA',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+' — '+d.toLocaleTimeString('ar-SA',{hour:'numeric',minute:'2-digit'});
     return[`📘 ${INFO.subject} — ${INFO.grade}`,`🏫 ${INFO.school}`,`👨‍🏫 المعلم: ${INFO.teacher}`,'━━━━━━━━━━',`الطالب: ${student.name}`,`الفصل: ${student.cls}`,`${L.unitLabel} · ${L.label}: ${L.title}`,'━━━━━━━━━━',
@@ -1527,7 +2535,7 @@ function renderLesson(L){if(progress[L.id]){renderSent(L,progress[L.id]);return}
     reviewBox.replaceChildren(h('div',{class:'sec-t'},h('h2',{},'الحل الصحيح: تعلّم من أخطائك')),h('p',{class:'note'},'أُغلقت إجاباتك. اقرأ الحل جيدًا، ثم أرسل إنجازك.'),
       h('div',{class:'rv-s'},h('h3',{},`المهمة: ${ar(p.t)} من ٧ — ${st.task.done?'مكتملة':'غير مكتملة'}`),h('p',{class:'rv-did'},h('b',{},'ما فعلته: '),st.task.detail),
         p.t<7?h('p',{class:'rv-tip'},'انتبه: لم تحصل على الدرجة كاملة في المهمة. قارن ما فعلته بالخطوات الصحيحة:'):h('p',{class:'rv-good'},'أحسنت! وهذه الخطوات الصحيحة لتتذكرها:'),
-        h('ol',{class:'rv-steps'},(SOL[L.id]||[]).map(x=>h('li',{},x)))),
+        h('ol',{class:'rv-steps'},(SOL[L.id]||L.sol||[]).map(x=>h('li',{},x)))),
       h('div',{class:'rv-s'},h('h3',{},`الأسئلة: ${ar(p.q)} من ${ar(QZ.length)}`),...R.qa.map((x,i)=>h('div',{class:'rep-q'},h('p',{},`${ar(i+1)}. ${x.q}`),h('p',{class:x.ok?'ok':'bad'},`إجابتك: ${x.a} ${x.ok?'✓ صحيحة':'✗ خاطئة'}`),x.ok?null:h('p',{class:'ok'},`الإجابة الصحيحة: ${x.c}`)))))}
   function refresh(){if(!initDone)return;if(sent){showSent();return}const p=pts();const answered=st.quiz.every(x=>x!==null);const started=st.task.detail!=='لم يبدأ المهمة';
     const missing=[];if(!nameOk(student.name,student.cls))missing.push(nameHint(student.name,student.cls));if(isLate()&&LATE_MODE==='close')missing.push('انتهى موعد التسليم');if(!student.cls)missing.push('اكتب فصلك');if(!started)missing.push('نفّذ المهمة');if(!answered)missing.push('أجب عن الأسئلة');if(!st.rating)missing.push('اختر تقييمك للمحاكي: مفيد أو غير مفيد');if(st.reflect.trim().length<8)0;
@@ -1637,7 +2645,7 @@ function renderSent(L,P){const locked=ASSIGNED.length>0;const d=new Date(P.at);
       P.link?h('details',{},h('summary',{class:'note',style:'cursor:pointer'},'فتحت النموذج ولم تضغط «إرسال»؟'),h('div',{class:'stack',style:'gap:8px;margin-top:8px'},h('p',{class:'note'},'افتح النموذج بإجاباتك نفسها واضغط «إرسال» مرة واحدة فقط.'),h('a',{class:'btn ghost',href:P.link,target:'_blank',rel:'noopener',style:'align-self:flex-start'},'افتح النموذج بإجاباتي'))):null)))}
 /* ====== وضع الدرس المحدد وصفحة المعلم ====== */
 const PARAMS=new URLSearchParams(location.search);
-const ASSIGNED=(PARAMS.get('lesson')||'').split(',').map(x=>x.trim()).filter(id=>LESSONS[id]);
+const ASSIGNED=(PARAMS.get('lesson')||'').split(',').map(x=>x.trim()).filter(id=>LESSONS[id]);if(ASSIGNED.length)CUR_GRADE=gradeOfLesson(ASSIGNED[0]);
 /* ====== قائمة الطلاب (من ورقة «الطلاب») ====== */
 let ROSTER={};let onRosterLoaded=null;const NAME_SLOTS=[];
 const nk=s=>String(s||'').replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/\s+/g,'');
@@ -1711,7 +2719,22 @@ function dueControls(onChange){const st={due:'',late:'close'};const di=h('input'
 /* ====== الأوسمة والشهادات ====== */
 function unitStatus(T,U){const req=U.lessons.filter(L=>!L.extra);const got=req.map(L=>progress[L.id]).filter(p=>p&&typeof p.score==='number');
   const avg=got.length?got.reduce((a,p)=>a+p.score,0)/got.length:0;return{earned:got.length===req.length&&avg>=8,done:got.length,need:req.length,avg}}
-function earnedUnits(){const out=[];TERMS.forEach(T=>T.units.forEach((U,ui)=>{const s=unitStatus(T,U);if(s.earned)out.push({T,U,ui,avg:s.avg})}));return out}
+/* قائمة الدروس حسب الصفوف التي أضاف المعلم فصولها */
+const CLS_HOOKS=[];
+let TEACH_GRADES=null;try{TEACH_GRADES=JSON.parse(localStorage.getItem('rqm4:grades')||'null')}catch(e){}
+function visibleGrades(){if(Array.isArray(TEACH_GRADES)&&TEACH_GRADES.length){const L=[4,5,6].filter(x=>TEACH_GRADES.includes(x)&&GRADE_TERMS[x]);if(L.length)return L}const g=new Set(CLASSES.map(gradeOfClass));const L=[4,5,6].filter(x=>g.has(x)&&GRADE_TERMS[x]);return L.length?L:[4]}
+function setTeachGrades(L){TEACH_GRADES=L;try{localStorage.setItem('rqm4:grades',JSON.stringify(L))}catch(e){}CLS_HOOKS.forEach(f=>{try{f()}catch(e){}})}
+function gradesCard(){const box=h('div',{class:'gr-pick',role:'group','aria-label':'المراحل التي تدرّسها'});const msg=h('small',{class:'note',role:'status'});
+  function draw(){const cur=visibleGrades();box.replaceChildren(...[4,5,6].filter(g=>GRADE_TERMS[g]).map(g=>{const on=cur.includes(g);return h('button',{type:'button',class:'gr-chip'+(on?' on':''),'aria-pressed':on?'true':'false',onclick:()=>toggle(g)},h('span',{class:'gr-ck','aria-hidden':'true'},on?'✓':''),h('b',{},GRADE_NAMES[g].replace(' الابتدائي','')),h('small',{},ar(Object.keys(LESSONS).filter(k=>gradeOfLesson(k)===g).length)+' درسًا ومشروعًا'))}))}
+  async function toggle(g){const cur=visibleGrades();const nx=cur.includes(g)?cur.filter(x=>x!==g):[...cur,g].sort();if(!nx.length){msg.textContent='اختر مرحلة واحدة على الأقل.';return}setTeachGrades(nx);draw();msg.textContent='جارٍ الحفظ…';try{const j=await adminCall('setGrades',{grades:nx});msg.textContent=j&&j.ok?'✓ حُفظت، وتظهر لك دروس '+nx.map(x=>GRADE_NAMES[x].replace('الصف ','').replace(' الابتدائي','')).join(' و')+' أدناه.':'حُفظت على هذا الجهاز فقط.'}catch(e){msg.textContent='حُفظت على هذا الجهاز فقط.'}}
+  draw();CLS_HOOKS.push(()=>{if(box.isConnected)draw()});
+  if(SHEET_URL)adminCall('prefs').then(j=>{if(j&&j.ok&&Array.isArray(j.grades)&&j.grades.length&&JSON.stringify(j.grades)!==JSON.stringify(TEACH_GRADES)){setTeachGrades(j.grades)}}).catch(()=>{});
+  return h('section',{class:'card stack'},h('h2',{style:'font-size:20px'},'المراحل التي تدرّسها'),h('p',{class:'note'},'حدّد صفوفك هذا العام، فتظهر لك دروسها فقط عند إنشاء روابط المشاريع والاختبارات. يمكنك تغييرها في أي وقت.'),box,msg)}
+function gradeTree(prefix,sel,onChange){const box=h('div',{class:'stack',style:'gap:14px'});
+  function draw(){const G=visibleGrades();box.replaceChildren(...G.map(g=>h('div',{class:'stack',style:'gap:12px'},G.length>1?h('h2',{class:'g-head'},GRADE_NAMES[g]):null,
+    GRADE_TERMS[g].map(T=>h('div',{class:'stack',style:'gap:6px'},h('h3',{style:'font-size:18px'},T.title),T.units.map(U=>h('div',{class:'stack',style:'gap:4px'},h('div',{class:'unit-n'},U.title),U.lessons.map(L=>h('label',{class:'toggle'},h('input',{type:'checkbox',id:prefix+L.id,checked:sel.has(L.id),onchange:e=>{e.target.checked?sel.add(L.id):sel.delete(L.id);onChange()}}),h('span',{},`${L.label}: ${L.title}`))))))))))}
+  draw();CLS_HOOKS.push(()=>{if(box.isConnected)draw()});return box}
+function earnedUnits(){const out=[];Object.values(GRADE_TERMS).forEach(TT=>TT.forEach(T=>T.units.forEach((U,ui)=>{const s=unitStatus(T,U);if(s.earned)out.push({T,U,ui,avg:s.avg})})));return out}
 async function certCanvas(name,unitTitle,avg){try{await Promise.race([Promise.all(['400 30px "HNArabic"','700 30px "HNArabic"'].map(f=>document.fonts.load(f))),sleep(2500)])}catch(e){}
   let logo=null;try{logo=await loadImg(MOE_LOGO)}catch(e){}
   const W=1600,H=1130,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');x.direction='rtl';const F='"HNArabic",Tahoma,sans-serif';
@@ -1794,12 +2817,12 @@ function renderTeacher(){const base=location.origin&&location.origin!=='null'&&!
   async function copy(t,btn){try{await navigator.clipboard.writeText(t);btn.textContent='نُسخ'}catch(e){btn.textContent='انسخه يدويًا'}setTimeout(()=>btn.textContent='انسخ',1500)}
   function drawOut(){const ids=ORDER.filter(id=>sel.has(id));if(!ids.length){out.replaceChildren(h('p',{class:'note'},'حدّد درسًا أو أكثر من القائمة ليظهر رابطه هنا.'));return}const l=linkFor(ids);const b=h('button',{type:'button',class:'btn',onclick:()=>copy(l,b)},'انسخ');
     out.replaceChildren(h('b',{},ids.length===1?'رابط الدرس المحدد:':`رابط ${ar(ids.length)} دروس محددة:`),h('pre',{class:'preview',dir:'ltr'},l),h('div',{class:'row',style:'flex-wrap:wrap'},b,base?h('a',{class:'btn ghost',href:l,target:'_blank',rel:'noopener'},'جرّب الرابط'):null),announceBtn(l,ids.length===1?'مشروع: '+LESSONS[ids[0]].title:'مشاريع: '+ids.map(x=>LESSONS[x].title).join('، '),dc.due()),base?qrBox(l,ids.length===1?LESSONS[ids[0]].title:'دروس'):null)}
-  const list=h('div',{class:'stack',style:'gap:14px'},TERMS.map(T=>h('div',{class:'stack',style:'gap:6px'},h('h3',{style:'font-size:18px'},T.title),T.units.map(U=>h('div',{class:'stack',style:'gap:4px'},h('div',{class:'unit-n'},U.title),U.lessons.map(L=>h('label',{class:'toggle'},h('input',{type:'checkbox',id:'pick-'+L.id,onchange:e=>{e.target.checked?sel.add(L.id):sel.delete(L.id);drawOut()}}),h('span',{},`${L.label}: ${L.title}`))))))));
+  const list=gradeTree('pick-',sel,()=>drawOut());
   drawOut();
-  app.replaceChildren(h('div',{class:'stack'},h('header',{class:'band teacher-band'},h('div',{class:'eyebrow'},'خاص بالمعلم — لا تشارك هذه الصفحة مع الطلاب'),h('h1',{},'صفحة المعلم'),h('div',{class:'grade'},'إنشاء روابط الدروس للطلاب'),h('div',{class:'ids'},h('div',{class:'id'},h('small',{},'المعلم'),h('b',{},INFO.teacher)),h('div',{class:'id'},h('small',{},'المادة'),h('b',{},INFO.subject+' — '+INFO.grade)))),h('section',{class:'card stack'},h('h2',{style:'font-size:20px'},'١. حدّد الدرس ثم انسخ رابطه'),
+  app.replaceChildren(h('div',{class:'stack'},h('header',{class:'band teacher-band'},h('div',{class:'eyebrow'},'خاص بالمعلم — لا تشارك هذه الصفحة مع الطلاب'),h('h1',{},'صفحة المعلم'),h('div',{class:'grade'},'إنشاء روابط الدروس للطلاب'),h('div',{class:'ids'},h('div',{class:'id'},h('small',{},'المعلم'),h('b',{},INFO.teacher)),h('div',{class:'id'},h('small',{},'المادة'),h('b',{},INFO.subject+' — '+INFO.grade)))),gradesCard(),h('section',{class:'card stack'},h('h2',{style:'font-size:20px'},'١. حدّد الدرس ثم انسخ رابطه'),
     h('p',{},'حدّد الدرس الذي تريد أن يحلّه الطلاب، ثم انسخ الرابط وأرسله لهم أو لأولياء الأمور. الطالب الذي يفتح الرابط يرى هذا الدرس فقط.'),
     base?null:h('p',{class:'msg bad'},'الروابط تعمل من موقعك المنشور (مثل GitHub Pages). افتح هذه الصفحة من موقعك ليظهر الرابط كاملًا.'),
-    dc.el,h('div',{class:'send card'},out)),h('section',{class:'card'},list),examBuilder(base),newsBox(),msgBox(),rosterHelp(),deviceReset()))}
+    dc.el,h('div',{class:'send card'},out)),h('section',{class:'card'},list),examBuilder(base),statsBox(),newsBox(),msgBox(),rosterHelp(),deviceReset()))}
 /* ====== إدارة الفصول والطلاب (صفحة المعلم) ====== */
 function adminPin(){try{return sessionStorage.getItem('rqm4:tp')||''}catch(e){return ''}}
 async function adminCall(op,extra){const r=await fetch(SHEET_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({admin:1,pin:adminPin(),op},extra||{}))});return r.json()}
@@ -1838,7 +2861,7 @@ function rosterHelp(){
   const say=(t,ok)=>{msg.className='msg '+(ok===false?'bad':ok?'ok':'');msg.textContent=String(t||'').replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d])};
   let busy=false;
   async function run(op,extra,okMsg){if(busy)return false;busy=true;say('جارٍ الحفظ في جدولك…');try{const j=await adminCall(op,extra);if(j.status==='pin'){askPin();say(j.message,false);return false}if(!j.ok){say(j.message||'تعذّر التنفيذ.',false);return false}st.classes=j.classes||[];st.students=j.students||[];syncGlobals();if(!st.classes.includes(st.cur))st.cur=st.classes[0]||'';draw();say(j.message||okMsg||'تم.',true);return true}catch(e){say('تعذّر الاتصال بجدولك. تأكد من الإنترنت ثم أعد المحاولة.',false);return false}finally{busy=false}}
-  function syncGlobals(){const R={};st.students.forEach(s=>(R[s.cls]=R[s.cls]||[]).push(s.name));ROSTER=R;if(st.classes.length)CLASSES=st.classes.slice();try{refreshNames()}catch(e){}}
+  function syncGlobals(){const R={};st.students.forEach(s=>(R[s.cls]=R[s.cls]||[]).push(s.name));ROSTER=R;if(st.classes.length)CLASSES=st.classes.slice();CLS_HOOKS.forEach(f=>{try{f()}catch(e){}});try{refreshNames()}catch(e){}}
   function askPin(){const i=h('input',{type:'text',inputmode:'numeric',autocomplete:'off',placeholder:'رمز الإدارة',style:'max-width:160px;text-align:center'});const b=h('button',{type:'button',class:'btn',onclick:()=>{try{sessionStorage.setItem('rqm4:tp',i.value.replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).trim())}catch(e){}load()}},'تأكيد');
     box.replaceChildren(h('p',{},'اكتب رمز الإدارة المكتوب في كود الجدول (ADMIN_PIN).'),h('div',{class:'row'},i,b));i.focus()}
   const count=c=>st.students.filter(s=>s.cls===c).length;
@@ -1890,6 +2913,24 @@ function rosterHelp(){
   load();
   return h('section',{class:'card stack rm'},h('div',{class:'rm-top'},h('h2',{style:'font-size:20px'},'إدارة الفصول والطلاب'),h('button',{type:'button',class:'btn ghost',onclick:load,title:'تحديث'},'↻ تحديث')),
     h('p',{class:'note'},'كل تعديل هنا يُحفظ مباشرة في ورقة «الطلاب» بجدولك، ويظهر للطلاب في قائمة الأسماء.'),msg,box)}
+/* ====== إحصاءات الزيارات ====== */
+function statsBox(){const body=h('div',{class:'stack',style:'gap:14px'},h('p',{class:'note'},'جارٍ تحميل الإحصاءات…'));
+  const fmtD=d=>{try{return new Date(d+'T12:00:00').toLocaleDateString('ar-SA',{day:'numeric',month:'short'})}catch(e){return d}};
+  async function load(){body.replaceChildren(h('p',{class:'note'},'جارٍ تحميل الإحصاءات…'));try{const j=await adminCall('stats');if(j.status==='pin'){body.replaceChildren(h('p',{class:'msg bad'},'رمز الإدارة غير صحيح.'));return}if(!j.ok)throw 0;draw(j.stats)}catch(e){body.replaceChildren(h('p',{class:'msg bad'},'تعذّر تحميل الإحصاءات. تأكد أن كود الجدول محدَّث ومنشور.'))}}
+  function draw(S){const today=S.today;const by={};S.days.forEach(x=>by[x.d]=x);
+    const lastN=n=>{const out=[];for(let i=n-1;i>=0;i--){const d=new Date(Date.parse(today+'T12:00:00')-i*864e5).toISOString().slice(0,10);out.push(by[d]||{d,s:0,v:0,m:0,c:0,p:0})}return out};
+    const sum=(L,k)=>L.reduce((a,x)=>a+x[k],0);const d1=lastN(1),d7=lastN(7),d30=lastN(30);
+    const kpi=(t,a,b)=>h('div',{class:'st-kpi'},h('small',{},t),h('b',{},ar(a)),h('span',{},ar(b)+' مشاهدة'));
+    const mx=Math.max(1,...d30.map(x=>x.s));
+    const bars=h('div',{class:'vs-bars','aria-label':'الزيارات في آخر ٣٠ يومًا'},d30.map(x=>h('div',{class:'vs-bar',title:fmtD(x.d)+': '+ar(x.s)+' زيارة'},h('span',{style:`height:${Math.round(x.s/mx*100)}%`}))));
+    const m=sum(d30,'m'),c=sum(d30,'c'),pp=sum(d30,'p'),v=sum(d30,'v');
+    body.replaceChildren(h('div',{class:'st-kpis'},kpi('اليوم',sum(d1,'s'),sum(d1,'v')),kpi('آخر ٧ أيام',sum(d7,'s'),sum(d7,'v')),kpi('آخر ٣٠ يومًا',sum(d30,'s'),v),kpi('منذ البداية',S.total.s,S.total.v)),
+      h('div',{},h('b',{},'الزيارات في آخر ٣٠ يومًا'),bars,h('div',{class:'vs-axis'},h('span',{},fmtD(d30[0].d)),h('span',{},'اليوم'))),
+      h('div',{class:'st-two'},h('div',{},h('b',{},'الأجهزة (٣٠ يومًا)'),h('p',{class:'note'},`📱 الجوال: ${ar(v?Math.round(m/v*100):0)}٪ · 💻 الحاسب: ${ar(v?Math.round(c/v*100):0)}٪`),h('p',{class:'note'},`منها في منصة المشاريع: ${ar(pp)} مشاهدة`)),
+        h('div',{},h('b',{},'الصفحات الأكثر زيارة (٣٠ يومًا)'),S.top.length?h('ol',{class:'st-top'},S.top.map(([p,n])=>h('li',{},h('span',{},p),h('b',{},ar(n))))):h('p',{class:'note'},'لا توجد زيارات بعد.'))))}
+  if(SHEET_URL)load();
+  return h('section',{class:'card stack'},h('div',{class:'rm-top'},h('h2',{style:'font-size:20px'},'📊 إحصاءات الزيارات'),h('button',{type:'button',class:'btn ghost',onclick:load},'↻ تحديث')),
+    h('p',{class:'note'},'عدد مجهول الهوية لزيارات موقعك ومنصة المشاريع، دون أي اسم أو عنوان IP. تُحفظ في جدولك في ورقة «إحصاءات الزيارات».'),body)}
 /* ====== «المطلوب هذا الأسبوع» في الموقع الرئيسي ====== */
 function newsBox(){const list=h('div',{class:'stack',style:'gap:8px'});const msg=h('p',{class:'msg',role:'status'});
   const gr=h('select',{style:'width:auto'},[['الكل','كل الصفوف'],['4','الرابع'],['5','الخامس'],['6','السادس']].map(([v,t])=>h('option',{value:v},t)));
@@ -1928,7 +2969,7 @@ function deviceReset(){const m=h('p',{class:'note'});let armed=false;const b=h('
   return h('section',{class:'card stack'},h('h2',{style:'font-size:20px'},'٣. البدء من جديد على هذا الجهاز'),h('p',{},'بعد التجربة تبقى الدروس التي أرسلتها مقفلة على جهازك. امسحها من هنا لتجربها مرة أخرى.'),b,m)}
 
 /* ====== الاختبار النهائي: مهام عملية فقط ====== */
-const EXAM_IDS=(PARAMS.get('exam')||'').split(',').map(x=>x.trim()).filter(id=>LESSONS[id]);
+const EXAM_IDS=(PARAMS.get('exam')||'').split(',').map(x=>x.trim()).filter(id=>LESSONS[id]);if(EXAM_IDS.length)CUR_GRADE=gradeOfLesson(EXAM_IDS[0]);
 const EXAM_TOTAL=Math.max(1,Math.min(100,parseInt(toEnDigits(PARAMS.get('total')||'20'),10)||20));
 function toEnDigits(v){return String(v).replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d))}
 function examKey(ids,total){let hsh=0;const s=ids.join(',')+'|'+total;for(let i=0;i<s.length;i++)hsh=(hsh*31+s.charCodeAt(i))|0;return 'exam-'+(hsh>>>0).toString(36)}
@@ -2055,7 +3096,7 @@ function examBuilder(base){const sel=new Set();let total=20;const out=h('div',{c
     const l=(base||'(رابط موقعك)')+'?exam='+ids.join(',')+'&total='+total+dc.qs();const b=h('button',{type:'button',class:'btn',onclick:()=>copy(l,b)},'انسخ رابط الاختبار');
     out.replaceChildren(h('b',{},`${ar(ids.length)} مهام · الدرجة الكلية ${ar(total)} · لكل مهمة ${ar(fmt1(total/ids.length))} درجات`),h('pre',{class:'preview',dir:'ltr'},l),h('div',{class:'row'},b,base?h('a',{class:'btn ghost',href:l,target:'_blank',rel:'noopener'},'جرّب الاختبار'):null),base?qrBox(l,EXAM_TITLE):null)}
   const tot=h('input',{type:'number',id:'ex-total',min:1,max:100,value:total,style:'max-width:110px;text-align:center;font-size:18px;font-weight:700',oninput:e=>{const v=parseInt(toEnDigits(e.target.value),10);if(v>=1&&v<=100){total=v;drawOut()}}});
-  const list=h('div',{class:'stack',style:'gap:14px'},TERMS.map(T=>h('div',{class:'stack',style:'gap:6px'},h('h3',{style:'font-size:18px'},T.title),T.units.map(U=>h('div',{class:'stack',style:'gap:4px'},h('div',{class:'unit-n'},U.title),U.lessons.map(L=>h('label',{class:'toggle'},h('input',{type:'checkbox',id:'ex-'+L.id,onchange:e=>{e.target.checked?sel.add(L.id):sel.delete(L.id);drawOut()}}),h('span',{},`${L.label}: ${L.title}`))))))));
+  const list=gradeTree('ex-',sel,()=>drawOut());
   drawOut();
   return h('section',{class:'card stack exam-builder'},h('h2',{style:'font-size:20px'},'٢. الاختبار النهائي (مهام عملية فقط)'),
     h('p',{},'اختر الدروس التي تريد مهامها العملية في الاختبار، وحدّد الدرجة الكلية. تُقسم الدرجة بالتساوي على المهام، وتُحفظ التقارير في مجلد «الاختبار النهائي».'),
@@ -2064,8 +3105,11 @@ function examBuilder(base){const sel=new Set();let total=20;const out=h('div',{c
 function route(){const id=location.hash.slice(1);if(isTeacher())renderTeacher();else if(wantsTeacher())renderTeacherGate();else if(EXAM_IDS.length){if(isLate()&&LATE_MODE==='close'&&!progress[examKey(EXAM_IDS,EXAM_TOTAL)])renderClosed(EXAM_TITLE);else renderExam()}
   else if(ASSIGNED.length&&isLate()&&LATE_MODE==='close'&&(ASSIGNED.length===1?!progress[ASSIGNED[0]]:!ASSIGNED.includes(id)||!progress[id])){if(ASSIGNED.length===1||ASSIGNED.includes(id))renderClosed(LESSONS[ASSIGNED.includes(id)?id:ASSIGNED[0]].title);else renderAssigned()}else if(ASSIGNED.length){if(ASSIGNED.length===1)renderLesson(LESSONS[ASSIGNED[0]]);else if(ASSIGNED.includes(id))renderLesson(LESSONS[id]);else renderAssigned()}else if(REQUIRE_LINK)renderNeedLink();else if(LESSONS[id])renderLesson(LESSONS[id]);else renderHome();window.scrollTo(0,0)}
 addEventListener('hashchange',route);route();
+(function(){try{if(!SHEET_URL||!navigator.sendBeacon||isTeacher()||wantsTeacher())return;let n=0;try{if(!sessionStorage.getItem('rqm4:vs')){sessionStorage.setItem('rqm4:vs','1');n=1}}catch(e){}
+  const p=ASSIGNED.length?(LESSONS[ASSIGNED[0]].project?'':'درس: ')+LESSONS[ASSIGNED[0]].title:EXAM_IDS.length?'الاختبار النهائي':'صفحة المنصة';
+  navigator.sendBeacon(SHEET_URL,new Blob([JSON.stringify({visit:1,p:p.slice(0,60),d:matchMedia('(max-width:760px)').matches?'m':'d',s:'proj',n})],{type:'text/plain'}))}catch(e){}})();
 /* جلب قائمة الفصول من جدول المعلم ثم تحديث القوائم المفتوحة دون مسح ما كتبه الطالب */
-(async()=>{if(!SHEET_URL){CLASSES_LOADING=false;return}try{const r=await fetch(SHEET_URL+'?action=classes');const j=await r.json();if(j&&j.roster&&typeof j.roster==='object'){ROSTER=j.roster;refreshNames();if(onRosterLoaded)try{onRosterLoaded()}catch(e){}}if(j&&Array.isArray(j.classes)&&j.classes.length){CLASSES=j.classes.map(String);if(onClassesLoaded)try{onClassesLoaded()}catch(e){}
+(async()=>{if(!SHEET_URL){CLASSES_LOADING=false;return}try{const r=await fetch(SHEET_URL+'?action=classes');const j=await r.json();if(j&&j.roster&&typeof j.roster==='object'){ROSTER=j.roster;refreshNames();if(onRosterLoaded)try{onRosterLoaded()}catch(e){}}if(j&&Array.isArray(j.classes)&&j.classes.length){CLASSES=j.classes.map(String);if(onClassesLoaded)try{onClassesLoaded()}catch(e){}CLS_HOOKS.forEach(f=>{try{f()}catch(e){}});
   document.querySelectorAll('#st-cls,#send-cls').forEach(sel=>{const cur=sel.value||student.cls;sel.replaceChildren(h('option',{value:'',disabled:true,selected:!CLASSES.includes(cur)},'اختر فصلك'),...CLASSES.map(c=>h('option',{value:c,selected:c===cur},c)))})}}catch(e){}finally{CLASSES_LOADING=false}})();
 </script>
 </body>

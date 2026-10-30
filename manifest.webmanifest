@@ -1,0 +1,22 @@
+{
+  "name": "بوابة المهارات الرقمية",
+  "short_name": "المهارات الرقمية",
+  "description": "دروس تفاعلية ومحاكيات وملخصات واختبارات لمادة المهارات الرقمية للصفوف ٤–٦",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "/?source=app",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f4f6fb",
+  "theme_color": "#1d6fb8",
+  "icons": [
+    {"src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ],
+  "shortcuts": [
+    {"name": "المشاريع المطلوبة", "url": "/projects/", "icons": [{"src": "/icon-192.png", "sizes": "192x192"}]},
+    {"name": "التقرير المفصل للطالب", "url": "/#report", "icons": [{"src": "/icon-192.png", "sizes": "192x192"}]}
+  ]
+}

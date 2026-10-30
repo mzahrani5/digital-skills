@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#1d6fb8">
 <meta name="referrer" content="strict-origin-when-cross-origin">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="المهارات الرقمية">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="بوابة المهارات الرقمية">
 <meta property="og:title" content="بوابة المهارات الرقمية — المعلم ماجد بن أحمد الزهراني">
@@ -720,6 +726,13 @@ input[type=text]:focus,input[type=number]:focus,select:focus,textarea:focus{outl
 .ann{display:flex;flex-direction:column;gap:10px;border:1.5px dashed var(--line);border-radius:14px;padding:12px 14px;margin-top:4px}.ann-cls{display:flex;flex-wrap:wrap;gap:8px}.chip{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--line);border-radius:999px;padding:6px 14px;background:var(--surface);color:var(--ink);font:inherit;font-weight:600;cursor:pointer}.chip.on{background:var(--brand1,#1d6fb8);border-color:transparent;color:#fff}.chip input{width:16px;height:16px;margin:0}
 .name-st{display:block;min-height:1.3em;margin-top:4px;font-size:13.5px;font-weight:700;color:var(--muted)}.name-st.ok{color:var(--ok)}.name-st.bad{color:var(--bad)}
 .name-opts{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.name-opt{font:inherit;font-weight:700;font-size:15px;padding:9px 14px;border-radius:12px;border:1.5px solid var(--brand1,#1d6fb8);background:var(--surface);color:var(--ink);cursor:pointer}.name-opt:hover{background:var(--brand1,#1d6fb8);color:#fff}.name-help{margin:8px 0 0;font-size:13px;color:var(--muted);background:var(--surface-2);border-radius:10px;padding:8px 12px;line-height:1.7}.name-help a{color:var(--brand1,#1d6fb8);font-weight:700}
+.g-head{font-size:21px;margin:8px 0 0;padding:8px 14px;border-radius:12px;background:var(--surface-2);border-inline-start:5px solid var(--brand1,#1d6fb8)}
+.st-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.st-kpi{background:var(--surface-2);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:2px}.st-kpi small{color:var(--muted);font-weight:700}.st-kpi b{font-size:26px;color:var(--brand1,#1d6fb8)}.st-kpi span{font-size:12.5px;color:var(--muted)}
+@media (max-width:620px){.st-kpis{grid-template-columns:1fr 1fr}}
+.vs-bars{display:flex;align-items:flex-end;gap:3px;height:120px;margin-top:8px;padding:6px;background:var(--surface-2);border-radius:12px;direction:ltr}.vs-bar{flex:1;height:100%;display:flex;align-items:flex-end}.vs-bar span{display:block;width:100%;min-height:2px;border-radius:3px 3px 0 0;background:linear-gradient(180deg,#1f9e8a,#1d6fb8)}
+.vs-axis{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:4px;direction:ltr}
+.st-two{display:grid;grid-template-columns:1fr 1.4fr;gap:16px}@media (max-width:620px){.st-two{grid-template-columns:1fr}}
+.st-top{margin:6px 0 0;padding-inline-start:22px}.st-top li{display:list-item;margin:3px 0}.st-top li span{margin-inline-end:8px}.st-top li b{color:var(--brand1,#1d6fb8)}
 
 /* ====== هيكل الموقع: الشريط الرسمي والقائمة والتذييل ====== */
 .wrap{max-width:1180px;margin:0 auto;padding-inline:max(16px,env(safe-area-inset-left,0px))}
@@ -1229,6 +1242,10 @@ button.info-card{border:1px solid var(--line);background:var(--surface);width:10
 @media (max-width:400px){.sitehead .wrap{gap:6px}.brand{gap:8px}.brand b{font-size:14px}.site-mark,.brand img.site-mark{height:36px!important;width:36px!important}.hd-acts{gap:6px}.hd-cta{width:40px!important;height:40px;padding:0!important;justify-content:center}.hd-cta .hd-cta-t{display:none}.sitehead .burger{width:40px;height:40px}}
 @media (max-width:520px){.hd-cta .hd-cta-t{display:none}.hd-cta{width:42px;padding:0;justify-content:center}}
 
+.f-install,.install-lnk{background:none;border:0;font:inherit;color:inherit;cursor:pointer;padding:0;text-decoration:underline;text-underline-offset:3px}
+.drawer .panel>.install-lnk{text-decoration:none;font-weight:700;color:var(--brand1)}
+.inst-steps{margin:0;padding-inline-start:22px;line-height:2;font-size:15.5px}
+
 body{margin:0}[hidden]{display:none!important}img{max-width:100%}
 </style>
 </head>
@@ -1468,16 +1485,19 @@ const TERMS=[
 /* الحل الصحيح خطوة بخطوة — يظهر للطالب بعد إغلاق إجاباته */
 const SOL={"t1-u1-1": ["الشاشة تُوصَل بمنفذ الصورة HDMI، وهي جهاز إخراج.", "لوحة المفاتيح والفأرة تُوصلان بمنفذي USB، وهما جهازا إدخال.", "السماعات تُوصَل بمنفذ الصوت، وهي جهاز إخراج.", "سلك الكهرباء يُوصَل بمنفذ الطاقة.", "ثم شغّل الحاسب، واكتب بلوحة المفاتيح لتظهر الكتابة على الشاشة."], "t1-u1-2": ["زر ابدأ في طرف شريط المهام أسفل الشاشة.", "سلة المحذوفات أيقونة على سطح المكتب.", "مجلد المستندات أيقونته صفراء على شكل مجلد.", "مربع البحث بجانب زر ابدأ في شريط المهام.", "الساعة وأيقونة الصوت في الطرف الآخر من شريط المهام."], "t1-u1-3": ["الخلفية: اضغط على اللون الأخضر.", "الصوت: حرّك المؤشر حتى يصير بين ٣٠ و٥٠.", "السطوع: حرّك المؤشر حتى يصير بين ٦٠ و٨٠.", "الوضع: اختر «داكن»."], "t1-u1-p": ["اضغط «حفظ» في ملف «واجبي» قبل إغلاقه.", "أغلق «واجبي» ثم «الرسام» بزر ✕.", "اضغط زر ابدأ ← الطاقة.", "اختر «إيقاف التشغيل»، وليس السكون أو إعادة التشغيل."], "t1-u2-1": ["المسافة: أطول مفتاح في الصف السفلي.", "Enter: في يمين اللوحة، وينقلك إلى سطر جديد.", "Backspace: أعلى اليمين، ويحذف الحرف الذي قبل المؤشر.", "Shift: في طرفي الصف الرابع.", "الباء في الصف الأوسط، والميم قرب نهايته.", "Alt: بجانب مفتاح المسافة."], "t1-u2-2": ["الجملة الصحيحة: «أنا أحب القراءة في المكتبة كل يوم».", "«انا» تُكتب «أنا» بهمزة على الألف.", "«احب» تُكتب «أحب» بهمزة على الألف.", "«القرأة» تُكتب «القراءة».", "«المكتبه» تُكتب «المكتبة» بتاء مربوطة."], "t1-u2-3": ["حدّد النص أولًا.", "اضغط B ليصبح غامقًا، ثم U ليكون تحته خط.", "اختر حجم الخط «كبير».", "اختر اللون الأخضر."], "t1-u2-4": ["اختر المحاذاة «وسط».", "اختر تباعد الأسطر 1.5.", "اضغط زر التعداد النقطي."], "t1-u2-p": ["اكتب ثلاثة أسطر على الأقل عن نفسك.", "اضغط B للغامق، واختر الحجم «كبير».", "اختر اللون الأزرق.", "اختر المحاذاة «وسط» وتباعد الأسطر 1.5."], "t1-u3-1": ["اكتب www.hayawanat.edu.sa في شريط العنوان، ثم اضغط «انتقال».", "اضغط رابط «الجمل» داخل الموقع.", "اضغط زر الرجوع → للعودة إلى الصفحة السابقة.", "اضغط النجمة ☆ لإضافة الموقع إلى المفضلة."], "t1-u3-2": ["اكتب كلمات قليلة ودقيقة مثل: «طول برج المملكة».", "اختر نتيجة «موسوعة المعالم» لأنها موقع تعليمي، ولا تختر الإعلان أو المنتدى.", "الإجابة: ارتفاع برج المملكة نحو ٣٠٢ متر.", "للصور: اختر قسم «صور» واكتب «صقر الشاهين»."], "t1-u3-3": ["ابحث بكلمات مثل: «عدد مناطق المملكة».", "افتح أكثر من نتيجة وقارن بينها.", "المصدر الموثوق هو «الأطلس المدرسي»: موقع تعليمي كاتبه معروف.", "المنتدى والرسالة المنتشرة لا يُعرف كاتبهما، فلا نثق بهما.", "الإجابة: ١٣ منطقة إدارية."], "t1-u3-4": ["كلمة المرور القوية: ٨ رموز فأكثر، فيها حرف إنجليزي كبير وصغير ورقم ورمز، مثل Nj#7tamr!", "أطفئ كل خيارات الخصوصية الأربعة.", "الرسالة التي تطلب كلمة المرور احتيال: اضغط «أبلغ واحذف».", "لا تفتح الرابط الموجود في الرسالة المخادعة."], "t1-u3-p": ["ابحث بكلمات مثل: «أكبر صحراء في المملكة».", "أغلق الإعلان بزر ✕ الصغير، ولا تضغط «استلم الجائزة».", "افتح نتيجة «الأطلس المدرسي» الموثوقة.", "الإجابة: الربع الخالي."], "t1-u4-1": ["الشخصية تنظر إلى اليمين والنجمة أمامها.", "ضع لبنة «تحرك خطوة» ٤ مرات.", "اضغط «تشغيل»."], "t1-u4-2": ["الشخصية تنظر إلى الأعلى.", "ضع «تحرك خطوة» ٤ مرات لتصل إلى الصف العلوي.", "ضع «استدر يمينًا».", "ضع «تحرك خطوة» ٤ مرات لتصل إلى النجمة."], "t1-u4-3": ["اختر «كرر» واجعل العدد ٥.", "داخل التكرار: تحرك خطوة، استدر يمينًا، تحرك خطوة، استدر يسارًا.", "ثم ضع «نهاية التكرار» واضغط «تشغيل»."], "t1-u4-4": ["ضع «أنزل القلم» أولًا.", "اختر «كرر» واجعل العدد ٤.", "داخل التكرار: «تحرك 100 خطوة» ثم «استدر 90 درجة».", "ثم «نهاية التكرار»."], "t1-u4-p": ["ضع «أنزل القلم».", "للمثلث: كرر ٣ مرات: تحرك 100، ثم استدر 120 درجة.", "للمربع: كرر ٤ مرات: تحرك 100، ثم استدر 90 درجة.", "ثم «نهاية التكرار» واضغط «تشغيل»."], "t2-u1-1": ["اكتب عنوانًا رئيسًا مثل «وطني» وعنوانًا فرعيًا.", "اختر تصميمًا للشريحة.", "اضغط WordArt ليصبح العنوان فنيًا."], "t2-u1-2": ["اختر صورة من الصور أو من جهازك.", "حرّك مؤشر الحجم لتغيير حجمها.", "حرّك مؤشر التدوير لتدويرها.", "اختر نمطًا: إطار أو ظل أو دائري."], "t2-u1-3": ["اختر انتقالًا للشريحة مثل «تلاشي».", "اختر حركة للعنوان مثل «طيران للداخل».", "اضغط «شغّل العرض» لتشاهد النتيجة."], "t2-u1-4": ["اختر الشريحة الثانية «رحلتي» أولًا.", "اضغط تبويب «إدراج» ثم «فيديو» ثم «هذا الجهاز».", "اختر الملف «رحلة_العلا.mp4» ثم اضغط «إدراج».", "من «عرض الشرائح» اختر «من البداية» (F5)، ثم أنهِ العرض بزر Esc."], "t2-u1-p": ["اكتب عنوانًا رئيسًا وفرعيًا عن مدينتك، واختر تصميمًا.", "أدرج صورة، ثم غيّر حجمها ودوّرها واختر لها نمطًا.", "اختر انتقالًا للشريحة وحركة للعنوان.", "اضغط «شغّل العرض»."], "t2-u2-1": ["اسم الخلية = حرف العمود من الأعلى، ثم رقم الصف من الجانب.", "مثال: B3 تعني العمود B والصف 3.", "ابحث عن الحرف أولًا، ثم انزل إلى الرقم."], "t2-u2-2": ["المعادلة تبدأ دائمًا بعلامة =", "في D2 اكتب: =B2+C2 والنتيجة 7.", "في D3 اكتب: =B3+C3 والنتيجة 8.", "في D4 اكتب: =B4+C4 والنتيجة 10."], "t2-u2-p": ["في B7 اكتب: =SUM(B2:B6) والنتيجة 20.", "في B8 اكتب: =B7/5 والنتيجة 4.", "علامة القسمة في Excel هي / وعلامة الضرب هي *."], "t2-u3-1": ["افتح تطبيق المسجّل في الجوال أو الحاسب.", "اختر مكانًا هادئًا، وسجّل من ٢٠ إلى ٤٠ ثانية بصوت واضح.", "احفظ التسجيل، ثم اختر ملفه في المنصة.", "شغّل التسجيل لتستمع إليه."], "t2-u3-2": ["تنقّل بالأسهم حتى تشاهد الصور الأربع.", "اضغط «تكبير» لرؤية التفاصيل.", "اضغط «عرض الشرائح».", "شغّل مقطع الفيديو حتى نهايته."], "t2-u3-3": ["الصورة مقلوبة: اضغط «دوّر 90°» مرتين.", "اختر قصًّا «مربعة» أو «عريضة».", "اضغط «تحسين تلقائي».", "اضغط «إزالة العين الحمراء»."], "t2-u3-4": ["حرّك مؤشر السطوع أو التباين.", "اختر مرشحًا مثل «أبيض وأسود» أو «بني قديم»."], "t2-u3-p": ["اختر صورة من جهازك أو الصورة الجاهزة.", "قصّ الصورة «مربعة» أو «عريضة».", "اضغط «تحسين تلقائي».", "اختر مرشحًا يناسب الصورة."], "t2-u4-1": ["حساس المسافة في مقدمة الروبوت ليرى ما أمامه.", "وحدة التحكم داخل الجسم، فهي عقل الروبوت.", "المحركان للعجلتين اليمنى واليسرى.", "البطارية في حجرة الطاقة.", "ثم اضغط «شغّل الروبوت»."], "t2-u4-2": ["الروبوت ينظر إلى الأعلى.", "تقدّم للأمام مرتين.", "انعطف يمينًا.", "تقدّم للأمام ٤ مرات حتى تصل إلى الراية."], "t2-u4-x": ["الرسائل التي فيها «ربحت» أو «جائزة» أو «اضغط الرابط» أو «أرسل كلمة المرور» مخادعة.", "الرسائل العادية مثل مواعيد المدرسة والتشجيع لطيفة.", "اضغط «درّب النموذج» ثم «اختبر النموذج».", "النموذج يتعلم من تصنيفك: إذا أخطأت في التدريب أخطأ في الاختبار."], "t2-u4-p": ["الروبوت ينظر إلى الأعلى: تقدّم مرتين.", "انعطف يمينًا، ثم تقدّم ٣ مرات.", "انعطف يسارًا، ثم تقدّم ٣ مرات.", "انعطف يمينًا، ثم تقدّم مرتين حتى تصل إلى الراية."]};
 /* فهرسة الدروس */
-const LESSONS={},ORDER=[];
+const LESSONS={},ORDER=[];const GRADE_TERMS={4:TERMS};let CUR_GRADE=4;const GRADE_NAMES={4:'الصف الرابع الابتدائي',5:'الصف الخامس الابتدائي',6:'الصف السادس الابتدائي'};
+const gradeOfClass=c=>{const t=String(c||'').replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d));return /خامس|^\s*5\D|\D5\s*\/|^5$/.test(t)?5:/سادس|^\s*6\D|\D6\s*\/|^6$/.test(t)?6:4};
+const gradeOfLesson=id=>(LESSONS[id]&&LESSONS[id].grade)||4;
 TERMS.forEach(T=>T.units.forEach((U,ui)=>{let li=0;U.lessons.forEach(L=>{L.term=T;L.unit=U;L.ui=ui;
   if(L.project){L.id=`t${T.n}-u${ui+1}-p`;L.label='مشروع الوحدة'}
   else if(L.extra){L.id=`t${T.n}-u${ui+1}-x`;L.label='قسم إثرائي'}
   else{li++;L.id=`t${T.n}-u${ui+1}-${li}`;L.label='الدرس '+ORD[li-1]}
-  L.unitLabel='الوحدة '+UNIT_ORD[ui];LESSONS[L.id]=L;ORDER.push(L.id)})}));
-const TYPE_TAG={sort:'تصنيف',order:'ترتيب خطوات',hotspot:'محاكاة',settings:'محاكاة',text:'تحرير نص',format:'تنسيق',grid:'برمجة',pen:'رسم بالبرمجة',sheet:'جدول بيانات',slide:'تصميم شريحة',audio:'تسجيل صوتي',gallery:'عارض الصور',photo:'تحرير صور',mcq:'مواقف',assemble:'تركيب واختبار',shutdown:'محاكاة',web:'متصفح تجريبي',search:'بحث عملي',safety:'محاكاة أمان',pptvideo:'محاكاة PowerPoint',aitrain:'تدريب نموذج ذكاء اصطناعي'};
+  L.unitLabel='الوحدة '+UNIT_ORD[ui];L.grade=4;LESSONS[L.id]=L;ORDER.push(L.id)})}));
+Object.defineProperty(INFO,'grade',{get:()=>GRADE_NAMES[CUR_GRADE]||GRADE_NAMES[4],configurable:true});
+const TYPE_TAG={sort:'تصنيف',order:'ترتيب خطوات',hotspot:'محاكاة',settings:'محاكاة',text:'تحرير نص',format:'تنسيق',grid:'برمجة',pen:'رسم بالبرمجة',sheet:'جدول بيانات',slide:'تصميم شريحة',audio:'تسجيل صوتي',gallery:'عارض الصور',photo:'تحرير صور',mcq:'مواقف',assemble:'تركيب واختبار',shutdown:'محاكاة',web:'متصفح تجريبي',search:'بحث عملي',safety:'محاكاة أمان',pptvideo:'محاكاة PowerPoint',aitrain:'تدريب نموذج ذكاء اصطناعي',files:'ملفات ومجلدات',wordimg:'مستند وصور',audioedit:'تحرير صوت',video:'تحرير فيديو',fillcode:'برمجة',email:'بريد إلكتروني',share:'مشاركة ملفات',blog:'تدوين',coords:'إحداثيات',chart:'مخطط بياني',dbcreate:'قاعدة بيانات',dbtable:'قاعدة بيانات',doctable:'جدول في مستند',pagesetup:'تنسيق الصفحة',site:'تصميم موقع',model3d:'تصميم ثلاثي الأبعاد'};
 
 /* ====== محركات المهام ====== */
-const ENG={};
+const ENG={};/*__G56__*/
 /* وضع الاختبار: لا يُظهر للطالب أثناء الحل أي إشارة إلى الصواب أو الخطأ */
 const EXAM=true;
 const goalsList=items=>h('ul',{class:'goals'+(EXAM?' plain':'')},items.map(([t,on])=>h('li',{class:!EXAM&&on?'on':'','data-ok':on?'1':'0'},t)));
@@ -2000,7 +2020,7 @@ function renderHome(){const total=ORDER.length,doneN=ORDER.filter(id=>progress[i
     h('section',{class:'card foot'},h('h3',{},'كيف أنجز مشروع الدرس؟'),h('ol',{style:'margin:0;padding-inline-start:20px'},h('li',{},'اختر الدرس الذي شرحه المعلم.'),h('li',{},'نفّذ المهمة العملية، ثم أجب عن سؤالين قصيرين.'),h('li',{},'أجب عن «تحدٍّ: طبّق ما تعلمته».'),h('li',{},'اضغط «أرسل لمعلمي عبر واتساب» ثم اختر محادثة المعلم واضغط إرسال.')),
       h('p',{style:'margin-top:8px'},'تعمل المنصة على الجوال والجهاز اللوحي والحاسب، ولا تحتاج إلى معمل حاسب.')),teacherLogin()))}
 
-function renderLesson(L){if(progress[L.id]){renderSent(L,progress[L.id]);return}const QZ=L.quiz;let reviewed=false,initDone=false;const st={task:{score:0,done:false,detail:'لم يبدأ المهمة'},quiz:new Array(QZ.length).fill(null),qa:[],reflect:''};
+function renderLesson(L){CUR_GRADE=L.grade||4;if(progress[L.id]){renderSent(L,progress[L.id]);return}const QZ=L.quiz;let reviewed=false,initDone=false;const st={task:{score:0,done:false,detail:'لم يبدأ المهمة'},quiz:new Array(QZ.length).fill(null),qa:[],reflect:''};
   const locked=ASSIGNED.length>0;const sent=progress[L.id];
   const sendBox=h('section',{class:'card send stack'});let building=true;const report=r=>{if(reviewed||building)return;st.task=r;refresh()};
   const taskEl=ENG[L.task.type](L.task,report);building=false;
@@ -2018,7 +2038,7 @@ function renderLesson(L){if(progress[L.id]){renderSent(L,progress[L.id]);return}
     reviewBox,
     sendBox,
     locked?null:h('div',{class:'row',style:'justify-content:space-between'},prev?h('a',{href:'#'+prev,class:'back'},'→ السابق: '+LESSONS[prev].title):h('span'),next?h('a',{href:'#'+next,class:'back'},'التالي: '+LESSONS[next].title+' ←'):h('span'))));
-  function buildRep(p){return{title:`${L.unitLabel} · ${L.label}: ${L.title}`,term:L.term.title,name:student.name,cls:student.cls,at:Date.now(),t:p.t,q:p.q,r:0,total:p.total,sol:SOL[L.id]||[],type:TYPE_TAG[L.task.type],done:st.task.done,detail:st.task.detail,qa:QZ.map((x,i)=>({q:x[0],a:st.qa[i]||'—',ok:!!st.quiz[i],c:x[1]})),reflect:st.reflect.trim(),ch:L.reflect}}
+  function buildRep(p){return{title:`${L.unitLabel} · ${L.label}: ${L.title}`,term:L.term.title,name:student.name,cls:student.cls,at:Date.now(),t:p.t,q:p.q,r:0,total:p.total,sol:SOL[L.id]||L.sol||[],type:TYPE_TAG[L.task.type],done:st.task.done,detail:st.task.detail,qa:QZ.map((x,i)=>({q:x[0],a:st.qa[i]||'—',ok:!!st.quiz[i],c:x[1]})),reflect:st.reflect.trim(),ch:L.reflect}}
   function pts(){const t=Math.round(st.task.score*7),q=st.quiz.filter(x=>x===true).length;return{t,q,r:0,total:t+q}}
   function message(p){const d=new Date();const date=d.toLocaleDateString('ar-SA',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+' — '+d.toLocaleTimeString('ar-SA',{hour:'numeric',minute:'2-digit'});
     return[`📘 ${INFO.subject} — ${INFO.grade}`,`🏫 ${INFO.school}`,`👨‍🏫 المعلم: ${INFO.teacher}`,'━━━━━━━━━━',`الطالب: ${student.name}`,`الفصل: ${student.cls}`,`${L.unitLabel} · ${L.label}: ${L.title}`,'━━━━━━━━━━',
@@ -2048,7 +2068,7 @@ function renderLesson(L){if(progress[L.id]){renderSent(L,progress[L.id]);return}
     reviewBox.replaceChildren(h('div',{class:'sec-t'},h('h2',{},'الحل الصحيح: تعلّم من أخطائك')),h('p',{class:'note'},'أُغلقت إجاباتك. اقرأ الحل جيدًا، ثم أرسل إنجازك.'),
       h('div',{class:'rv-s'},h('h3',{},`المهمة: ${ar(p.t)} من ٧ — ${st.task.done?'مكتملة':'غير مكتملة'}`),h('p',{class:'rv-did'},h('b',{},'ما فعلته: '),st.task.detail),
         p.t<7?h('p',{class:'rv-tip'},'انتبه: لم تحصل على الدرجة كاملة في المهمة. قارن ما فعلته بالخطوات الصحيحة:'):h('p',{class:'rv-good'},'أحسنت! وهذه الخطوات الصحيحة لتتذكرها:'),
-        h('ol',{class:'rv-steps'},(SOL[L.id]||[]).map(x=>h('li',{},x)))),
+        h('ol',{class:'rv-steps'},(SOL[L.id]||L.sol||[]).map(x=>h('li',{},x)))),
       h('div',{class:'rv-s'},h('h3',{},`الأسئلة: ${ar(p.q)} من ${ar(QZ.length)}`),...R.qa.map((x,i)=>h('div',{class:'rep-q'},h('p',{},`${ar(i+1)}. ${x.q}`),h('p',{class:x.ok?'ok':'bad'},`إجابتك: ${x.a} ${x.ok?'✓ صحيحة':'✗ خاطئة'}`),x.ok?null:h('p',{class:'ok'},`الإجابة الصحيحة: ${x.c}`)))))}
   function refresh(){if(!initDone)return;if(sent){showSent();return}const p=pts();const answered=st.quiz.every(x=>x!==null);const started=st.task.detail!=='لم يبدأ المهمة';
     const missing=[];if(!nameOk(student.name,student.cls))missing.push(nameHint(student.name,student.cls));if(isLate()&&LATE_MODE==='close')missing.push('انتهى موعد التسليم');if(!student.cls)missing.push('اكتب فصلك');if(!started)missing.push('نفّذ المهمة');if(!answered)missing.push('أجب عن الأسئلة');if(!st.rating)missing.push('اختر تقييمك للمحاكي: مفيد أو غير مفيد');if(st.reflect.trim().length<8)0;
@@ -2158,7 +2178,7 @@ function renderSent(L,P){const locked=ASSIGNED.length>0;const d=new Date(P.at);
       P.link?h('details',{},h('summary',{class:'note',style:'cursor:pointer'},'فتحت النموذج ولم تضغط «إرسال»؟'),h('div',{class:'stack',style:'gap:8px;margin-top:8px'},h('p',{class:'note'},'افتح النموذج بإجاباتك نفسها واضغط «إرسال» مرة واحدة فقط.'),h('a',{class:'btn ghost',href:P.link,target:'_blank',rel:'noopener',style:'align-self:flex-start'},'افتح النموذج بإجاباتي'))):null)))}
 /* ====== وضع الدرس المحدد وصفحة المعلم ====== */
 const PARAMS=new URLSearchParams(location.search);
-const ASSIGNED=(PARAMS.get('lesson')||'').split(',').map(x=>x.trim()).filter(id=>LESSONS[id]);
+const ASSIGNED=(PARAMS.get('lesson')||'').split(',').map(x=>x.trim()).filter(id=>LESSONS[id]);if(ASSIGNED.length)CUR_GRADE=gradeOfLesson(ASSIGNED[0]);
 /* ====== قائمة الطلاب (من ورقة «الطلاب») ====== */
 let ROSTER={};let onRosterLoaded=null;const NAME_SLOTS=[];
 const nk=s=>String(s||'').replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/\s+/g,'');
@@ -2177,14 +2197,14 @@ function nameField(id,getCls,onName,getName){const wrap=h('div',{class:'name-slo
   const inp=h('input',{type:'text',id,value:gn()||'',placeholder:'اكتب اسمك الثلاثي كما في كشف المدرسة',autocomplete:'off','aria-label':'اسم الطالب','aria-describedby':id+'-st'});
   const st=h('small',{class:'name-st',id:id+'-st',role:'status'});const opts=h('div',{class:'name-opts',hidden:true});let timer=null,lastCls=getCls();
   const help=h('p',{class:'name-help'},'⚠️ واجهت مشكلة بعد كتابة اسمك ولم يظهر؟ ',h('a',{href:'https://m-zahrani.com/#contact',target:'_blank',rel:'noopener'},'تواصل مع معلمك'));
-  const pick=n=>{inp.value=n;opts.hidden=true;opts.replaceChildren();onName(n);say('✓ تم التحقق: '+n,'ok');if(onRosterLoaded)try{onRosterLoaded()}catch(e){}};
+  const pick=n=>{NAMECHK[nkey(getCls(),n)]={ok:true,name:n};inp.value=n;opts.hidden=true;opts.replaceChildren();onName(n);say('✓ تم التحقق: '+n,'ok');if(onRosterLoaded)try{onRosterLoaded()}catch(e){}};
   const say=(t,c)=>{st.className='name-st '+(c||'');st.textContent=t};
   async function run(){const v=inp.value.replace(/\s+/g,' ').trim(),c=getCls();if(!SHEET_URL){say('');return}
     if(!c){say('اختر فصلك أولًا ثم اكتب اسمك.');return}if(words(v)<2){say(v?'اكتب اسمك الثلاثي.':'');return}
     opts.hidden=true;opts.replaceChildren();say('جارٍ التحقق من اسمك…');const r=await verifyName(c,v);if(inp.value.replace(/\s+/g,' ').trim()!==v||getCls()!==c)return;
     if(r.ok&&r.name){if(inp.value!==r.name)inp.value=r.name;onName(r.name);say('✓ تم التحقق: '+r.name,'ok')}
     else if(r.ok&&r.noroster){onName(v);say('✓ تم','ok')}
-    else if(r.status==='ambiguous'&&r.options&&r.options.length){onName(v);say('يوجد أكثر من طالب بهذا الاسم، اختر اسمك الصحيح:','bad');opts.hidden=false;opts.replaceChildren(...r.options.map(n=>h('button',{type:'button',class:'name-opt',onclick:()=>pick(n)},n)))}
+    else if((r.status==='ambiguous'||r.status==='suggest')&&r.options&&r.options.length){onName(v);say(r.status==='suggest'?'لم نجد الاسم كما كتبته. هل تقصد:':'يوجد أكثر من طالب بهذا الاسم، اختر اسمك الصحيح:','bad');opts.hidden=false;opts.replaceChildren(...r.options.map(n=>h('button',{type:'button',class:'name-opt',onmousedown:e=>e.preventDefault(),onclick:()=>pick(n)},n)))}
     else{onName(v);say(r.status==='ambiguous'?'يوجد أكثر من طالب بهذا الاسم، اكتب اسمك الرباعي.':r.status==='short'?'اكتب اسمك الثلاثي.':r.status==='net'?'تعذّر التحقق، تأكد من الإنترنت.':r.status==='busy'?'محاولات كثيرة، حاول بعد قليل.':'لم نجد هذا الاسم في كشف فصلك. اكتبه كما في كشف المدرسة، وتأكد من اختيار فصلك.','bad')}
     if(onRosterLoaded)try{onRosterLoaded()}catch(e){}}
   inp.addEventListener('input',()=>{onName(inp.value.replace(/\s+/g,' ').trim());say('');clearTimeout(timer);timer=setTimeout(run,700)});
@@ -2232,7 +2252,14 @@ function dueControls(onChange){const st={due:'',late:'close'};const di=h('input'
 /* ====== الأوسمة والشهادات ====== */
 function unitStatus(T,U){const req=U.lessons.filter(L=>!L.extra);const got=req.map(L=>progress[L.id]).filter(p=>p&&typeof p.score==='number');
   const avg=got.length?got.reduce((a,p)=>a+p.score,0)/got.length:0;return{earned:got.length===req.length&&avg>=8,done:got.length,need:req.length,avg}}
-function earnedUnits(){const out=[];TERMS.forEach(T=>T.units.forEach((U,ui)=>{const s=unitStatus(T,U);if(s.earned)out.push({T,U,ui,avg:s.avg})}));return out}
+/* قائمة الدروس حسب الصفوف التي أضاف المعلم فصولها */
+const CLS_HOOKS=[];
+function visibleGrades(){const g=new Set(CLASSES.map(gradeOfClass));const L=[4,5,6].filter(x=>g.has(x)&&GRADE_TERMS[x]);return L.length?L:[4]}
+function gradeTree(prefix,sel,onChange){const box=h('div',{class:'stack',style:'gap:14px'});
+  function draw(){const G=visibleGrades();box.replaceChildren(...G.map(g=>h('div',{class:'stack',style:'gap:12px'},G.length>1?h('h2',{class:'g-head'},GRADE_NAMES[g]):null,
+    GRADE_TERMS[g].map(T=>h('div',{class:'stack',style:'gap:6px'},h('h3',{style:'font-size:18px'},T.title),T.units.map(U=>h('div',{class:'stack',style:'gap:4px'},h('div',{class:'unit-n'},U.title),U.lessons.map(L=>h('label',{class:'toggle'},h('input',{type:'checkbox',id:prefix+L.id,checked:sel.has(L.id),onchange:e=>{e.target.checked?sel.add(L.id):sel.delete(L.id);onChange()}}),h('span',{},`${L.label}: ${L.title}`))))))))))}
+  draw();CLS_HOOKS.push(()=>{if(box.isConnected)draw()});return box}
+function earnedUnits(){const out=[];Object.values(GRADE_TERMS).forEach(TT=>TT.forEach(T=>T.units.forEach((U,ui)=>{const s=unitStatus(T,U);if(s.earned)out.push({T,U,ui,avg:s.avg})})));return out}
 async function certCanvas(name,unitTitle,avg){try{await Promise.race([Promise.all(['400 30px "HNArabic"','700 30px "HNArabic"'].map(f=>document.fonts.load(f))),sleep(2500)])}catch(e){}
   let logo=null;try{logo=await loadImg(MOE_LOGO)}catch(e){}
   const W=1600,H=1130,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');x.direction='rtl';const F='"HNArabic",Tahoma,sans-serif';
@@ -2315,12 +2342,12 @@ function renderTeacher(){const base=location.origin&&location.origin!=='null'&&!
   async function copy(t,btn){try{await navigator.clipboard.writeText(t);btn.textContent='نُسخ'}catch(e){btn.textContent='انسخه يدويًا'}setTimeout(()=>btn.textContent='انسخ',1500)}
   function drawOut(){const ids=ORDER.filter(id=>sel.has(id));if(!ids.length){out.replaceChildren(h('p',{class:'note'},'حدّد درسًا أو أكثر من القائمة ليظهر رابطه هنا.'));return}const l=linkFor(ids);const b=h('button',{type:'button',class:'btn',onclick:()=>copy(l,b)},'انسخ');
     out.replaceChildren(h('b',{},ids.length===1?'رابط الدرس المحدد:':`رابط ${ar(ids.length)} دروس محددة:`),h('pre',{class:'preview',dir:'ltr'},l),h('div',{class:'row',style:'flex-wrap:wrap'},b,base?h('a',{class:'btn ghost',href:l,target:'_blank',rel:'noopener'},'جرّب الرابط'):null),announceBtn(l,ids.length===1?'مشروع: '+LESSONS[ids[0]].title:'مشاريع: '+ids.map(x=>LESSONS[x].title).join('، '),dc.due()),base?qrBox(l,ids.length===1?LESSONS[ids[0]].title:'دروس'):null)}
-  const list=h('div',{class:'stack',style:'gap:14px'},TERMS.map(T=>h('div',{class:'stack',style:'gap:6px'},h('h3',{style:'font-size:18px'},T.title),T.units.map(U=>h('div',{class:'stack',style:'gap:4px'},h('div',{class:'unit-n'},U.title),U.lessons.map(L=>h('label',{class:'toggle'},h('input',{type:'checkbox',id:'pick-'+L.id,onchange:e=>{e.target.checked?sel.add(L.id):sel.delete(L.id);drawOut()}}),h('span',{},`${L.label}: ${L.title}`))))))));
+  const list=gradeTree('pick-',sel,()=>drawOut());
   drawOut();
   app.replaceChildren(h('div',{class:'stack'},h('header',{class:'band teacher-band'},h('div',{class:'eyebrow'},'خاص بالمعلم — لا تشارك هذه الصفحة مع الطلاب'),h('h1',{},'صفحة المعلم'),h('div',{class:'grade'},'إنشاء روابط الدروس للطلاب'),h('div',{class:'ids'},h('div',{class:'id'},h('small',{},'المعلم'),h('b',{},INFO.teacher)),h('div',{class:'id'},h('small',{},'المادة'),h('b',{},INFO.subject+' — '+INFO.grade)))),h('section',{class:'card stack'},h('h2',{style:'font-size:20px'},'١. حدّد الدرس ثم انسخ رابطه'),
     h('p',{},'حدّد الدرس الذي تريد أن يحلّه الطلاب، ثم انسخ الرابط وأرسله لهم أو لأولياء الأمور. الطالب الذي يفتح الرابط يرى هذا الدرس فقط.'),
     base?null:h('p',{class:'msg bad'},'الروابط تعمل من موقعك المنشور (مثل GitHub Pages). افتح هذه الصفحة من موقعك ليظهر الرابط كاملًا.'),
-    dc.el,h('div',{class:'send card'},out)),h('section',{class:'card'},list),examBuilder(base),newsBox(),msgBox(),rosterHelp(),deviceReset()))}
+    dc.el,h('div',{class:'send card'},out)),h('section',{class:'card'},list),examBuilder(base),statsBox(),newsBox(),msgBox(),rosterHelp(),deviceReset()))}
 /* ====== إدارة الفصول والطلاب (صفحة المعلم) ====== */
 function adminPin(){try{return sessionStorage.getItem('rqm4:tp')||''}catch(e){return ''}}
 async function adminCall(op,extra){const r=await fetch(SHEET_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({admin:1,pin:adminPin(),op},extra||{}))});return r.json()}
@@ -2359,7 +2386,7 @@ function rosterHelp(){
   const say=(t,ok)=>{msg.className='msg '+(ok===false?'bad':ok?'ok':'');msg.textContent=String(t||'').replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d])};
   let busy=false;
   async function run(op,extra,okMsg){if(busy)return false;busy=true;say('جارٍ الحفظ في جدولك…');try{const j=await adminCall(op,extra);if(j.status==='pin'){askPin();say(j.message,false);return false}if(!j.ok){say(j.message||'تعذّر التنفيذ.',false);return false}st.classes=j.classes||[];st.students=j.students||[];syncGlobals();if(!st.classes.includes(st.cur))st.cur=st.classes[0]||'';draw();say(j.message||okMsg||'تم.',true);return true}catch(e){say('تعذّر الاتصال بجدولك. تأكد من الإنترنت ثم أعد المحاولة.',false);return false}finally{busy=false}}
-  function syncGlobals(){const R={};st.students.forEach(s=>(R[s.cls]=R[s.cls]||[]).push(s.name));ROSTER=R;if(st.classes.length)CLASSES=st.classes.slice();try{refreshNames()}catch(e){}}
+  function syncGlobals(){const R={};st.students.forEach(s=>(R[s.cls]=R[s.cls]||[]).push(s.name));ROSTER=R;if(st.classes.length)CLASSES=st.classes.slice();CLS_HOOKS.forEach(f=>{try{f()}catch(e){}});try{refreshNames()}catch(e){}}
   function askPin(){const i=h('input',{type:'text',inputmode:'numeric',autocomplete:'off',placeholder:'رمز الإدارة',style:'max-width:160px;text-align:center'});const b=h('button',{type:'button',class:'btn',onclick:()=>{try{sessionStorage.setItem('rqm4:tp',i.value.replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).trim())}catch(e){}load()}},'تأكيد');
     box.replaceChildren(h('p',{},'اكتب رمز الإدارة المكتوب في كود الجدول (ADMIN_PIN).'),h('div',{class:'row'},i,b));i.focus()}
   const count=c=>st.students.filter(s=>s.cls===c).length;
@@ -2411,6 +2438,24 @@ function rosterHelp(){
   load();
   return h('section',{class:'card stack rm'},h('div',{class:'rm-top'},h('h2',{style:'font-size:20px'},'إدارة الفصول والطلاب'),h('button',{type:'button',class:'btn ghost',onclick:load,title:'تحديث'},'↻ تحديث')),
     h('p',{class:'note'},'كل تعديل هنا يُحفظ مباشرة في ورقة «الطلاب» بجدولك، ويظهر للطلاب في قائمة الأسماء.'),msg,box)}
+/* ====== إحصاءات الزيارات ====== */
+function statsBox(){const body=h('div',{class:'stack',style:'gap:14px'},h('p',{class:'note'},'جارٍ تحميل الإحصاءات…'));
+  const fmtD=d=>{try{return new Date(d+'T12:00:00').toLocaleDateString('ar-SA',{day:'numeric',month:'short'})}catch(e){return d}};
+  async function load(){body.replaceChildren(h('p',{class:'note'},'جارٍ تحميل الإحصاءات…'));try{const j=await adminCall('stats');if(j.status==='pin'){body.replaceChildren(h('p',{class:'msg bad'},'رمز الإدارة غير صحيح.'));return}if(!j.ok)throw 0;draw(j.stats)}catch(e){body.replaceChildren(h('p',{class:'msg bad'},'تعذّر تحميل الإحصاءات. تأكد أن كود الجدول محدَّث ومنشور.'))}}
+  function draw(S){const today=S.today;const by={};S.days.forEach(x=>by[x.d]=x);
+    const lastN=n=>{const out=[];for(let i=n-1;i>=0;i--){const d=new Date(Date.parse(today+'T12:00:00')-i*864e5).toISOString().slice(0,10);out.push(by[d]||{d,s:0,v:0,m:0,c:0,p:0})}return out};
+    const sum=(L,k)=>L.reduce((a,x)=>a+x[k],0);const d1=lastN(1),d7=lastN(7),d30=lastN(30);
+    const kpi=(t,a,b)=>h('div',{class:'st-kpi'},h('small',{},t),h('b',{},ar(a)),h('span',{},ar(b)+' مشاهدة'));
+    const mx=Math.max(1,...d30.map(x=>x.s));
+    const bars=h('div',{class:'vs-bars','aria-label':'الزيارات في آخر ٣٠ يومًا'},d30.map(x=>h('div',{class:'vs-bar',title:fmtD(x.d)+': '+ar(x.s)+' زيارة'},h('span',{style:`height:${Math.round(x.s/mx*100)}%`}))));
+    const m=sum(d30,'m'),c=sum(d30,'c'),pp=sum(d30,'p'),v=sum(d30,'v');
+    body.replaceChildren(h('div',{class:'st-kpis'},kpi('اليوم',sum(d1,'s'),sum(d1,'v')),kpi('آخر ٧ أيام',sum(d7,'s'),sum(d7,'v')),kpi('آخر ٣٠ يومًا',sum(d30,'s'),v),kpi('منذ البداية',S.total.s,S.total.v)),
+      h('div',{},h('b',{},'الزيارات في آخر ٣٠ يومًا'),bars,h('div',{class:'vs-axis'},h('span',{},fmtD(d30[0].d)),h('span',{},'اليوم'))),
+      h('div',{class:'st-two'},h('div',{},h('b',{},'الأجهزة (٣٠ يومًا)'),h('p',{class:'note'},`📱 الجوال: ${ar(v?Math.round(m/v*100):0)}٪ · 💻 الحاسب: ${ar(v?Math.round(c/v*100):0)}٪`),h('p',{class:'note'},`منها في منصة المشاريع: ${ar(pp)} مشاهدة`)),
+        h('div',{},h('b',{},'الصفحات الأكثر زيارة (٣٠ يومًا)'),S.top.length?h('ol',{class:'st-top'},S.top.map(([p,n])=>h('li',{},h('span',{},p),h('b',{},ar(n))))):h('p',{class:'note'},'لا توجد زيارات بعد.'))))}
+  if(SHEET_URL)load();
+  return h('section',{class:'card stack'},h('div',{class:'rm-top'},h('h2',{style:'font-size:20px'},'📊 إحصاءات الزيارات'),h('button',{type:'button',class:'btn ghost',onclick:load},'↻ تحديث')),
+    h('p',{class:'note'},'عدد مجهول الهوية لزيارات موقعك ومنصة المشاريع، دون أي اسم أو عنوان IP. تُحفظ في جدولك في ورقة «إحصاءات الزيارات».'),body)}
 /* ====== «المطلوب هذا الأسبوع» في الموقع الرئيسي ====== */
 function newsBox(){const list=h('div',{class:'stack',style:'gap:8px'});const msg=h('p',{class:'msg',role:'status'});
   const gr=h('select',{style:'width:auto'},[['الكل','كل الصفوف'],['4','الرابع'],['5','الخامس'],['6','السادس']].map(([v,t])=>h('option',{value:v},t)));
@@ -2449,7 +2494,7 @@ function deviceReset(){const m=h('p',{class:'note'});let armed=false;const b=h('
   return h('section',{class:'card stack'},h('h2',{style:'font-size:20px'},'٣. البدء من جديد على هذا الجهاز'),h('p',{},'بعد التجربة تبقى الدروس التي أرسلتها مقفلة على جهازك. امسحها من هنا لتجربها مرة أخرى.'),b,m)}
 
 /* ====== الاختبار النهائي: مهام عملية فقط ====== */
-const EXAM_IDS=(PARAMS.get('exam')||'').split(',').map(x=>x.trim()).filter(id=>LESSONS[id]);
+const EXAM_IDS=(PARAMS.get('exam')||'').split(',').map(x=>x.trim()).filter(id=>LESSONS[id]);if(EXAM_IDS.length)CUR_GRADE=gradeOfLesson(EXAM_IDS[0]);
 const EXAM_TOTAL=Math.max(1,Math.min(100,parseInt(toEnDigits(PARAMS.get('total')||'20'),10)||20));
 function toEnDigits(v){return String(v).replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d))}
 function examKey(ids,total){let hsh=0;const s=ids.join(',')+'|'+total;for(let i=0;i<s.length;i++)hsh=(hsh*31+s.charCodeAt(i))|0;return 'exam-'+(hsh>>>0).toString(36)}
@@ -2576,7 +2621,7 @@ function examBuilder(base){const sel=new Set();let total=20;const out=h('div',{c
     const l=(base||'(رابط موقعك)')+'?exam='+ids.join(',')+'&total='+total+dc.qs();const b=h('button',{type:'button',class:'btn',onclick:()=>copy(l,b)},'انسخ رابط الاختبار');
     out.replaceChildren(h('b',{},`${ar(ids.length)} مهام · الدرجة الكلية ${ar(total)} · لكل مهمة ${ar(fmt1(total/ids.length))} درجات`),h('pre',{class:'preview',dir:'ltr'},l),h('div',{class:'row'},b,base?h('a',{class:'btn ghost',href:l,target:'_blank',rel:'noopener'},'جرّب الاختبار'):null),base?qrBox(l,EXAM_TITLE):null)}
   const tot=h('input',{type:'number',id:'ex-total',min:1,max:100,value:total,style:'max-width:110px;text-align:center;font-size:18px;font-weight:700',oninput:e=>{const v=parseInt(toEnDigits(e.target.value),10);if(v>=1&&v<=100){total=v;drawOut()}}});
-  const list=h('div',{class:'stack',style:'gap:14px'},TERMS.map(T=>h('div',{class:'stack',style:'gap:6px'},h('h3',{style:'font-size:18px'},T.title),T.units.map(U=>h('div',{class:'stack',style:'gap:4px'},h('div',{class:'unit-n'},U.title),U.lessons.map(L=>h('label',{class:'toggle'},h('input',{type:'checkbox',id:'ex-'+L.id,onchange:e=>{e.target.checked?sel.add(L.id):sel.delete(L.id);drawOut()}}),h('span',{},`${L.label}: ${L.title}`))))))));
+  const list=gradeTree('ex-',sel,()=>drawOut());
   drawOut();
   return h('section',{class:'card stack exam-builder'},h('h2',{style:'font-size:20px'},'٢. الاختبار النهائي (مهام عملية فقط)'),
     h('p',{},'اختر الدروس التي تريد مهامها العملية في الاختبار، وحدّد الدرجة الكلية. تُقسم الدرجة بالتساوي على المهام، وتُحفظ التقارير في مجلد «الاختبار النهائي».'),
@@ -4046,7 +4091,7 @@ function buildChrome(){
       const w=h('div',{class:'dd','data-k':k},btn,ddMenu(k));return w}),
     null);
   const dlinks=[];NAV.forEach(([k,t,dd])=>{dlinks.push(h('a',{href:'#'+k,'data-k':k},t));if(dd)[4,5,6].forEach(g=>dlinks.push(h('a',{href:`#${k}/${g}`,class:'dsub','data-k':`${k}/${g}`},GNAME[g])))});
-  dlinks.push(h('a',{href:'#report','data-k':'report'},'📋 التقرير المفصل للطالب'));dlinks.push(h('a',{href:'#parents','data-k':'parents'},'👨‍👩‍👦 دليل ولي الأمر'));LINKS.forEach(([t,u,,e])=>dlinks.push(h('a',{href:u,target:'_blank',rel:'noopener',class:'dsub'},e+' '+t+' ↗')));if(PLATFORM_URL)dlinks.push(h('a',{href:PLATFORM_URL,target:'_blank',rel:'noopener'},'المشاريع المطلوبة ↗'));
+  dlinks.push(h('a',{href:'#report','data-k':'report'},'📋 التقرير المفصل للطالب'));dlinks.push(h('a',{href:'#parents','data-k':'parents'},'👨‍👩‍👦 دليل ولي الأمر'));dlinks.push(h('button',{type:'button',class:'install-lnk',onclick:()=>{toggleDrawer(false);installApp()}},'📲 ثبّت الموقع كتطبيق'));LINKS.forEach(([t,u,,e])=>dlinks.push(h('a',{href:u,target:'_blank',rel:'noopener',class:'dsub'},e+' '+t+' ↗')));if(PLATFORM_URL)dlinks.push(h('a',{href:PLATFORM_URL,target:'_blank',rel:'noopener'},'المشاريع المطلوبة ↗'));
   const drawer=h('div',{class:'drawer',id:'drawer'},h('div',{class:'scrim',onclick:()=>toggleDrawer(false)}),h('nav',{class:'panel','aria-label':'القائمة'},h('div',{class:'d-top'},h('b',{},'القائمة'),h('button',{type:'button',class:'burger',style:'display:grid','aria-label':'إغلاق القائمة',html:ICON.close,onclick:()=>toggleDrawer(false)})),...dlinks,h('a',{href:MAILTO},'✉ تواصل بالبريد'),h('button',{type:'button',onclick:()=>{toggleDrawer(false);openContact()}},'💬 أرسل رسالة للمعلم'),h('p',{class:'note',style:'text-align:center;margin-top:auto;padding-top:12px'},COPY)));
   const burger=h('button',{type:'button',class:'burger','aria-label':'فتح القائمة','aria-expanded':'false','aria-controls':'drawer',html:ICON.menu,onclick:()=>toggleDrawer(true)});
   const top=h('div',{class:'topbar'},h('div',{class:'wrap tb2'},h('span',{class:'tb-r'},'منصة تعليمية لمادة المهارات الرقمية',h('span',{class:'sep'},'·'),'المرحلة الابتدائية'),h('span',{class:'tb-l'},h('button',{type:'button',class:'tb-btn',onclick:()=>openContact()},h('span',{html:ICON.chat,'aria-hidden':'true',class:'tb-i'}),'أرسل رسالة'),h('a',{href:MAILTO},h('span',{html:ICON.mail,'aria-hidden':'true',class:'tb-i'}),h('span',{dir:'ltr'},SITE.email)))));
@@ -4056,7 +4101,7 @@ function buildChrome(){
       h('div',{},h('b',{},'المحتوى'),h('a',{href:'#report'},'التقرير المفصل للطالب'),h('a',{href:'#parents'},'دليل ولي الأمر'),h('a',{href:'#ai'},'ركن الذكاء الاصطناعي'),h('a',{href:'#lessons'},'الدروس'),h('a',{href:'#books'},'الكتب الدراسية'),h('a',{href:'#summaries'},'الملخصات'),h('a',{href:'#steps'},'الخطوات العملية')),
       h('div',{},h('b',{},'روابط مهمة'),...LINKS.map(([t,u])=>h('a',{href:u,target:'_blank',rel:'noopener'},t+' ↗'))),
       h('div',{},h('b',{},'من إعداد'),h('p',{dir:'ltr',class:'brand-en',style:'text-align:right'},'T. Majed Alzahrani'),h('button',{type:'button',class:'f-mail f-btn',onclick:()=>openContact()},h('span',{html:ICON.chat,'aria-hidden':'true',style:'display:inline-flex;width:18px;vertical-align:middle;margin-inline-end:6px'}),'أرسل رسالة'),h('a',{href:MAILTO,class:'f-mail'},h('span',{html:ICON.mail,'aria-hidden':'true',style:'display:inline-flex;width:18px;vertical-align:middle;margin-inline-end:6px'}),h('span',{dir:'ltr'},SITE.email)),PLATFORM_URL?h('a',{href:PLATFORM_URL,target:'_blank',rel:'noopener'},'المشاريع المطلوبة ↗'):null)),
-    h('div',{class:'f-bottom'},h('span',{},COPY),h('span',{class:'f-links'},h('a',{href:'#privacy'},'سياسة الخصوصية'),h('span',{class:'sep'},'·'),'الكتب الدراسية من مصدرها الرسمي: منصة عين'))));
+    h('div',{class:'f-bottom'},h('span',{},COPY),h('span',{class:'f-links'},h('button',{type:'button',class:'f-install',onclick:()=>installApp()},'📲 ثبّت التطبيق'),h('span',{class:'sep'},'·'),h('a',{href:'#privacy'},'سياسة الخصوصية'),h('span',{class:'sep'},'·'),'الكتب الدراسية من مصدرها الرسمي: منصة عين'))));
   addEventListener('scroll',()=>head.classList.toggle('scrolled',scrollY>8),{passive:true});const appEl=$('#app');appEl.before(top,head);appEl.after(foot);document.body.append(drawer,h('div',{class:'fabs'},h('button',{type:'button',class:'msg-fab','aria-label':'أرسل رسالة للمعلم',title:'أرسل رسالة للمعلم',onclick:()=>openContact()},h('span',{html:ICON.chat,'aria-hidden':'true',style:'display:flex'}),h('span',{class:'msg-fab-t'},'راسلنا')),h('a',{href:MAILTO,class:'mail-fab','aria-label':'راسل المعلم بالبريد الإلكتروني',title:SITE.email,html:ICON.mail})));
   buildChrome.refs={drawer,burger};
   document.addEventListener('click',e=>{if(!e.target.closest('.dd'))closeDD()});
@@ -4261,7 +4306,7 @@ function route(){const hs=decodeURIComponent(location.hash.slice(1)||'home');con
   else if(a==='quiz'&&UNITS[b]){renderQuiz(b);key='lessons/'+UNITS[b].g;wide=false}
   else{siteHome();key='home'}
   document.body.toggleAttribute('data-wide',wide);setActive(key);window.scrollTo(0,0);
-  const t=document.querySelector('#app h1');document.title=(t&&key!=='home'?t.textContent+' — ':'')+SITE.name}
+  const t=document.querySelector('#app h1');document.title=(t&&key!=='home'?t.textContent+' — ':'')+SITE.name;trackView(key==='home'?'الرئيسية':(t?(t.innerText||t.textContent).replace(/\s+/g,' ').trim():a))}
 (()=>{const l=document.createElement('link');l.rel='icon';l.href=SITE_FAV;document.head.append(l)})();
 buildChrome();addEventListener('hashchange',route);route();
 
@@ -4319,6 +4364,7 @@ function renderPrivacy(){
         'ولي الأمر يرى تقرير ابنه فقط، بالرمز الذي يصله من المعلم.',
         'الموقع مستضاف على GitHub Pages، وقد تحتفظ هذه الخدمة بسجلات تقنية عامة (مثل عنوان IP) لأغراض الأمان والتشغيل وفق سياستها.',
         'روابط الكتب الدراسية تنقلك إلى «منصة عين» الرسمية، وتخضع لسياسة الخصوصية الخاصة بها.'])),
+      sec('إحصاءات الزيارات',h('p',{},'نحسب عدد زيارات الموقع والصفحات المفتوحة ونوع الجهاز (جوال أو حاسب) بشكل مجهول تمامًا، لنعرف ما يفيد الطلاب أكثر. لا نحفظ أي اسم أو عنوان IP أو معرّف للجهاز، ولا نستخدم ملفات تعريف الارتباط (الكوكيز) أو أدوات تتبع خارجية.')),
       sec('٤. مدة الاحتفاظ بالبيانات',ul([
         'بيانات الطلاب وتقاريرهم: حتى نهاية العام الدراسي، ثم تُمسح عند بدء عام جديد.',
         'رسائل التواصل: تُحذف تلقائيًا بعد ٣٠ يومًا من الرد عليها، وأي رسالة تُحذف بعد ١٨٠ يومًا كحدّ أقصى.',
@@ -4432,6 +4478,29 @@ function renderAI(){
       h('li',{},'إذا استخدمها ابنك، فليكن ذلك معك وفي مكان مشترك، واتفقا ألا يكتب فيها أي معلومة شخصية.'),
       h('li',{},'علّمه أن يسأل «لماذا؟» و«كيف أتأكد؟»، فالتفكير النقدي أهم مهارة في عصر الذكاء الاصطناعي.'),
       h('li',{},'شجّعه على استخدامه للفهم والشرح، لا لحل الواجبات نيابة عنه.')))))}
+
+/* ===== عدّاد زيارات مجهول الهوية ===== */
+function trackView(page){try{if(!SHEET_URL||!navigator.sendBeacon)return;const key=location.hash||'#home';if(trackView.last===key)return;trackView.last=key;
+  let n=0;try{if(!sessionStorage.getItem('rqms:vs')){sessionStorage.setItem('rqms:vs','1');n=1}}catch(e){}
+  navigator.sendBeacon(SHEET_URL,new Blob([JSON.stringify({visit:1,p:String(page||'').slice(0,60),d:matchMedia('(max-width:760px)').matches?'m':'d',s:'site',n})],{type:'text/plain'}))}catch(e){}}
+
+/* ===== التثبيت كتطبيق ===== */
+let INSTALL_EVT=null;
+function installApp(){
+  if(INSTALL_EVT){INSTALL_EVT.prompt();INSTALL_EVT.userChoice.finally(()=>{INSTALL_EVT=null});return}
+  const ios=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  const standalone=matchMedia('(display-mode: standalone)').matches||navigator.standalone;
+  const close=()=>ov.remove();
+  const steps=standalone?[h('p',{},'✅ الموقع مثبّت على جهازك ويعمل كتطبيق.')]:
+    ios?[h('ol',{class:'inst-steps'},h('li',{},'افتح الموقع في متصفح Safari.'),h('li',{},'اضغط زر المشاركة ',h('b',{},'⬆️'),' في أسفل الشاشة.'),h('li',{},'اختر ',h('b',{},'«إضافة إلى الشاشة الرئيسية»'),'.'),h('li',{},'اضغط ',h('b',{},'«إضافة»'),'، فتظهر أيقونة الموقع بين تطبيقاتك.'))]:
+    [h('ol',{class:'inst-steps'},h('li',{},'افتح الموقع في Chrome أو Edge أو Samsung Internet.'),h('li',{},'افتح قائمة المتصفح ',h('b',{},'⋮'),'.'),h('li',{},'اختر ',h('b',{},'«تثبيت التطبيق»'),' أو ',h('b',{},'«إضافة إلى الشاشة الرئيسية»'),'.'))];
+  const ov=h('div',{class:'ct-ov',onclick:e=>{if(e.target===ov)close()}},h('div',{class:'ct-card',role:'dialog','aria-modal':'true','aria-labelledby':'in-t'},
+    h('div',{class:'ct-head'},h('span',{class:'ct-ic','aria-hidden':'true'},h('img',{src:SITE_FAV,alt:'',style:'width:30px;height:30px;border-radius:8px'})),h('div',{},h('h2',{id:'in-t'},'ثبّت الموقع كتطبيق'),h('small',{},'يفتح بضغطة من شاشة جوالك، مثل أي تطبيق')),h('button',{type:'button',class:'ct-x','aria-label':'إغلاق',onclick:close},'✕')),
+    h('div',{class:'ct-form'},...steps,h('button',{type:'button',class:'btn ghost',onclick:close},'حسنًا'))));
+  document.body.append(ov)}
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();INSTALL_EVT=e;document.body.classList.add('can-install')});
+addEventListener('appinstalled',()=>{INSTALL_EVT=null;document.body.classList.remove('can-install')});
+if('serviceWorker' in navigator&&/^https:/.test(location.protocol))addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));
 
 </script>
 </body>
