@@ -1212,6 +1212,20 @@ button.info-card{border:1px solid var(--line);background:var(--surface);width:10
 .link-card .tx{display:flex;flex-direction:column;flex:1;min-width:0}.link-card b{font-size:16px}.link-card small{color:var(--muted);font-size:13px;line-height:1.6}
 .link-ext{width:18px;height:18px;color:var(--muted);flex:none;display:flex}.link-ext svg{width:100%;height:100%}
 @media (max-width:860px){.link-grid{grid-template-columns:1fr}}
+/* زر المشاريع في الرأس والبطل */
+.hd-cta.hd-proj{background:linear-gradient(135deg,#f08a24,#e8692f);box-shadow:0 6px 16px -8px #e8692f}
+.hero-acts{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}
+.hero-btn{display:inline-flex;align-items:center;gap:12px;padding:12px 18px;border-radius:16px;background:rgba(255,255,255,.16);border:1.5px solid rgba(255,255,255,.4);color:#fff;text-decoration:none;transition:transform .15s,background .15s}
+.hero-btn:hover{transform:translateY(-2px);background:rgba(255,255,255,.24)}
+.hero-btn>span:first-child{width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.2);display:grid;place-items:center;flex:none}
+.hero-btn svg{width:22px;height:22px}.hero-btn b{display:block;font-size:16.5px}.hero-btn small{display:block;font-size:12.5px;opacity:.9}
+.hero-btn.hero-proj{background:#fff;color:#7a3a10;border-color:#fff;box-shadow:0 10px 24px -10px rgba(0,0,0,.35)}
+.hero-btn.hero-proj>span:first-child{background:linear-gradient(135deg,#f08a24,#e8692f);color:#fff}
+@media (max-width:640px){.hero-acts{flex-direction:column}.hero-btn{width:100%;box-sizing:border-box}}
+@media (max-width:480px){.hd-proj .hd-cta-t{display:none}.hd-proj{width:42px;padding:0;justify-content:center}}
+@media (max-width:1360px) and (min-width:1321px){.hd-cta:not(.hd-proj) .hd-cta-t{display:none}.hd-cta:not(.hd-proj){width:44px;padding:0;justify-content:center}}
+@media (max-width:400px){.sitehead .wrap{gap:6px}.brand{gap:8px}.brand b{font-size:14px}.site-mark,.brand img.site-mark{height:36px!important;width:36px!important}.hd-acts{gap:6px}.hd-cta{width:40px!important;height:40px;padding:0!important;justify-content:center}.hd-cta .hd-cta-t{display:none}.sitehead .burger{width:40px;height:40px}}
+@media (max-width:520px){.hd-cta .hd-cta-t{display:none}.hd-cta{width:42px;padding:0;justify-content:center}}
 
 body{margin:0}[hidden]{display:none!important}img{max-width:100%}
 </style>
@@ -2244,7 +2258,7 @@ function renderNeedLink(){const list=h('div',{class:'stack',style:'gap:10px'},h(
   function drawCls(){clsBox.replaceChildren(...CLASSES.map(c=>h('button',{type:'button',class:'chip'+(nc(c)===nc(myCls)?' on':''),onclick:()=>{myCls=c;student.cls=c;try{store.set('student',student)}catch(e){}drawCls();draw()}},c)))}
   function draw(){if(!myCls){list.replaceChildren(h('p',{class:'note'},'اختر فصلك أعلاه لتظهر مشاريعه.'));return}
     const L=NEWSL.filter(n=>!(n.classes&&n.classes.length)||n.classes.some(c=>nc(c)===nc(myCls)));
-    list.replaceChildren(...(L.length?L.map(n=>h('a',{class:'lesson nl-proj',href:n.link},h('span',{class:'dot','aria-hidden':'true'},'📌'),h('span',{style:'min-width:0'},h('small',{},(n.grade&&n.grade!=='الكل'?'الصف '+({'4':'الرابع','5':'الخامس','6':'السادس'}[n.grade]||n.grade):'لكل الصفوف')+(n.until?' · حتى '+fmtU(n.until):'')),h('b',{},n.text)),h('span',{class:'tag'},'افتح'))):
+    list.replaceChildren(...(L.length?L.map(n=>h('a',{class:'lesson nl-proj',href:n.link},h('span',{class:'dot','aria-hidden':'true'},'📌'),h('span',{style:'min-width:0'},h('small',{},(n.classes&&n.classes.length?'فصل '+n.classes.join('، '):n.grade&&n.grade!=='الكل'?'الصف '+({'4':'الرابع','5':'الخامس','6':'السادس'}[n.grade]||n.grade):'لكل الفصول')+(n.until?' · حتى '+fmtU(n.until):'')),h('b',{},n.text)),h('span',{class:'tag'},'افتح'))):
       [h('p',{class:'note'},'لا توجد مشاريع مطلوبة لفصلك الآن. عندما يرسل المعلم مشروعًا جديدًا سيظهر هنا.')]))}
   drawCls();onClassesLoaded=()=>{drawCls()};
   (async()=>{if(!SHEET_URL){list.replaceChildren();return}try{const r=await fetch(SHEET_URL+'?action=news');const j=await r.json();
@@ -4005,13 +4019,13 @@ function buildChrome(){
   const nav=h('nav',{class:'mainnav','aria-label':'القائمة الرئيسية'},...NAV.map(([k,t,dd])=>{if(!dd)return h('a',{href:'#'+k,'data-k':k},t);
       const btn=h('button',{type:'button','aria-expanded':'false','aria-haspopup':'true',onclick:e=>{e.stopPropagation();document.querySelectorAll('.dd.open').forEach(o=>{if(o!==w){o.classList.remove('open');o.querySelector('button').setAttribute('aria-expanded','false')}});const o=!w.classList.contains('open');w.classList.toggle('open',o);btn.setAttribute('aria-expanded',String(o))}},t,h('span',{html:ICON.down,'aria-hidden':'true',style:'display:flex'}));
       const w=h('div',{class:'dd','data-k':k},btn,ddMenu(k));return w}),
-    PLATFORM_URL?h('a',{href:PLATFORM_URL,class:'nav-ext',target:'_blank',rel:'noopener'},'المشاريع',h('span',{html:ICON.ext,'aria-hidden':'true',style:'display:flex'})):null);
+    null);
   const dlinks=[];NAV.forEach(([k,t,dd])=>{dlinks.push(h('a',{href:'#'+k,'data-k':k},t));if(dd)[4,5,6].forEach(g=>dlinks.push(h('a',{href:`#${k}/${g}`,class:'dsub','data-k':`${k}/${g}`},GNAME[g])))});
   dlinks.push(h('a',{href:'#report','data-k':'report'},'📋 التقرير المفصل للطالب'));dlinks.push(h('a',{href:'#parents','data-k':'parents'},'👨‍👩‍👦 دليل ولي الأمر'));LINKS.forEach(([t,u,,e])=>dlinks.push(h('a',{href:u,target:'_blank',rel:'noopener',class:'dsub'},e+' '+t+' ↗')));if(PLATFORM_URL)dlinks.push(h('a',{href:PLATFORM_URL,target:'_blank',rel:'noopener'},'المشاريع المطلوبة ↗'));
   const drawer=h('div',{class:'drawer',id:'drawer'},h('div',{class:'scrim',onclick:()=>toggleDrawer(false)}),h('nav',{class:'panel','aria-label':'القائمة'},h('div',{class:'d-top'},h('b',{},'القائمة'),h('button',{type:'button',class:'burger',style:'display:grid','aria-label':'إغلاق القائمة',html:ICON.close,onclick:()=>toggleDrawer(false)})),...dlinks,h('a',{href:MAILTO},'✉ تواصل بالبريد'),h('button',{type:'button',onclick:()=>{toggleDrawer(false);openContact()}},'💬 أرسل رسالة للمعلم'),h('p',{class:'note',style:'text-align:center;margin-top:auto;padding-top:12px'},COPY)));
   const burger=h('button',{type:'button',class:'burger','aria-label':'فتح القائمة','aria-expanded':'false','aria-controls':'drawer',html:ICON.menu,onclick:()=>toggleDrawer(true)});
   const top=h('div',{class:'topbar'},h('div',{class:'wrap tb2'},h('span',{class:'tb-r'},'منصة تعليمية لمادة المهارات الرقمية',h('span',{class:'sep'},'·'),'المرحلة الابتدائية'),h('span',{class:'tb-l'},h('button',{type:'button',class:'tb-btn',onclick:()=>openContact()},h('span',{html:ICON.chat,'aria-hidden':'true',class:'tb-i'}),'أرسل رسالة'),h('a',{href:MAILTO},h('span',{html:ICON.mail,'aria-hidden':'true',class:'tb-i'}),h('span',{dir:'ltr'},SITE.email)))));
-  const head=h('header',{class:'sitehead'},h('div',{class:'wrap'},h('a',{href:'#home',class:'brand'},h('img',{src:SITE_MARK,alt:'شعار موقع ماجد',class:'site-mark'}),h('span',{},h('b',{},SITE.name),h('small',{dir:'ltr',class:'brand-en'},'T. Majed Alzahrani'))),nav,h('div',{class:'hd-acts'},h('a',{href:'#report',class:'hd-cta','aria-label':'التقرير المفصل للطالب',title:'التقرير المفصل للطالب'},h('span',{html:ICON.report,'aria-hidden':'true',class:'hd-cta-i'}),h('span',{class:'hd-cta-t'},'التقرير المفصل'))),burger));
+  const head=h('header',{class:'sitehead'},h('div',{class:'wrap'},h('a',{href:'#home',class:'brand'},h('img',{src:SITE_MARK,alt:'شعار موقع ماجد',class:'site-mark'}),h('span',{},h('b',{},SITE.name),h('small',{dir:'ltr',class:'brand-en'},'T. Majed Alzahrani'))),nav,h('div',{class:'hd-acts'},PLATFORM_URL?h('a',{href:PLATFORM_URL,class:'hd-cta hd-proj','aria-label':'المشاريع المطلوبة',title:'المشاريع المطلوبة'},h('span',{html:ICON.cap,'aria-hidden':'true',class:'hd-cta-i'}),h('span',{class:'hd-cta-t'},'المشاريع')):null,h('a',{href:'#report',class:'hd-cta','aria-label':'التقرير المفصل للطالب',title:'التقرير المفصل للطالب'},h('span',{html:ICON.report,'aria-hidden':'true',class:'hd-cta-i'}),h('span',{class:'hd-cta-t'},'التقرير المفصل'))),burger));
   const foot=h('footer',{class:'sitefoot'},h('div',{class:'wrap'},h('div',{class:'f-cols'},
       h('div',{},h('img',{src:SITE_LOGO,alt:'شعار موقع ماجد',class:'foot-logo'}),h('b',{},SITE.name),h('p',{},'موقع تعليمي لمادة المهارات الرقمية في المرحلة الابتدائية: شرح الدروس، والكتب الدراسية، والملخصات، والخطوات العملية مع محاكيات للتدريب.')),
       h('div',{},h('b',{},'المحتوى'),h('a',{href:'#report'},'التقرير المفصل للطالب'),h('a',{href:'#parents'},'دليل ولي الأمر'),h('a',{href:'#ai'},'ركن الذكاء الاصطناعي'),h('a',{href:'#lessons'},'الدروس'),h('a',{href:'#books'},'الكتب الدراسية'),h('a',{href:'#summaries'},'الملخصات'),h('a',{href:'#steps'},'الخطوات العملية')),
@@ -4046,7 +4060,8 @@ function siteHome(){const q=h('input',{type:'search',id:'q',placeholder:'ابح�
   app.replaceChildren(h('div',{class:'stack',style:'gap:24px'},
     h('section',{class:'hero'},h('div',{class:'hero-t'},h('span',{class:'pill'},'المهارات الرقمية · الصفوف ٤ — ٦'),h('h1',{},'تعلّم المهارات الرقمية',h('br'),'خطوة بخطوة'),
         h('p',{},'شرح مبسّط لكل الدروس، والكتب الدراسية، وملخصات للمراجعة، وخطوات عملية مع محاكيات تتدرّب عليها من الجوال أو الحاسب.'),
-        h('div',{class:'hero-search'},h('span',{html:ICON.search,'aria-hidden':'true',style:'display:flex;color:#4f6275'}),q),res),
+        h('div',{class:'hero-search'},h('span',{html:ICON.search,'aria-hidden':'true',style:'display:flex;color:#4f6275'}),q),res,
+        h('div',{class:'hero-acts'},PLATFORM_URL?h('a',{href:PLATFORM_URL,class:'hero-btn hero-proj'},h('span',{html:ICON.cap,'aria-hidden':'true'}),h('span',{},h('b',{},'المشاريع المطلوبة'),h('small',{},'نفّذ مشروعك وأرسله للمعلم'))):null,h('a',{href:'#lessons',class:'hero-btn'},h('span',{html:ICON.play,'aria-hidden':'true'}),h('span',{},h('b',{},'ابدأ التعلّم'),h('small',{},'الدروس والتدريب العملي'))))),
       h('div',{class:'hero-ph','aria-hidden':'true'},h('div',{},h('img',{src:HERO_IMG,alt:''})))),
     h('div',{class:'stat-strip'},[[ar(total),'درسًا ومشروعًا'],[ar(Object.keys(UNITS).length),'وحدة دراسية'],['٦','كتب دراسية'],['٣','صفوف دراسية']].map(([n,t])=>h('div',{},h('b',{class:'num'},n),h('span',{},t)))),
     newsBar(),
