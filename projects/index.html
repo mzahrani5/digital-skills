@@ -706,6 +706,7 @@ input[type=text]:focus,input[type=number]:focus,select:focus,textarea:focus{outl
 .nl-hero{background:linear-gradient(135deg,color-mix(in srgb,var(--brand1,#1d6fb8) 8%,var(--surface)),var(--surface))}.nl-steps{margin:0;padding-inline-start:22px;line-height:1.9}.nl-proj b{white-space:normal}
 .ann{display:flex;flex-direction:column;gap:10px;border:1.5px dashed var(--line);border-radius:14px;padding:12px 14px;margin-top:4px}.ann-cls{display:flex;flex-wrap:wrap;gap:8px}.chip{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--line);border-radius:999px;padding:6px 14px;background:var(--surface);color:var(--ink);font:inherit;font-weight:600;cursor:pointer}.chip.on{background:var(--brand1,#1d6fb8);border-color:transparent;color:#fff}.chip input{width:16px;height:16px;margin:0}
 .name-st{display:block;min-height:1.3em;margin-top:4px;font-size:13.5px;font-weight:700;color:var(--muted)}.name-st.ok{color:var(--ok)}.name-st.bad{color:var(--bad)}
+.name-opts{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.name-opt{font:inherit;font-weight:700;font-size:15px;padding:9px 14px;border-radius:12px;border:1.5px solid var(--brand1,#1d6fb8);background:var(--surface);color:var(--ink);cursor:pointer}.name-opt:hover{background:var(--brand1,#1d6fb8);color:#fff}.name-help{margin:8px 0 0;font-size:13px;color:var(--muted);background:var(--surface-2);border-radius:10px;padding:8px 12px;line-height:1.7}.name-help a{color:var(--brand1,#1d6fb8);font-weight:700}
 </style>
 <style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
 </head>
@@ -1649,22 +1650,25 @@ function nameHint(name,cls){if(!cls)return 'اختر فصلك';if(words(name)<2)
   return r.status==='ambiguous'?'اكتب اسمك كاملًا (الرباعي)':r.status==='busy'?'حاول بعد قليل':'اكتب اسمك كما في كشف المدرسة'}
 async function verifyName(cls,name){const k=nkey(cls,name);if(NAMECHK[k])return NAMECHK[k];
   try{const r=await fetch(SHEET_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({checkName:1,cls,name})});const j=await r.json();
-    const res=j&&j.ok?(j.noroster?{ok:true,noroster:true}:{ok:true,name:j.name}):{ok:false,status:(j&&j.status)||'notfound'};
+    const res=j&&j.ok?(j.noroster?{ok:true,noroster:true}:{ok:true,name:j.name}):{ok:false,status:(j&&j.status)||'notfound',options:(j&&j.options)||[]};
     if(res.status!=='busy')NAMECHK[k]=res;if(res.ok&&res.name)NAMECHK[nkey(cls,res.name)]=res;return res}catch(e){return{ok:false,status:'net'}}}
 function nameField(id,getCls,onName,getName){const wrap=h('div',{class:'name-slot'});const gn=getName||(()=>student.name);
   const inp=h('input',{type:'text',id,value:gn()||'',placeholder:'اكتب اسمك الثلاثي كما في كشف المدرسة',autocomplete:'off','aria-label':'اسم الطالب','aria-describedby':id+'-st'});
-  const st=h('small',{class:'name-st',id:id+'-st',role:'status'});let timer=null,lastCls=getCls();
+  const st=h('small',{class:'name-st',id:id+'-st',role:'status'});const opts=h('div',{class:'name-opts',hidden:true});let timer=null,lastCls=getCls();
+  const help=h('p',{class:'name-help'},'⚠️ واجهت مشكلة بعد كتابة اسمك ولم يظهر؟ ',h('a',{href:'https://m-zahrani.com/#contact',target:'_blank',rel:'noopener'},'تواصل مع معلمك'));
+  const pick=n=>{NAMECHK[nkey(getCls(),n)]={ok:true,name:n};inp.value=n;opts.hidden=true;opts.replaceChildren();onName(n);say('✓ تم التحقق: '+n,'ok');if(onRosterLoaded)try{onRosterLoaded()}catch(e){}};
   const say=(t,c)=>{st.className='name-st '+(c||'');st.textContent=t};
   async function run(){const v=inp.value.replace(/\s+/g,' ').trim(),c=getCls();if(!SHEET_URL){say('');return}
     if(!c){say('اختر فصلك أولًا ثم اكتب اسمك.');return}if(words(v)<2){say(v?'اكتب اسمك الثلاثي.':'');return}
-    say('جارٍ التحقق من اسمك…');const r=await verifyName(c,v);if(inp.value.replace(/\s+/g,' ').trim()!==v||getCls()!==c)return;
+    opts.hidden=true;opts.replaceChildren();say('جارٍ التحقق من اسمك…');const r=await verifyName(c,v);if(inp.value.replace(/\s+/g,' ').trim()!==v||getCls()!==c)return;
     if(r.ok&&r.name){if(inp.value!==r.name)inp.value=r.name;onName(r.name);say('✓ تم التحقق: '+r.name,'ok')}
     else if(r.ok&&r.noroster){onName(v);say('✓ تم','ok')}
+    else if(r.status==='ambiguous'&&r.options&&r.options.length){onName(v);say('يوجد أكثر من طالب بهذا الاسم، اختر اسمك الصحيح:','bad');opts.hidden=false;opts.replaceChildren(...r.options.map(n=>h('button',{type:'button',class:'name-opt',onmousedown:e=>e.preventDefault(),onclick:()=>pick(n)},n)))}
     else{onName(v);say(r.status==='ambiguous'?'يوجد أكثر من طالب بهذا الاسم، اكتب اسمك الرباعي.':r.status==='short'?'اكتب اسمك الثلاثي.':r.status==='net'?'تعذّر التحقق، تأكد من الإنترنت.':r.status==='busy'?'محاولات كثيرة، حاول بعد قليل.':'لم نجد هذا الاسم في كشف فصلك. اكتبه كما في كشف المدرسة، وتأكد من اختيار فصلك.','bad')}
     if(onRosterLoaded)try{onRosterLoaded()}catch(e){}}
   inp.addEventListener('input',()=>{onName(inp.value.replace(/\s+/g,' ').trim());say('');clearTimeout(timer);timer=setTimeout(run,700)});
   inp.addEventListener('blur',()=>{clearTimeout(timer);run()});
-  wrap.replaceChildren(inp,st);
+  wrap.replaceChildren(inp,st,opts,SHEET_URL?help:null);
   function draw(){const c=getCls();if(c!==lastCls){lastCls=c;if(inp.value.trim())run()}}
   const slot={wrap,draw};NAME_SLOTS.push(slot);if(inp.value.trim())setTimeout(run,0);return slot}
 function refreshNames(){NAME_SLOTS.forEach(s=>s.draw())}
