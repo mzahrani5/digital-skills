@@ -733,6 +733,42 @@ input[type=text]:focus,input[type=number]:focus,select:focus,textarea:focus{outl
 .vs-axis{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:4px;direction:ltr}
 .st-two{display:grid;grid-template-columns:1fr 1.4fr;gap:16px}@media (max-width:620px){.st-two{grid-template-columns:1fr}}
 .st-top{margin:6px 0 0;padding-inline-start:22px}.st-top li{display:list-item;margin:3px 0}.st-top li span{margin-inline-end:8px}.st-top li b{color:var(--brand1,#1d6fb8)}
+.gr-pick{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.gr-chip{display:flex;flex-direction:column;align-items:center;gap:4px;padding:14px 10px;border-radius:16px;border:2px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;cursor:pointer;position:relative;transition:border-color .15s,background .15s}.gr-chip b{font-size:17px}.gr-chip small{color:var(--muted);font-size:12.5px}.gr-chip.on{border-color:var(--brand1,#1d6fb8);background:color-mix(in srgb,var(--brand1,#1d6fb8) 8%,var(--surface))}.gr-ck{position:absolute;top:8px;inset-inline-start:8px;width:24px;height:24px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:14px;font-weight:800;color:#fff}.gr-chip.on .gr-ck{background:var(--brand1,#1d6fb8);border-color:var(--brand1,#1d6fb8)}@media (max-width:520px){.gr-pick{grid-template-columns:1fr}.gr-chip{flex-direction:row;justify-content:center;gap:10px}}
+
+/* ===== لوحة المعلم — ألوان مستوحاة من رؤية ٢٠٣٠ ===== */
+body.dash-mode{--v-green:#006C35;--v-teal:#00A19B;--v-mint:#7BC8A4;--v-navy:#14303f;--v-sand:#C9A961;background:linear-gradient(180deg,#eef6f2 0,#f6f8f7 340px)}
+body.dash-mode #app{max-width:1120px}
+.dash{display:flex;flex-direction:column;gap:16px}
+.dhero{position:relative;overflow:hidden;border-radius:26px;padding:22px 24px 18px;color:#fff;background:radial-gradient(600px 300px at 0% 0%,rgba(123,200,164,.35),transparent 60%),linear-gradient(135deg,var(--v-green) 0%,#0b7a52 45%,var(--v-teal) 100%);box-shadow:0 22px 50px -24px rgba(0,108,53,.7)}
+.dhero::after{content:"";position:absolute;inset:auto -60px -90px auto;width:260px;height:260px;border-radius:50%;border:38px solid rgba(255,255,255,.07)}
+.dh-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;position:relative;z-index:1}
+.dh-id{display:flex;gap:14px;align-items:center}.dh-av{width:58px;height:58px;border-radius:18px;background:rgba(255,255,255,.18);display:grid;place-items:center;font-size:30px;flex:none}
+.dh-id small{opacity:.85;font-weight:700;letter-spacing:.02em}.dh-id h1{margin:2px 0;font-size:26px}.dh-id p{margin:0;opacity:.9;font-size:14px}
+.dh-acts{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.dh-date{font-size:13px;opacity:.9;margin-inline-end:6px}
+.dh-btn{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.35);color:#fff;border-radius:12px;padding:8px 14px;font:inherit;font-weight:700;font-size:14px;cursor:pointer;text-decoration:none}.dh-btn:hover{background:rgba(255,255,255,.26)}
+.dk-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:18px;position:relative;z-index:1}
+.dk{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.95);color:var(--v-navy);border:0;border-radius:18px;padding:12px 14px;font:inherit;text-align:start;cursor:pointer;box-shadow:0 10px 24px -14px rgba(0,0,0,.4);transition:transform .15s}.dk:hover{transform:translateY(-2px)}
+.dk-ic{width:42px;height:42px;border-radius:12px;background:#e6f4ec;display:grid;place-items:center;font-size:20px;flex:none}.dk-t b{display:block;font-size:24px;line-height:1.1;color:var(--v-green)}.dk-t small{color:#5b6b66;font-weight:700}
+.dh-warn{margin:14px 0 0;font-size:12.5px;opacity:.85;position:relative;z-index:1}
+.dnav{position:sticky;top:8px;z-index:20;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;background:rgba(255,255,255,.88);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid #dfe9e4;border-radius:18px;padding:6px;box-shadow:0 10px 24px -18px rgba(0,60,30,.45)}
+.dnav::-webkit-scrollbar{display:none}
+.dnav button{flex:none;display:flex;align-items:center;gap:7px;border:0;background:none;color:#33463f;font:inherit;font-weight:700;font-size:14.5px;padding:10px 14px;border-radius:13px;cursor:pointer;white-space:nowrap}
+.dnav button:hover{background:#eef6f2}.dnav button.on{background:linear-gradient(135deg,var(--v-green),var(--v-teal));color:#fff;box-shadow:0 8px 18px -10px var(--v-green)}
+.dmain{display:flex;flex-direction:column;gap:16px}.dpanel{animation:dfade .25s ease}@keyframes dfade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+body.dash-mode .card{border-radius:22px;border-color:#e2ece7}
+body.dash-mode .card h2{color:var(--v-navy)}
+body.dash-mode .btn:not(.ghost):not(.wa):not(.mb-wa):not(.pm-wa):not(.rm-danger){background:linear-gradient(135deg,var(--v-green),var(--v-teal));color:#fff}
+.pn-h{display:flex;justify-content:space-between;align-items:center}.pn-h h2{margin:0;font-size:21px}
+.pn-hint{margin:0;background:#eef6f2;border-radius:12px;padding:8px 12px;font-size:14px;color:#2d4a3e}.lnk{background:none;border:0;color:var(--v-green);font:inherit;font-weight:800;text-decoration:underline;cursor:pointer;padding:0}
+.dq-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.dq{display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:start;border:1.5px solid #e2ece7;background:#fff;border-radius:18px;padding:16px;font:inherit;color:var(--v-navy);cursor:pointer;transition:border-color .15s,transform .15s}.dq:hover{border-color:var(--v-teal);transform:translateY(-2px)}
+.dq-ic{font-size:26px;width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#e6f4ec,#e2f5f4);display:grid;place-items:center;margin-bottom:4px}.dq b{font-size:16.5px}.dq small{color:#5b6b66;line-height:1.6}
+.dash-tip{background:linear-gradient(135deg,#fbf6ea,#fff)!important;border-color:#eadcb8!important}.dash-tip p{margin:4px 0 0;color:#5b4a22}
+body.dash-mode .gr-chip.on{border-color:var(--v-green);background:#eaf5ef}body.dash-mode .gr-chip.on .gr-ck{background:var(--v-green);border-color:var(--v-green)}
+body.dash-mode .rm-tab.on{background:var(--v-green)}
+@media (max-width:860px){.dk-row{grid-template-columns:1fr 1fr}.dq-grid{grid-template-columns:1fr 1fr}}
+@media (max-width:520px){.dhero{padding:18px 16px}.dh-id h1{font-size:21px}.dq-grid{grid-template-columns:1fr}.dk{padding:10px}.dk-t b{font-size:20px}.dh-date{display:none}}
+body.dash-mode .foot{border:0!important;padding:0!important;background:none!important}body.dash-mode .foot .row{justify-content:center}body.dash-mode .foot .btn.ghost{background:linear-gradient(135deg,var(--v-green),var(--v-teal))!important;color:#fff!important;border:0!important}body.dash-mode #t-pin{font-size:20px}
 
 /* ====== هيكل الموقع: الشريط الرسمي والقائمة والتذييل ====== */
 .wrap{max-width:1180px;margin:0 auto;padding-inline:max(16px,env(safe-area-inset-left,0px))}
@@ -2254,7 +2290,15 @@ function unitStatus(T,U){const req=U.lessons.filter(L=>!L.extra);const got=req.m
   const avg=got.length?got.reduce((a,p)=>a+p.score,0)/got.length:0;return{earned:got.length===req.length&&avg>=8,done:got.length,need:req.length,avg}}
 /* قائمة الدروس حسب الصفوف التي أضاف المعلم فصولها */
 const CLS_HOOKS=[];
-function visibleGrades(){const g=new Set(CLASSES.map(gradeOfClass));const L=[4,5,6].filter(x=>g.has(x)&&GRADE_TERMS[x]);return L.length?L:[4]}
+let TEACH_GRADES=null;try{TEACH_GRADES=JSON.parse(localStorage.getItem('rqm4:grades')||'null')}catch(e){}
+function visibleGrades(){if(Array.isArray(TEACH_GRADES)&&TEACH_GRADES.length){const L=[4,5,6].filter(x=>TEACH_GRADES.includes(x)&&GRADE_TERMS[x]);if(L.length)return L}const g=new Set(CLASSES.map(gradeOfClass));const L=[4,5,6].filter(x=>g.has(x)&&GRADE_TERMS[x]);return L.length?L:[4]}
+function setTeachGrades(L){TEACH_GRADES=L;try{localStorage.setItem('rqm4:grades',JSON.stringify(L))}catch(e){}CLS_HOOKS.forEach(f=>{try{f()}catch(e){}})}
+function gradesCard(){const box=h('div',{class:'gr-pick',role:'group','aria-label':'المراحل التي تدرّسها'});const msg=h('small',{class:'note',role:'status'});
+  function draw(){const cur=visibleGrades();box.replaceChildren(...[4,5,6].filter(g=>GRADE_TERMS[g]).map(g=>{const on=cur.includes(g);return h('button',{type:'button',class:'gr-chip'+(on?' on':''),'aria-pressed':on?'true':'false',onclick:()=>toggle(g)},h('span',{class:'gr-ck','aria-hidden':'true'},on?'✓':''),h('b',{},GRADE_NAMES[g].replace(' الابتدائي','')),h('small',{},ar(Object.keys(LESSONS).filter(k=>gradeOfLesson(k)===g).length)+' درسًا ومشروعًا'))}))}
+  async function toggle(g){const cur=visibleGrades();const nx=cur.includes(g)?cur.filter(x=>x!==g):[...cur,g].sort();if(!nx.length){msg.textContent='اختر مرحلة واحدة على الأقل.';return}setTeachGrades(nx);draw();msg.textContent='جارٍ الحفظ…';try{const j=await adminCall('setGrades',{grades:nx});msg.textContent=j&&j.ok?'✓ حُفظت، وتظهر لك دروس '+nx.map(x=>GRADE_NAMES[x].replace('الصف ','').replace(' الابتدائي','')).join(' و')+' أدناه.':'حُفظت على هذا الجهاز فقط.'}catch(e){msg.textContent='حُفظت على هذا الجهاز فقط.'}}
+  draw();CLS_HOOKS.push(()=>{if(box.isConnected)draw()});
+  if(SHEET_URL)adminCall('prefs').then(j=>{if(j&&j.ok&&Array.isArray(j.grades)&&j.grades.length&&JSON.stringify(j.grades)!==JSON.stringify(TEACH_GRADES)){setTeachGrades(j.grades)}}).catch(()=>{});
+  return h('section',{class:'card stack'},h('h2',{style:'font-size:20px'},'المراحل التي تدرّسها'),h('p',{class:'note'},'حدّد صفوفك هذا العام، فتظهر لك دروسها فقط عند إنشاء روابط المشاريع والاختبارات. يمكنك تغييرها في أي وقت.'),box,msg)}
 function gradeTree(prefix,sel,onChange){const box=h('div',{class:'stack',style:'gap:14px'});
   function draw(){const G=visibleGrades();box.replaceChildren(...G.map(g=>h('div',{class:'stack',style:'gap:12px'},G.length>1?h('h2',{class:'g-head'},GRADE_NAMES[g]):null,
     GRADE_TERMS[g].map(T=>h('div',{class:'stack',style:'gap:6px'},h('h3',{style:'font-size:18px'},T.title),T.units.map(U=>h('div',{class:'stack',style:'gap:4px'},h('div',{class:'unit-n'},U.title),U.lessons.map(L=>h('label',{class:'toggle'},h('input',{type:'checkbox',id:prefix+L.id,checked:sel.has(L.id),onchange:e=>{e.target.checked?sel.add(L.id):sel.delete(L.id);onChange()}}),h('span',{},`${L.label}: ${L.title}`))))))))))}
@@ -2290,7 +2334,7 @@ const REQUIRE_LINK=false; /* في نسخة الموقع: true = لا يفتح ا
 const wantsTeacher=()=>PARAMS.has('teacher')||location.hash==='#teacher';
 const isTeacher=()=>{try{return sessionStorage.getItem('rqm4:t')==='1'}catch(e){return false}};
 function renderTeacherGate(){const t=teacherLogin();const box=t.querySelector('.stack');if(box)box.hidden=false;const tb=t.querySelector('button.back');if(tb)tb.remove();
-  app.replaceChildren(h('div',{class:'stack'},masthead(),h('section',{class:'card stack'},h('h2',{style:'font-size:20px'},'دخول المعلم'),h('p',{class:'muted'},'اكتب رمز الدخول لفتح صفحة المعلم.'),t)));const pin=$('#t-pin');if(pin)pin.focus()}
+  document.body.classList.add('dash-mode');app.replaceChildren(h('div',{class:'dash',style:'max-width:520px;margin:6vh auto 0'},h('header',{class:'dhero',style:'text-align:center'},h('div',{style:'font-size:44px'},'👨‍🏫'),h('h1',{style:'margin:6px 0 2px;font-size:26px'},'لوحة المعلم'),h('p',{style:'margin:0;opacity:.9'},INFO.subject+' · '+INFO.school)),h('section',{class:'card stack',style:'text-align:center'},h('h2',{style:'font-size:20px'},'🔐 دخول المعلم'),h('p',{class:'muted'},'اكتب رمز الدخول لفتح لوحة المعلم.'),t)));const pin=$('#t-pin');if(pin)pin.focus()}
 function teacherLogin(){const pin=h('input',{type:'text',id:'t-pin',inputmode:'numeric',autocomplete:'off',placeholder:'الرمز',style:'max-width:140px;text-align:center;letter-spacing:.2em'});const m=h('p',{class:'msg'});let busy=false;const go=async()=>{if(busy)return;const v=pin.value.replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).trim();if(!v){pin.focus();return}if(!SHEET_URL){m.className='msg bad';m.textContent='المنصة غير مربوطة بالجدول.';return}busy=true;m.className='msg';m.textContent='جارٍ التحقق…';
     try{const r=await fetch(SHEET_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({admin:1,pin:v,op:'auth'})});const j=await r.json();
       if(j&&j.ok){try{sessionStorage.setItem('rqm4:t','1');sessionStorage.setItem('rqm4:tp',v)}catch(e){}renderTeacher();window.scrollTo(0,0)}else{m.className='msg bad';m.textContent=(j&&j.status==='busy')?j.message:'الرمز غير صحيح.'}}
@@ -2344,10 +2388,11 @@ function renderTeacher(){const base=location.origin&&location.origin!=='null'&&!
     out.replaceChildren(h('b',{},ids.length===1?'رابط الدرس المحدد:':`رابط ${ar(ids.length)} دروس محددة:`),h('pre',{class:'preview',dir:'ltr'},l),h('div',{class:'row',style:'flex-wrap:wrap'},b,base?h('a',{class:'btn ghost',href:l,target:'_blank',rel:'noopener'},'جرّب الرابط'):null),announceBtn(l,ids.length===1?'مشروع: '+LESSONS[ids[0]].title:'مشاريع: '+ids.map(x=>LESSONS[x].title).join('، '),dc.due()),base?qrBox(l,ids.length===1?LESSONS[ids[0]].title:'دروس'):null)}
   const list=gradeTree('pick-',sel,()=>drawOut());
   drawOut();
-  app.replaceChildren(h('div',{class:'stack'},h('header',{class:'band teacher-band'},h('div',{class:'eyebrow'},'خاص بالمعلم — لا تشارك هذه الصفحة مع الطلاب'),h('h1',{},'صفحة المعلم'),h('div',{class:'grade'},'إنشاء روابط الدروس للطلاب'),h('div',{class:'ids'},h('div',{class:'id'},h('small',{},'المعلم'),h('b',{},INFO.teacher)),h('div',{class:'id'},h('small',{},'المادة'),h('b',{},INFO.subject+' — '+INFO.grade)))),h('section',{class:'card stack'},h('h2',{style:'font-size:20px'},'١. حدّد الدرس ثم انسخ رابطه'),
-    h('p',{},'حدّد الدرس الذي تريد أن يحلّه الطلاب، ثم انسخ الرابط وأرسله لهم أو لأولياء الأمور. الطالب الذي يفتح الرابط يرى هذا الدرس فقط.'),
-    base?null:h('p',{class:'msg bad'},'الروابط تعمل من موقعك المنشور (مثل GitHub Pages). افتح هذه الصفحة من موقعك ليظهر الرابط كاملًا.'),
-    dc.el,h('div',{class:'send card'},out)),h('section',{class:'card'},list),examBuilder(base),statsBox(),newsBox(),msgBox(),rosterHelp(),deviceReset()))}
+  const linksPanel=h('div',{class:'stack'},h('section',{class:'card stack'},h('div',{class:'pn-h'},h('h2',{},'🔗 روابط المشاريع')),
+    h('p',{},'حدّد الدرس الذي تريد أن يحلّه الطلاب، ثم انسخ الرابط وأرسله لهم. الطالب الذي يفتح الرابط يرى هذا الدرس فقط.'),gradesHint(),
+    base?null:h('p',{class:'msg bad'},'الروابط تعمل من موقعك المنشور. افتح هذه الصفحة من موقعك ليظهر الرابط كاملًا.'),
+    dc.el,h('div',{class:'send card'},out)),h('section',{class:'card'},list));
+  teacherDash({links:linksPanel,exam:examBuilder(base),roster:rosterHelp(),news:newsBox(),msgs:msgBox(),stats:statsBox(),settings:h('div',{class:'stack'},gradesCard(),pinHelp(),deviceReset())})}
 /* ====== إدارة الفصول والطلاب (صفحة المعلم) ====== */
 function adminPin(){try{return sessionStorage.getItem('rqm4:tp')||''}catch(e){return ''}}
 async function adminCall(op,extra){const r=await fetch(SHEET_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({admin:1,pin:adminPin(),op},extra||{}))});return r.json()}
@@ -2438,6 +2483,38 @@ function rosterHelp(){
   load();
   return h('section',{class:'card stack rm'},h('div',{class:'rm-top'},h('h2',{style:'font-size:20px'},'إدارة الفصول والطلاب'),h('button',{type:'button',class:'btn ghost',onclick:load,title:'تحديث'},'↻ تحديث')),
     h('p',{class:'note'},'كل تعديل هنا يُحفظ مباشرة في ورقة «الطلاب» بجدولك، ويظهر للطلاب في قائمة الأسماء.'),msg,box)}
+/* ====== لوحة المعلم (تصميم عصري بتبويبات) ====== */
+const DASH_TABS=[['home','🏠','الرئيسية'],['links','🔗','روابط المشاريع'],['exam','📝','الاختبار النهائي'],['roster','👥','الفصول والطلاب'],['news','📌','الإعلانات'],['msgs','💬','الرسائل'],['stats','📊','الإحصاءات'],['settings','⚙️','الإعدادات']];
+function gradesHint(){const el=h('p',{class:'pn-hint'});const draw=()=>{el.replaceChildren('تظهر لك دروس: ',h('b',{},visibleGrades().map(g=>GRADE_NAMES[g].replace(' الابتدائي','')).join('، ')),' · ',h('button',{type:'button',class:'lnk',onclick:()=>dashGo('settings')},'تغيير المراحل'))};draw();CLS_HOOKS.push(()=>{if(el.isConnected)draw()});return el}
+function pinHelp(){return h('section',{class:'card stack'},h('h2',{style:'font-size:20px'},'🔐 رمز الدخول'),h('p',{class:'note'},'رمز دخول هذه الصفحة محفوظ في جدولك فقط، ولا يظهر في ملفات الموقع. لتغييره: افتح Apps Script ← ⚙️ إعدادات المشروع ← خصائص النص البرمجي ← عدّل قيمة ADMIN_PIN ← حفظ.'),
+  h('button',{type:'button',class:'btn ghost',onclick:()=>{try{sessionStorage.removeItem('rqm4:t');sessionStorage.removeItem('rqm4:tp')}catch(e){}location.href=location.pathname+'?teacher'}},'🚪 تسجيل الخروج من صفحة المعلم'))}
+let dashGo=()=>{};
+function teacherDash(panels){document.body.classList.add('dash-mode');
+  const today=new Date().toLocaleDateString('ar-SA',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const kpiV={};const kpi=(k,ic,t,tab)=>{const v=h('b',{},'…');kpiV[k]=v;return h('button',{type:'button',class:'dk',onclick:()=>dashGo(tab)},h('span',{class:'dk-ic','aria-hidden':'true'},ic),h('span',{class:'dk-t'},v,h('small',{},t)))};
+  const quick=(tab,ic,t,d)=>h('button',{type:'button',class:'dq',onclick:()=>dashGo(tab)},h('span',{class:'dq-ic','aria-hidden':'true'},ic),h('b',{},t),h('small',{},d));
+  const home=h('div',{class:'stack'},h('section',{class:'card stack'},h('h2',{style:'font-size:20px'},'ماذا تريد أن تفعل؟'),h('div',{class:'dq-grid'},
+      quick('links','🔗','أرسل مشروعًا','اختر الدرس وانسخ رابطه أو انشره في الموقع'),quick('exam','📝','أنشئ اختبارًا','اختبار نهائي بمهام عملية ودرجة'),
+      quick('roster','👥','الطلاب والفصول','إضافة واستيراد ورموز أولياء الأمور'),quick('news','📌','إعلان للطلاب','يظهر في «المطلوب هذا الأسبوع»'),
+      quick('msgs','💬','رسائل الزوار','أسئلة أولياء الأمور والرد عليها'),quick('stats','📊','الإحصاءات','الزيارات والصفحات الأكثر استخدامًا'))),
+    h('section',{class:'card dash-tip'},h('b',{},'💡 تذكير'),h('p',{},'نتائج الطلاب وكشوف الدرجات وتحليل الأخطاء تجدها في جدولك على Google Sheets، وتتحدث تلقائيًا مع كل إرسال.')));
+  const P=Object.assign({home},panels);
+  const nav=h('nav',{class:'dnav',role:'tablist','aria-label':'أقسام لوحة المعلم'});const main=h('div',{class:'dmain'});
+  Object.entries(P).forEach(([k,el])=>{el.classList.add('dpanel');el.hidden=true;el.dataset.tab=k;main.append(el)});
+  let cur='home';try{cur=sessionStorage.getItem('rqm4:tab')||'home'}catch(e){}if(!P[cur])cur='home';
+  dashGo=k=>{if(!P[k])return;cur=k;try{sessionStorage.setItem('rqm4:tab',k)}catch(e){}
+    Object.values(P).forEach(el=>el.hidden=el.dataset.tab!==k);nav.querySelectorAll('button').forEach(b=>{const on=b.dataset.tab===k;b.classList.toggle('on',on);b.setAttribute('aria-selected',on?'true':'false')});
+    const t=nav.querySelector('.on');if(t&&t.scrollIntoView)t.scrollIntoView({block:'nearest',inline:'center'});window.scrollTo({top:0,behavior:'smooth'})};
+  nav.replaceChildren(...DASH_TABS.filter(([k])=>P[k]).map(([k,ic,t])=>h('button',{type:'button',role:'tab','data-tab':k,onclick:()=>dashGo(k)},h('span',{'aria-hidden':'true'},ic),h('span',{},t))));
+  const hero=h('header',{class:'dhero'},h('div',{class:'dh-top'},h('div',{class:'dh-id'},h('span',{class:'dh-av','aria-hidden':'true'},'👨‍🏫'),h('div',{},h('small',{},'لوحة المعلم'),h('h1',{},'مرحبًا أستاذ ماجد'),h('p',{},INFO.subject+' · '+INFO.school))),
+      h('div',{class:'dh-acts'},h('span',{class:'dh-date'},today),h('a',{class:'dh-btn',href:'https://m-zahrani.com/',target:'_blank',rel:'noopener'},'🌐 الموقع'),h('button',{type:'button',class:'dh-btn',onclick:()=>{try{sessionStorage.removeItem('rqm4:t');sessionStorage.removeItem('rqm4:tp')}catch(e){}location.href=location.pathname+'?teacher'}},'خروج'))),
+    h('div',{class:'dk-row'},kpi('stu','👥','طالبًا','roster'),kpi('cls','🏫','فصول','roster'),kpi('msg','💬','رسائل جديدة','msgs'),kpi('vis','📊','زيارات اليوم','stats')),
+    h('p',{class:'dh-warn'},'🔒 خاص بالمعلم — لا تشارك هذه الصفحة مع الطلاب'));
+  app.replaceChildren(h('div',{class:'dash'},hero,nav,main));dashGo(cur);
+  if(SHEET_URL){adminCall('list').then(j=>{if(j&&j.ok){kpiV.stu.textContent=ar((j.students||[]).length);kpiV.cls.textContent=ar((j.classes||[]).length)}}).catch(()=>{});
+    adminCall('messages').then(j=>{if(j&&j.ok)kpiV.msg.textContent=ar((j.messages||[]).filter(m=>!m.done).length)}).catch(()=>{});
+    adminCall('stats').then(j=>{if(j&&j.ok){const d=(j.stats.days||[]).find(x=>x.d===j.stats.today);kpiV.vis.textContent=ar(d?d.s:0)}}).catch(()=>{})}
+  else Object.values(kpiV).forEach(v=>v.textContent='—')}
 /* ====== إحصاءات الزيارات ====== */
 function statsBox(){const body=h('div',{class:'stack',style:'gap:14px'},h('p',{class:'note'},'جارٍ تحميل الإحصاءات…'));
   const fmtD=d=>{try{return new Date(d+'T12:00:00').toLocaleDateString('ar-SA',{day:'numeric',month:'short'})}catch(e){return d}};
@@ -2491,7 +2568,7 @@ function msgBox(){const list=h('div',{class:'stack',style:'gap:10px'});const msg
     h('p',{class:'note'},'رسائل أولياء الأمور والزوار من زر «أرسل رسالة» في الموقع. تصلك أيضًا على بريدك، وتُحفظ في ورقة «رسائل الموقع».'),tg,msg,list)}
 function deviceReset(){const m=h('p',{class:'note'});let armed=false;const b=h('button',{type:'button',class:'btn ghost',onclick:()=>{if(!armed){armed=true;b.textContent='اضغط مرة أخرى للتأكيد';m.textContent='سيُمسح من هذا الجهاز فقط: الدروس والاختبارات المرسلة واسم الطالب. لا يتأثر جدولك في Google.';return}
     try{localStorage.removeItem('rqm4:progress');localStorage.removeItem('rqm4:student')}catch(e){}progress={};student={name:'',cls:''};armed=false;b.textContent='مسح الدروس المرسلة من هذا الجهاز';m.textContent='تم المسح. يمكنك تجربة الدروس من جديد على هذا الجهاز.'}},'مسح الدروس المرسلة من هذا الجهاز');
-  return h('section',{class:'card stack'},h('h2',{style:'font-size:20px'},'٣. البدء من جديد على هذا الجهاز'),h('p',{},'بعد التجربة تبقى الدروس التي أرسلتها مقفلة على جهازك. امسحها من هنا لتجربها مرة أخرى.'),b,m)}
+  return h('section',{class:'card stack'},h('h2',{style:'font-size:20px'},'🧹 البدء من جديد على هذا الجهاز'),h('p',{},'بعد التجربة تبقى الدروس التي أرسلتها مقفلة على جهازك. امسحها من هنا لتجربها مرة أخرى.'),b,m)}
 
 /* ====== الاختبار النهائي: مهام عملية فقط ====== */
 const EXAM_IDS=(PARAMS.get('exam')||'').split(',').map(x=>x.trim()).filter(id=>LESSONS[id]);if(EXAM_IDS.length)CUR_GRADE=gradeOfLesson(EXAM_IDS[0]);
@@ -2623,7 +2700,7 @@ function examBuilder(base){const sel=new Set();let total=20;const out=h('div',{c
   const tot=h('input',{type:'number',id:'ex-total',min:1,max:100,value:total,style:'max-width:110px;text-align:center;font-size:18px;font-weight:700',oninput:e=>{const v=parseInt(toEnDigits(e.target.value),10);if(v>=1&&v<=100){total=v;drawOut()}}});
   const list=gradeTree('ex-',sel,()=>drawOut());
   drawOut();
-  return h('section',{class:'card stack exam-builder'},h('h2',{style:'font-size:20px'},'٢. الاختبار النهائي (مهام عملية فقط)'),
+  return h('section',{class:'card stack exam-builder'},h('h2',{style:'font-size:20px'},'📝 الاختبار النهائي (مهام عملية فقط)'),
     h('p',{},'اختر الدروس التي تريد مهامها العملية في الاختبار، وحدّد الدرجة الكلية. تُقسم الدرجة بالتساوي على المهام، وتُحفظ التقارير في مجلد «الاختبار النهائي».'),
     h('div',{class:'row'},h('label',{for:'ex-total',style:'font-weight:700'},'الدرجة الكلية للاختبار:'),tot),dc.el,h('div',{class:'send card'},out),h('details',{},h('summary',{style:'cursor:pointer;font-weight:700'},'اختيار مهام الاختبار'),h('div',{style:'margin-top:10px'},list)))}
 
