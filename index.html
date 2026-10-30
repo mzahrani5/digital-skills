@@ -862,6 +862,63 @@ body.dash-mode .foot{border:0!important;padding:0!important;background:none!impo
 .prm-pp[aria-pressed=true]{border-color:var(--v-green,#006C35);background:color-mix(in srgb,var(--v-green,#006C35) 9%,var(--surface,#fff))}
 .prm-next{font:inherit;font-size:13.5px;font-weight:700;color:inherit;background:rgba(255,255,255,.2);border:0;border-radius:99px;padding:6px 12px;min-height:32px;cursor:pointer}.prm-next:hover{background:rgba(255,255,255,.32)}
 .prm-card .prm-cx{top:14px;inset-inline-end:14px;transform:none;color:#c9d6e4;z-index:1}.prm-card .prm-cx:hover{background:rgba(255,255,255,.12);color:#fff}
+
+/* ===== إعلان منصة المشاريع للطالب ===== */
+.stu{position:relative;overflow:hidden;background:#0f1b2d;color:#fff;border-radius:32px;padding:44px 52px;display:flex;align-items:center;gap:40px}
+.stu-deco{position:absolute;inset-inline-end:0;top:0;width:520px;height:100%;opacity:.1;pointer-events:none;
+  background:linear-gradient(#3fb37a,#3fb37a) 20px 20px/40px 40px no-repeat,linear-gradient(#3fb37a,#3fb37a) 70px 70px/40px 40px no-repeat,linear-gradient(#3fb37a,#3fb37a) 20px 120px/40px 40px no-repeat,linear-gradient(#3fb37a,#3fb37a) 20px calc(100% - 30px)/40px 40px no-repeat,linear-gradient(#3fb37a,#3fb37a) 420px calc(100% - 70px)/40px 40px no-repeat}
+.stu-tx{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:16px;position:relative}
+.stu-kick{align-self:flex-start;display:inline-flex;align-items:center;gap:8px;background:rgba(240,138,36,.16);color:#ffb470;border:1px solid rgba(240,138,36,.45);font-weight:700;font-size:14px;padding:5px 14px;border-radius:99px}
+.stu-i{display:inline-flex;width:18px;height:18px;flex:none}.stu-i svg,.stu-ci svg{width:100%;height:100%}
+.stu h2{margin:0;font-size:clamp(32px,4vw,48px);line-height:1.2;color:#fff}
+.stu p{margin:0;font-size:19px;line-height:1.85;color:#c9d6e4;max-width:560px}
+.stu-feat{display:flex;flex-wrap:wrap;gap:10px}
+.stu-feat>span{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);border-radius:99px;padding:8px 14px;font-size:15px}
+.stu-feat .stu-i{color:#55c98f}
+.stu-cta{align-self:flex-start;margin-top:10px;display:inline-flex;align-items:center;gap:10px;background:#f08a24;color:#1a0c04;text-decoration:none;font-weight:700;font-size:18px;padding:15px 30px;border-radius:16px;box-shadow:0 14px 30px -14px #f08a24;transition:transform .15s,filter .15s}
+.stu-cta:hover{transform:translateY(-2px);filter:brightness(1.06);color:#1a0c04}.stu-cta .stu-i{width:20px;height:20px}
+.stu-art{flex:none;width:400px;height:340px;position:relative}
+.stu-card{position:absolute;top:10px;inset-inline-start:30px;width:330px;box-sizing:border-box;background:#fff;color:#0f1b2d;border-radius:22px;padding:20px;box-shadow:0 30px 60px -24px rgba(0,0,0,.6);transform:rotate(-3deg);display:flex;flex-direction:column;gap:12px}
+.stu-ch{display:flex;align-items:center;gap:12px}.stu-ch b{display:block;font-size:17px}.stu-ch small{font-size:13px;color:#596b7d}
+.stu-ci{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;flex:none;padding:11px;box-sizing:border-box}
+.stu-ch .stu-ci{background:#fdf0dc;color:#c4541d}
+.stu-pr{display:flex;justify-content:space-between;font-size:13px;color:#596b7d}.stu-pr b{color:#157a4f}
+.stu-bar{height:10px;border-radius:99px;background:#eef2f6;overflow:hidden}.stu-bar i{display:block;width:80%;height:100%;background:#3fb37a;border-radius:99px}
+.stu-steps{display:flex;gap:6px}.stu-steps i{flex:1;height:30px;border-radius:8px;background:#e6f5ee}.stu-steps i.todo{background:#f4f6fb;border:1.5px dashed #c9d6e4}
+.stu-cert{position:absolute;bottom:20px;inset-inline-end:0;width:230px;box-sizing:border-box;background:#ffd166;color:#3a2a00;border-radius:20px;padding:14px 16px;box-shadow:0 24px 50px -20px rgba(0,0,0,.6);transform:rotate(4deg);display:flex;align-items:center;gap:12px}
+.stu-cert .stu-ci{background:#fff;color:#c48a00;border-radius:99px;width:46px;height:46px}.stu-cert b{display:block;font-size:15px}.stu-cert small{font-size:13px}
+.stu-pts{position:absolute;bottom:120px;inset-inline-start:0;background:#3fb37a;color:#0b2a1a;font-weight:700;font-size:18px;border-radius:16px;padding:10px 16px;box-shadow:0 20px 40px -18px rgba(0,0,0,.6);transform:rotate(-6deg)}
+@media (max-width:980px){.stu{flex-direction:column-reverse;align-items:stretch;padding:28px 24px;gap:20px;border-radius:26px}.stu-art{width:100%;max-width:400px;height:240px;margin:0 auto}
+  .stu-card{width:auto;inset-inline:6px 30px;padding:14px;gap:10px}.stu-steps{display:none}.stu-ch .stu-ci{width:38px;height:38px;padding:9px}.stu-cert{width:auto;bottom:0;padding:12px 14px}.stu-cert b{white-space:nowrap}.stu-cert small{display:none}.stu-pts{bottom:70px;font-size:15px;padding:7px 12px}
+  .stu p{font-size:16px}.stu-feat>span{font-size:13.5px;padding:6px 12px}.stu-cta{align-self:stretch;justify-content:center;font-size:17px}}
+/* التصميم الثاني: ٣ خطوات (فاتح) */
+.stub{position:relative;overflow:hidden;background:var(--surface,#fff);color:var(--ink,#0f1b2d);border:1px solid var(--line,#e1e8f0);border-radius:32px;padding:40px 48px;display:flex;flex-direction:column;gap:34px;box-shadow:0 24px 50px -34px rgba(15,27,45,.35)}
+.stub-deco{display:none;
+  background:linear-gradient(#e6f1fb,#e6f1fb) 24px 24px/34px 34px no-repeat,linear-gradient(#e6f5f2,#e6f5f2) 66px 66px/34px 34px no-repeat,linear-gradient(#e6f1fb,#e6f1fb) 108px 24px/34px 34px no-repeat,linear-gradient(#e6f5ee,#e6f5ee) 24px 108px/34px 34px no-repeat}
+.stub-top{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;position:relative;flex-wrap:wrap}
+.stub-h{display:flex;flex-direction:column;gap:10px;min-width:0}
+.stub-kick{align-self:flex-start;display:inline-flex;align-items:center;gap:8px;background:color-mix(in srgb,#1f9e8a 12%,var(--surface,#fff));color:#136b5d;font-weight:700;font-size:14px;padding:5px 14px;border-radius:99px}
+.stub h2{margin:0;font-size:clamp(28px,3.4vw,42px);line-height:1.25}
+.stub p{margin:0;font-size:18px;line-height:1.8;color:var(--muted,#596b7d)}
+.stub .stu-cta{margin-top:0;background:#1d6fb8;color:#fff;box-shadow:0 14px 30px -14px #1d6fb8;flex:none}.stub .stu-cta:hover{color:#fff}
+.stub-grid{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;position:relative}
+.stub-grid::before{content:"";position:absolute;top:32px;inset-inline:16%;border-top:2.5px dashed var(--line,#c9d6e4)}
+.stub-s{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px}
+.stub-dot{position:relative;width:64px;height:64px;border-radius:22px;display:grid;place-items:center;box-shadow:0 0 0 8px var(--surface,#fff)}
+.stub-dot .stu-i{width:30px;height:30px}
+.stub-n{position:absolute;top:-8px;inset-inline-end:-8px;width:26px;height:26px;border-radius:99px;display:grid;place-items:center;font-size:13px;color:#fff;border:2px solid var(--surface,#fff)}
+.stub-s.o .stub-dot{background:#fdf0dc;color:#c4541d}.stub-s.o .stub-n{background:#c4541d}
+.stub-s.b .stub-dot{background:#e6f1fb;color:#1d6fb8}.stub-s.b .stub-n{background:#1d6fb8}
+.stub-s.g .stub-dot{background:#e6f5ee;color:#157a4f}.stub-s.g .stub-n{background:#157a4f}
+.stub-t{font-size:19px;margin-top:6px}.stub-d{font-size:15px;color:var(--muted,#596b7d);line-height:1.7;max-width:260px}
+@media (max-width:860px){.stub{padding:26px 22px;border-radius:26px;gap:22px}.stub-grid{grid-template-columns:1fr;gap:18px}.stub-grid::before{top:32px;bottom:32px;inset-inline:auto;inset-inline-start:31px;border-top:0;border-inline-start:2.5px dashed var(--line,#c9d6e4)}
+  .stub-s{display:grid;grid-template-columns:64px 1fr;column-gap:14px;text-align:start;align-items:center}.stub-dot{grid-row:span 2}.stub-t{margin:0;font-size:17px;align-self:end}.stub-d{align-self:start;font-size:14.5px}
+  .stub .stu-cta{align-self:stretch;justify-content:center;width:100%}.stub p{font-size:16px}}
+/* لوحة المعلم */
+.stu-prev{border:1.5px dashed var(--line,#c9d6e4);border-radius:20px;padding:14px;background:#e9eef4;overflow:hidden}
+.stu-prev .stu,.stu-prev .stub{transform-origin:top right}
+.stu .stu-tx>h2{color:#fff!important}.stu .stu-tx>p{color:#c9d6e4!important}.stub .stub-h>h2{color:var(--ink,#0f1b2d)!important}
+@media (max-width:860px){.stub-top{display:contents}.stub-h{order:0}.stub-grid{order:1}.stub .stu-cta{order:2}}
 /*PRM-END*/
 .sv-row{display:grid;grid-template-columns:minmax(120px,170px) 1fr 36px;gap:10px;align-items:center;font-size:14.5px}.sv-bar{height:10px;border-radius:99px;background:var(--surface-2,#eef2f6);overflow:hidden}.sv-bar i{display:block;height:100%;background:var(--v-teal,#00A19B);border-radius:99px}
 .sv-tx{background:var(--surface-2,#f4f6fb);border-radius:12px;padding:10px 14px}.sv-tx p{margin:4px 0 0;line-height:1.7}
@@ -2559,7 +2616,7 @@ function renderTeacher(){const base=location.origin&&location.origin!=='null'&&!
     h('p',{},'حدّد الدرس الذي تريد أن يحلّه الطلاب، ثم انسخ الرابط وأرسله لهم. الطالب الذي يفتح الرابط يرى هذا الدرس فقط.'),gradesHint(),
     base?null:h('p',{class:'msg bad'},'الروابط تعمل من موقعك المنشور. افتح هذه الصفحة من موقعك ليظهر الرابط كاملًا.'),
     dc.el,h('div',{class:'send card'},out)),h('section',{class:'card'},list));
-  teacherDash({links:linksPanel,exam:examBuilder(base),roster:rosterHelp(),news:h('div',{class:'stack'},promoBox(),newsBox()),msgs:msgBox(),stats:h('div',{class:'stack'},statsBox(),surveyBox()),settings:h('div',{class:'stack'},gradesCard(),pinHelp(),deviceReset())})}
+  teacherDash({links:linksPanel,exam:examBuilder(base),roster:rosterHelp(),news:h('div',{class:'stack'},promoBox(),stuBox(),newsBox()),msgs:msgBox(),stats:h('div',{class:'stack'},statsBox(),surveyBox()),settings:h('div',{class:'stack'},gradesCard(),pinHelp(),deviceReset())})}
 /* ====== إدارة الفصول والطلاب (صفحة المعلم) ====== */
 function adminPin(){try{return sessionStorage.getItem('rqm4:tp')||''}catch(e){return ''}}
 async function adminCall(op,extra){const r=await fetch(SHEET_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({admin:1,pin:adminPin(),op},extra||{}))});return r.json()}
@@ -2945,6 +3002,28 @@ function promoView(p,o){o=o||{};const T=PRM_TONES[p.tone]||PRM_TONES[(PRM_TONE_O
         (p.end||pts.length)?h('ul',{class:'prm-tmeta'},p.end?h('li',{},prmIc('cal'),'حتى '+prmDate(p.end)):null,metas):null,
         cd,(cta||later)?h('div',{class:'prm-acts'},cta,later):null)))}
 
+/* ====== إعلان منصة المشاريع للطالب (تصميمان) — مشترك بين الموقع ولوحة المعلم ====== */
+const STU_DEF={a:{title:'مشاريعك تنتظرك!',text:'طبّق ما تعلمته في محاكٍ يشبه الحاسب الحقيقي، وأرسل مشروعك لمعلمك بضغطة، واجمع شهادة لكل وحدة تُكملها.',btn:'ابدأ مشروعك الآن'},
+  b:{title:'مشروعك في ٣ خطوات فقط',text:'من الجوال أو الحاسب، في أي وقت يناسبك.',btn:'ابدأ الآن'}};
+function stuView(c,link){const st=c.style==='b'?'b':'a',D=STU_DEF[st];const title=(c.title||'').trim()||D.title,text=(c.text||'').trim()||D.text,btn=(c.btn||'').trim()||D.btn;
+  const sv=(d,sw)=>'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="'+(sw||2)+'" stroke-linecap="round" stroke-linejoin="round">'+d+'</svg>';
+  const I={cap:sv('<path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/>'),pc:sv('<rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/>'),ok:sv('<path d="M20 6 9 17l-5-5"/>'),medal:sv('<circle cx="12" cy="9" r="6"/><path d="m9 14-1 8 4-2 4 2-1-8"/>'),grid:sv('<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/>'),arrow:sv('<path d="M19 12H5M11 18l-6-6 6-6"/>',2.4),pick:sv('<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>')};
+  const ic=(k,cl)=>h('span',{class:cl||'stu-i',html:I[k],'aria-hidden':'true'});
+  const cta=h('a',{href:link||'#',class:'stu-cta'},btn,ic('arrow'));
+  if(st==='b'){const step=(n,k,cl,t,d)=>h('li',{class:'stub-s '+cl},h('span',{class:'stub-dot'},ic(k),h('b',{class:'stub-n'},n)),h('b',{class:'stub-t'},t),h('span',{class:'stub-d'},d));
+    return h('section',{class:'stub','aria-label':'منصة المشاريع'},h('span',{class:'stub-deco','aria-hidden':'true'}),
+      h('div',{class:'stub-top'},h('div',{class:'stub-h'},h('span',{class:'stub-kick'},ic('cap'),'منصة المشاريع'),h('h2',{},title),h('p',{},text)),cta),
+      h('ol',{class:'stub-grid'},step('١','pick','o','اختر مشروعك','المشاريع المطلوبة من فصلك في مكان واحد.'),step('٢','pc','b','نفّذه في المحاكي','خطوة بخطوة، مع تلميح كلما احتجت.'),step('٣','medal','g','أرسله واحصل على درجتك','تصل لمعلمك فورًا، مع شهادة لكل وحدة.')))}
+  return h('section',{class:'stu','aria-label':'منصة المشاريع'},h('span',{class:'stu-deco','aria-hidden':'true'}),
+    h('div',{class:'stu-tx'},h('span',{class:'stu-kick'},ic('cap'),'للطلاب'),h('h2',{},title),h('p',{},text),
+      h('div',{class:'stu-feat'},h('span',{},ic('pc'),'محاكٍ تفاعلي'),h('span',{},ic('ok'),'درجتك فورًا'),h('span',{},ic('medal'),'شهادات تميّز')),cta),
+    h('div',{class:'stu-art','aria-hidden':'true'},
+      h('div',{class:'stu-card'},h('div',{class:'stu-ch'},ic('grid','stu-ci'),h('div',{},h('b',{},'جدول مصروفي'),h('small',{},'الوحدة الثانية · مشروع'))),
+        h('div',{class:'stu-pr'},h('span',{},'تقدّمك'),h('b',{},'٤ من ٥ خطوات')),h('div',{class:'stu-bar'},h('i',{})),
+        h('div',{class:'stu-steps'},h('i',{}),h('i',{}),h('i',{}),h('i',{}),h('i',{class:'todo'}))),
+      h('div',{class:'stu-cert'},ic('medal','stu-ci'),h('div',{},h('b',{},'شهادة الوحدة الأولى'),h('small',{},'متوسط ٩٫٥ من ١٠'))),
+      h('div',{class:'stu-pts'},'+١٠ درجات')))}
+
 /* ====== لوحة المعلم: الإعلانات البارزة ====== */
 function promoBox(){const msg=h('p',{class:'msg',role:'status'});const list=h('div',{class:'prm-list'});const prev=h('div',{class:'prm-prev'});
   const ymd=d=>d.toISOString().slice(0,10);const today=ymd(new Date());
@@ -2996,6 +3075,27 @@ function promoBox(){const msg=h('p',{class:'msg',role:'status'});const list=h('d
   return h('section',{class:'card stack'},h('h2',{style:'font-size:20px'},'إعلان بارز (إشعار، موعد، تنبيه، تهنئة، مسابقة…)'),
     h('p',{class:'note'},'كل الأنواع لا تحجب الموقع ولا تُلزم الزائر بشيء: الشريط أعلى الصفحات ويُغلق بضغطة، والبطاقة في الصفحة الرئيسية، والتنبيه الجانبي يظهر مرة واحدة فقط لكل زائر في زاوية الشاشة. إن كان أكثر من إعلان من النوع نفسه ظاهرًا يظهر الأحدث.'),
     form,h('h3',{style:'font-size:17px;margin:10px 0 0'},'إعلاناتك البارزة'),list)}
+
+/* ====== لوحة المعلم: إعلان منصة المشاريع في الصفحة الرئيسية ====== */
+function stuBox(){const msg=h('p',{class:'msg',role:'status'});const prev=h('div',{class:'stu-prev'});let cur={style:'',title:'',text:'',btn:''};
+  const opts=[['','إخفاء','لا يظهر في الموقع'],['a','التصميم ١','«مشاريعك تنتظرك!» بطاقة كحلية مع رسومات'],['b','التصميم ٢','«٣ خطوات» بطاقة فاتحة بخط زمني']];
+  const minis={'':[],a:[['8px','8px','calc(100% - 16px)','42px','#0f1b2d'],['14px','36px','26px','8px','#f08a24'],['60%','14px','30%','26px','#fff']],b:[['8px','8px','calc(100% - 16px)','42px','#fff'],['18%','22px','12px','12px','#f08a24'],['46%','22px','12px','12px','#1d6fb8'],['74%','22px','12px','12px','#157a4f'],['14px','40px','22px','6px','#1d6fb8']]};
+  const btns=opts.map(([v,t,d])=>h('button',{type:'button',class:'prm-kind','aria-pressed':'false','data-v':v,onclick:()=>{cur.style=v;paint()}},
+    h('span',{class:'prm-mini','aria-hidden':'true'},minis[v].map(([l,tp,w,hh,bg])=>h('i',{style:`right:${l};top:${tp};width:${w};height:${hh};background:${bg}`})),v?null:h('i',{style:'right:35%;top:18px;width:30%;height:4px;background:#c0392b;transform:rotate(-20deg)'})),h('b',{},t),h('small',{},d)));
+  const inp=(max)=>h('input',{type:'text',maxlength:max,oninput:()=>{sync();draw()}});const fT=inp(60),fB=inp(30);const fX=h('textarea',{rows:2,maxlength:220,oninput:()=>{sync();draw()}});
+  const lab=(t,el,cls)=>h('label',{class:'f'+(cls?' '+cls:'')},t,el);
+  const fields=h('div',{class:'prm-form',style:'grid-column:1/-1'},lab('العنوان (اختياري)',fT),lab('نص الزر (اختياري)',fB),lab('النص (اختياري)',fX,'full'),h('p',{class:'note full',style:'margin:0'},'اترك الحقول فارغة لاستخدام النص المقترح للتصميم.'));
+  function sync(){cur.title=fT.value;cur.text=fX.value;cur.btn=fB.value}
+  function draw(){if(!cur.style){prev.replaceChildren(h('p',{class:'note',style:'text-align:center;margin:20px 0'},'الإعلان مخفي الآن ولا يظهر في الموقع.'));return}prev.replaceChildren(stuView(cur,'#'))}
+  function paint(){btns.forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===cur.style)));fields.hidden=!cur.style;const D=STU_DEF[cur.style||'a'];fT.placeholder=D.title;fX.placeholder=D.text;fB.placeholder=D.btn;draw()}
+  function fill(c){cur=Object.assign({style:'',title:'',text:'',btn:''},c||{});fT.value=cur.title;fX.value=cur.text;fB.value=cur.btn;paint()}
+  async function call(op,extra){msg.className='msg';msg.textContent=op==='stuSet'?'جارٍ الحفظ…':'';try{const j=await adminCall(op,extra);if(j.status==='pin'){msg.className='msg bad';msg.textContent='رمز الإدارة غير صحيح.';return}if(!j.ok)throw 0;if(j.message){msg.className='msg ok';msg.textContent=j.message}fill(j.stu)}catch(e){msg.className='msg bad';msg.textContent='تعذّر الاتصال بجدولك. تأكد أن كود الجدول محدَّث ومنشور بإصدار جديد.'}}
+  const save=h('button',{type:'button',class:'btn',onclick:()=>{sync();call('stuSet',{stu:cur})}},'حفظ');
+  fill({});if(SHEET_URL)call('stuGet');
+  return h('section',{class:'card stack'},h('h2',{style:'font-size:20px'},'🎓 إعلان منصة المشاريع للطلاب (الصفحة الرئيسية)'),
+    h('p',{class:'note'},'يظهر في الصفحة الرئيسية بعد قسم «اختر صفك»، وزره يفتح منصة المشاريع. اختر التصميم الذي تريده أو أخفِه متى شئت.'),
+    h('div',{class:'prm-kinds'},btns),fields,h('b',{},'معاينة'),prev,h('div',{class:'row',style:'gap:8px'},save),msg)}
+
 /*PRM-END*/
 
 /* بيانات إضافية تُعرّف قبل الموقع */
@@ -4478,6 +4578,8 @@ function buildChrome(){
   document.addEventListener('click',e=>{if(!e.target.closest('.dd'))closeDD()});
   document.addEventListener('keydown',e=>{if(e.key==='Escape'){toggleDrawer(false);closeDD()}});
   drawer.addEventListener('click',e=>{if(e.target.closest('a'))toggleDrawer(false)})}
+/* ===== إعلان منصة المشاريع للطالب: يتحكم فيه المعلم ===== */
+function stuPromo(){const box=h('div',{hidden:true});siteData().then(j=>{const c=j&&j.stu;if(c&&c.style&&PLATFORM_URL){box.replaceChildren(stuView(c,PLATFORM_URL));box.hidden=false}});return box}
 /* ===== رأس الموقع: شريط «صفّي» والبحث ===== */
 function myGrade(){try{const g=+localStorage.getItem('mz-grade');return [4,5,6].includes(g)?g:0}catch(e){return 0}}
 function setMyGrade(g){try{g?localStorage.setItem('mz-grade',String(g)):localStorage.removeItem('mz-grade')}catch(e){}hdSub.draw&&hdSub.draw()}
@@ -4539,6 +4641,7 @@ function siteHome(){const q=h('input',{type:'search',id:'q',placeholder:'ابح�
     h('a',{href:'#report',class:'promo rep-promo'},h('span',{class:'ic',html:ICON.report,'aria-hidden':'true',style:'background:rgba(255,255,255,.2)'}),h('span',{class:'tx'},h('b',{},'التقرير المفصل للطالب'),h('small',{},'لولي الأمر: اكتب الرمز الخاص بابنك لترى درجاته وإنجازاته وما يحتاج إلى متابعة.')),h('span',{class:'go','aria-hidden':'true'},'←')),
     h('div',{class:'sec-h'},h('div',{},h('span',{class:'kick'},'الدروس'),h('h2',{},'اختر صفك')),h('a',{href:'#lessons'},'كل الدروس ←')),
     gradeCards('lessons',g=>{const d=practiceStats(g).d;return `${ar(GR[g].order.length)} درسًا ومشروعًا`+(d?` · تدرّبت على ${ar(d)}`:'')}),
+    stuPromo(),
     h('section',{class:'links'},h('div',{class:'sec-h'},h('div',{},h('span',{class:'kick'},'منصات رسمية'),h('h2',{},'روابط مهمة'))),h('div',{class:'link-grid'},LINKS.map(([t,u,d,e])=>h('a',{href:u,target:'_blank',rel:'noopener',class:'link-card'},h('span',{class:'link-emo','aria-hidden':'true'},e),h('span',{class:'tx'},h('b',{},t),h('small',{},d)),h('span',{class:'link-ext',html:ICON.ext,'aria-hidden':'true'}))))),
     h('a',{href:'#ai',class:'promo ai-promo'},h('span',{class:'ic','aria-hidden':'true',style:'background:rgba(255,255,255,.2);font-size:24px'},'🤖'),h('span',{class:'tx'},h('b',{},'ركن الذكاء الاصطناعي'),h('small',{},'ما هو؟ كيف يتعلم؟ وكيف تستخدمه بأمان؟ مع لعبة واختبار قصير.')),h('span',{class:'go','aria-hidden':'true'},'←')),
     PLATFORM_URL?h('a',{href:PLATFORM_URL,class:'promo',target:'_blank',rel:'noopener'},icx('cap','rgba(255,255,255,.2)'),h('span',{class:'tx'},h('b',{},'المشاريع المطلوبة'),h('small',{},'افتح المشروع الذي طلبه معلمك، ونفّذه على المحاكي، وأرسل إنجازك إليه مباشرة.')),h('span',{class:'go','aria-hidden':'true'},'←')):null))}
