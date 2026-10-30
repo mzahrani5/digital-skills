@@ -1663,7 +1663,7 @@ function nameField(id,getCls,onName,getName){const wrap=h('div',{class:'name-slo
     opts.hidden=true;opts.replaceChildren();say('جارٍ التحقق من اسمك…');const r=await verifyName(c,v);if(inp.value.replace(/\s+/g,' ').trim()!==v||getCls()!==c)return;
     if(r.ok&&r.name){if(inp.value!==r.name)inp.value=r.name;onName(r.name);say('✓ تم التحقق: '+r.name,'ok')}
     else if(r.ok&&r.noroster){onName(v);say('✓ تم','ok')}
-    else if(r.status==='ambiguous'&&r.options&&r.options.length){onName(v);say('يوجد أكثر من طالب بهذا الاسم، اختر اسمك الصحيح:','bad');opts.hidden=false;opts.replaceChildren(...r.options.map(n=>h('button',{type:'button',class:'name-opt',onmousedown:e=>e.preventDefault(),onclick:()=>pick(n)},n)))}
+    else if((r.status==='ambiguous'||r.status==='suggest')&&r.options&&r.options.length){onName(v);say(r.status==='suggest'?'لم نجد الاسم كما كتبته. هل تقصد:':'يوجد أكثر من طالب بهذا الاسم، اختر اسمك الصحيح:','bad');opts.hidden=false;opts.replaceChildren(...r.options.map(n=>h('button',{type:'button',class:'name-opt',onmousedown:e=>e.preventDefault(),onclick:()=>pick(n)},n)))}
     else{onName(v);say(r.status==='ambiguous'?'يوجد أكثر من طالب بهذا الاسم، اكتب اسمك الرباعي.':r.status==='short'?'اكتب اسمك الثلاثي.':r.status==='net'?'تعذّر التحقق، تأكد من الإنترنت.':r.status==='busy'?'محاولات كثيرة، حاول بعد قليل.':'لم نجد هذا الاسم في كشف فصلك. اكتبه كما في كشف المدرسة، وتأكد من اختيار فصلك.','bad')}
     if(onRosterLoaded)try{onRosterLoaded()}catch(e){}}
   inp.addEventListener('input',()=>{onName(inp.value.replace(/\s+/g,' ').trim());say('');clearTimeout(timer);timer=setTimeout(run,700)});
