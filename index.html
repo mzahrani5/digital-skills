@@ -2637,13 +2637,13 @@ function surveyBox(){const body=h('div',{class:'stack',style:'gap:14px'});const 
       U.length?h('div',{class:'stack',style:'gap:6px'},h('b',{},'الأكثر فائدة'),...U.map(([t,n])=>h('div',{class:'sv-row'},h('span',{},t),h('span',{class:'sv-bar'},h('i',{style:`width:${Math.round(n/mx*100)}%`})),h('b',{},ar(n))))):null,
       S.texts.length?h('div',{class:'stack',style:'gap:8px'},h('b',{},'ما كتبه المشاركون'),...S.texts.map(t=>h('div',{class:'sv-tx'},h('small',{class:'note'},t.role+' · '+new Date(t.at).toLocaleDateString('ar-SA',{day:'numeric',month:'short'})),t.problem?h('p',{},h('b',{},'مشكلة: '),t.problem):null,t.suggest?h('p',{},h('b',{},'اقتراح: '),t.suggest):null))):null)}
   const invite=h('button',{type:'button',class:'btn',onclick:async()=>{const d=new Date();const end=new Date(Date.now()+14*864e5).toISOString().slice(0,10);msg.className='msg';msg.textContent='جارٍ النشر…';
-    try{const j=await adminCall('promoSave',{kind:'popup',tone:'teal',icon:'info',badge:'رأيك يهمنا',title:'شاركنا رأيك في الموقع',text:'استبيان قصير: ٦ أسئلة في دقيقة واحدة، دون ذكر اسمك.',btn:'شارك برأيك',link:'#survey',start:d.toISOString().slice(0,10),end,countdown:false});
+    try{const j=await adminCall('promoSave',{kind:'popup',tone:'teal',icon:'info',badge:'رأيك يهمنا',title:'شاركنا رأيك في الموقع',text:'استبيان قصير: ٥ أسئلة في دقيقة واحدة، دون ذكر اسمك.',btn:'شارك برأيك',link:'#survey',start:d.toISOString().slice(0,10),end,countdown:false});
       if(j.ok){msg.className='msg ok';msg.textContent='نُشرت الدعوة كتنبيه جانبي لمدة أسبوعين. تتحكم فيها من تبويب «الإعلانات».'}else{msg.className='msg bad';msg.textContent=j.status==='pin'?'رمز الإدارة غير صحيح.':(j.message||'تعذّر النشر.')}}catch(e){msg.className='msg bad';msg.textContent='تعذّر الاتصال بجدولك.'}}},'📣 ادعُ الزوار للاستبيان');
   const clear=(()=>{let armed=false;const b=h('button',{type:'button',class:'btn ghost',onclick:()=>{if(!armed){armed=true;b.textContent='تأكيد المسح؟';setTimeout(()=>{armed=false;b.textContent='مسح النتائج وبدء جولة جديدة'},3000);return}call('surveyClear')}},'مسح النتائج وبدء جولة جديدة');return b})();
   const copyB=h('button',{type:'button',class:'btn ghost',onclick:async()=>{try{await navigator.clipboard.writeText(link);copyB.textContent='نُسخ'}catch(e){copyB.textContent='انسخه يدويًا'}setTimeout(()=>copyB.textContent='انسخ رابط الاستبيان',1500)}},'انسخ رابط الاستبيان');
   if(SHEET_URL)call('survey');else body.replaceChildren(h('p',{class:'note'},'اربط جدولك أولًا.'));
   return h('section',{class:'card stack'},h('h2',{style:'font-size:20px'},'📋 استبيان رأي الزوار'),
-    h('p',{class:'note'},'استبيان قصير من ٦ أسئلة دون أسماء. لا يظهر في الموقع إلا عندما تنشر دعوة له، أو ترسل رابطه بنفسك.'),
+    h('p',{class:'note'},'استبيان قصير من ٥ أسئلة دون أسماء. لا يظهر في الموقع إلا عندما تنشر دعوة له، أو ترسل رابطه بنفسك.'),
     h('pre',{class:'preview',dir:'ltr'},link),h('div',{class:'row',style:'gap:8px;flex-wrap:wrap'},invite,copyB,clear),msg,body)}
 function statsBox(){const body=h('div',{class:'stack',style:'gap:14px'},h('p',{class:'note'},'جارٍ تحميل الإحصاءات…'));
   const fmtD=d=>{try{return new Date(d+'T12:00:00').toLocaleDateString('ar-SA',{day:'numeric',month:'short'})}catch(e){return d}};
@@ -4835,9 +4835,9 @@ function promoCardSlot(){const box=h('div',{hidden:true});siteData().then(j=>{co
 /* ===== استبيان رأي الزوار ===== */
 function renderSurvey(){const SURVEY_USEFUL=['شرح الدروس','المحاكيات والتدريب','الملخصات','الاختبارات القصيرة','المشاريع','التقرير المفصل','ركن الذكاء الاصطناعي'];let done=null;try{done=localStorage.getItem('mz-survey')}catch(e){}
   const thanks=()=>h('section',{class:'panel-card sv-done'},h('span',{class:'sv-big','aria-hidden':'true'},'🙏'),h('h2',{},'شكرًا لك!'),h('p',{class:'muted'},'وصل رأيك، وسيساعدنا على تحسين الموقع لك ولزملائك.'),h('a',{href:'#home',class:'btn'},'العودة للرئيسية'));
-  const head=[crumbs(['الرئيسية','#home'],'استبيان'),pageHead('رأيك يهمنا','استبيان قصير عن الموقع','٦ أسئلة في دقيقة واحدة. لا نطلب اسمك، وكل الأسئلة اختيارية ما عدا الأول والثالث.')];
+  const head=[crumbs(['الرئيسية','#home'],'استبيان'),pageHead('رأيك يهمنا','استبيان قصير عن الموقع','٥ أسئلة في دقيقة واحدة. لا نطلب اسمك، وكل الأسئلة اختيارية ما عدا الأول والثاني.')];
   if(done){app.replaceChildren(h('div',{class:'stack',style:'gap:18px'},...head,thanks()));return}
-  const st={role:'',grade:'',ease:0,useful:new Set(),prob:''};
+  const st={role:'',ease:0,useful:new Set(),prob:''};
   const pills=(name,opts,get,set,multi)=>{const wrap=h('div',{class:'sv-opts',role:multi?'group':'radiogroup'});const draw=()=>wrap.replaceChildren(...opts.map(([v,t])=>{const on=multi?st.useful.has(v):get()===v;
       return h('button',{type:'button',class:'sv-o'+(on?' on':''),'aria-pressed':multi?String(on):null,role:multi?null:'radio','aria-checked':multi?null:String(on),onclick:()=>{set(v);draw()}},t)}));draw();return wrap};
   const q=(n,t,el,hint)=>h('fieldset',{class:'sv-q'},h('legend',{},h('span',{class:'sv-n'},ar(n)),t),hint?h('p',{class:'note'},hint):null,el);
@@ -4846,18 +4846,17 @@ function renderSurvey(){const SURVEY_USEFUL=['شرح الدروس','المحاك
   const trap=h('input',{type:'text',name:'website',tabindex:'-1',autocomplete:'off',style:'position:absolute;left:-9999px',hidden:true});
   const msg=h('p',{class:'msg',role:'status'});
   const faces=[[1,'😣 صعب'],[2,'🙁'],[3,'😐 متوسط'],[4,'🙂'],[5,'😄 سهل جدًا']];
-  const send=h('button',{type:'button',class:'btn',onclick:async()=>{if(!st.role||!st.ease){msg.className='msg bad';msg.textContent='أجب عن السؤال الأول والثالث على الأقل.';return}
+  const send=h('button',{type:'button',class:'btn',onclick:async()=>{if(!st.role||!st.ease){msg.className='msg bad';msg.textContent='أجب عن السؤالين الأول والثاني على الأقل.';return}
     send.disabled=true;msg.className='msg';msg.textContent='جارٍ الإرسال…';
-    try{const r=await fetch(SHEET_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({survey:1,role:st.role,grade:st.grade,ease:st.ease,useful:[...st.useful],problem:st.prob==='yes'?probTx.value:'',suggest:sug.value,website:trap.value})});const j=await r.json();
+    try{const r=await fetch(SHEET_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({survey:1,role:st.role,ease:st.ease,useful:[...st.useful],problem:st.prob==='yes'?probTx.value:'',suggest:sug.value,website:trap.value})});const j=await r.json();
       if(j.ok){try{localStorage.setItem('mz-survey',new Date().toISOString().slice(0,10))}catch(e){}app.replaceChildren(h('div',{class:'stack',style:'gap:18px'},...head,thanks()));scrollTo(0,0)}else{msg.className='msg bad';msg.textContent=j.message||'تعذّر الإرسال.';send.disabled=false}}
     catch(e){msg.className='msg bad';msg.textContent='تعذّر الاتصال. تأكد من الإنترنت وحاول مرة أخرى.';send.disabled=false}}},'إرسال رأيي');
   app.replaceChildren(h('div',{class:'stack',style:'gap:18px'},...head,h('section',{class:'panel-card sv'},
     q(1,'أنت:',pills('role',[['طالب','🎒 طالب'],['ولي أمر','👨‍👩‍👦 ولي أمر'],['زائر','👋 زائر']],()=>st.role,v=>st.role=v)),
-    q(2,'الصف:',pills('grade',[['4','الرابع'],['5','الخامس'],['6','السادس']],()=>st.grade,v=>st.grade=st.grade===v?'':v)),
-    q(3,'ما مدى سهولة استخدام الموقع؟',pills('ease',faces,()=>st.ease,v=>st.ease=v)),
-    q(4,'ما أكثر ما يفيدك في الموقع؟',pills('useful',SURVEY_USEFUL.map(x=>[x,x]),null,v=>st.useful.has(v)?st.useful.delete(v):st.useful.add(v),true),'اختر كل ما ينطبق.'),
-    q(5,'هل واجهت مشكلة في الموقع؟',h('div',{class:'stack',style:'gap:8px'},pills('prob',[['no','لا'],['yes','نعم']],()=>st.prob,v=>{st.prob=v;probTx.hidden=v!=='yes';if(v==='yes')setTimeout(()=>probTx.focus(),0)}),probTx)),
-    q(6,'ما الذي تتمنى إضافته أو تحسينه؟',sug,'اختياري.'),
+    q(2,'ما مدى سهولة استخدام الموقع؟',pills('ease',faces,()=>st.ease,v=>st.ease=v)),
+    q(3,'ما أكثر ما يفيدك في الموقع؟',pills('useful',SURVEY_USEFUL.map(x=>[x,x]),null,v=>st.useful.has(v)?st.useful.delete(v):st.useful.add(v),true),'اختر كل ما ينطبق.'),
+    q(4,'هل واجهت مشكلة في الموقع؟',h('div',{class:'stack',style:'gap:8px'},pills('prob',[['no','لا'],['yes','نعم']],()=>st.prob,v=>{st.prob=v;probTx.hidden=v!=='yes';if(v==='yes')setTimeout(()=>probTx.focus(),0)}),probTx)),
+    q(5,'ما الذي تتمنى إضافته أو تحسينه؟',sug,'اختياري.'),
     trap,h('div',{class:'row',style:'gap:10px;align-items:center;flex-wrap:wrap'},send,h('small',{class:'note'},'لا يُحفظ اسمك ولا رقمك. ')),msg)))}
 
 </script>
