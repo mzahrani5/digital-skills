@@ -750,6 +750,95 @@ body.dash-mode .rm-tab.on{background:var(--v-green)}
 @media (max-width:860px){.dk-row{grid-template-columns:1fr 1fr}.dq-grid{grid-template-columns:1fr 1fr}}
 @media (max-width:520px){.dhero{padding:18px 16px}.dh-id h1{font-size:21px}.dq-grid{grid-template-columns:1fr}.dk{padding:10px}.dk-t b{font-size:20px}.dh-date{display:none}}
 body.dash-mode .foot{border:0!important;padding:0!important;background:none!important}body.dash-mode .foot .row{justify-content:center}body.dash-mode .foot .btn.ghost{background:linear-gradient(135deg,var(--v-green),var(--v-teal))!important;color:#fff!important;border:0!important}body.dash-mode #t-pin{font-size:20px}
+
+/*PRM*/
+/* الإعلانات البارزة */
+.prm-i{display:inline-flex;width:20px;height:20px;flex:none}.prm-i svg{width:100%;height:100%}
+.prm-bar{position:relative;background:var(--prm-c);color:var(--prm-ink);font-size:15.5px;line-height:1.6}
+.prm-bar-in{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px 12px;padding:12px 56px;text-align:center}
+.prm-bar-a{color:inherit;font-weight:700;display:inline-flex;align-items:center;gap:4px;text-underline-offset:4px}.prm-bar-a .prm-i{width:18px;height:18px}
+.prm-x{position:absolute;inset-inline-end:6px;top:50%;transform:translateY(-50%);width:44px;height:44px;border:0;background:transparent;color:inherit;display:grid;place-items:center;cursor:pointer;border-radius:12px}
+.prm-x svg{width:18px;height:18px}.prm-x:hover{background:rgba(127,127,127,.18)}
+.prm-card{position:relative;overflow:hidden;border-radius:28px;background:#0f1b2d;color:#fff;padding:36px 40px;display:flex;flex-wrap:wrap;gap:28px 44px;align-items:center}
+.prm-deco{position:absolute;inset-inline-end:-24px;bottom:-30px;width:230px;height:230px;opacity:.14;pointer-events:none;
+  background:linear-gradient(#3fb37a,#3fb37a) 0 0/44px 44px no-repeat,linear-gradient(#3fb37a,#3fb37a) 54px 54px/44px 44px no-repeat,linear-gradient(#3fb37a,#3fb37a) 108px 108px/44px 44px no-repeat,linear-gradient(#3fb37a,#3fb37a) 0 108px/44px 44px no-repeat,linear-gradient(#3fb37a,#3fb37a) 54px 162px/44px 44px no-repeat,linear-gradient(#3fb37a,#3fb37a) 162px 162px/44px 44px no-repeat}
+.prm-main{flex:1 1 420px;min-width:0;display:flex;flex-direction:column;gap:14px;position:relative}
+.prm-tags{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.prm-badge{display:inline-flex;align-items:center;gap:6px;background:var(--prm-c);color:var(--prm-ink);font-weight:700;font-size:13px;padding:5px 12px;border-radius:99px}
+.prm-tag{display:inline-flex;align-items:center;gap:6px;border:1px solid #3b5573;color:#c9d6e4;font-size:13px;padding:4px 12px;border-radius:99px}.prm-tag .prm-i{width:16px;height:16px;color:#55c98f}
+.prm-card h2{margin:0;font-size:clamp(26px,3.4vw,38px);line-height:1.3;color:#fff}
+.prm-card p{margin:0;font-size:17px;line-height:1.9;color:#c9d6e4;max-width:640px}
+.prm-meta{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px 26px;font-size:15px;color:#e5edf4}
+.prm-meta li{display:flex;align-items:center;gap:8px}.prm-meta .prm-i{color:#55c98f}
+.prm-acts{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+.prm-cta{display:inline-flex;align-items:center;justify-content:center;gap:10px;background:var(--prm-c);color:var(--prm-ink);text-decoration:none;font-weight:700;font-size:17px;padding:13px 26px;border-radius:14px;min-height:48px;box-sizing:border-box;transition:transform .15s,filter .15s}
+.prm-cta:hover{filter:brightness(1.07);transform:translateY(-1px);color:var(--prm-ink)}
+.prm-side{flex:0 1 320px;min-width:240px;background:#17283f;border:1px solid #2a4060;border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:14px;position:relative}
+.prm-side>span{font-size:15px;color:#c9d6e4;text-align:center}
+.prm-cd{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.prm-cd-c{background:#0f1b2d;border-radius:14px;padding:12px 0;display:flex;flex-direction:column;align-items:center;gap:2px}
+.prm-cd-c b{font-size:34px;line-height:1.1;color:#fff}.prm-cd-c small{font-size:13px;color:#9db1c3}
+.prm-pop{width:min(540px,100%);background:#fff;color:#0f1b2d;border-radius:26px;overflow:hidden;box-shadow:0 30px 80px -20px rgba(0,0,0,.5);display:flex;flex-direction:column;text-align:start}
+.prm-band{position:relative;height:150px;background:var(--prm-c);color:var(--prm-ink);display:grid;place-items:center;overflow:hidden}
+.prm-band .prm-deco{background-image:linear-gradient(#fff,#fff),linear-gradient(#fff,#fff),linear-gradient(#fff,#fff),linear-gradient(#fff,#fff),linear-gradient(#fff,#fff),linear-gradient(#fff,#fff);opacity:.16;bottom:-60px}
+.prm-bico{width:86px;height:86px;border-radius:24px;background:rgba(255,255,255,.2);display:grid;place-items:center;position:relative}.prm-bico .prm-i{width:48px;height:48px}
+.prm-pclose{position:absolute;top:12px;inset-inline-end:12px;width:44px;height:44px;border-radius:99px;border:0;background:rgba(255,255,255,.25);color:inherit;display:grid;place-items:center;cursor:pointer}.prm-pclose svg{width:20px;height:20px}
+.prm-pbody{padding:26px 30px 28px;display:flex;flex-direction:column;gap:12px}
+.prm-kick{color:#156b5d;font-weight:700;font-size:14px}
+.prm-pop h2{margin:0;font-size:28px;line-height:1.35;color:#0f1b2d}
+.prm-pop p{margin:0;font-size:16.5px;line-height:1.9;color:#4a5c6e}
+.prm-meta-l{flex-direction:column;gap:8px;background:#f4f6fb;border-radius:16px;padding:14px 18px;color:#0f1b2d}.prm-meta-l .prm-i{color:#1d6fb8}
+.prm-pop .prm-cd-c{background:#f4f6fb}.prm-pop .prm-cd-c b{color:#0f1b2d}.prm-pop .prm-cd-c small{color:#596b7d}
+.prm-pop .prm-cta{flex:1 1 auto}.prm-later{font:inherit;font-weight:600;font-size:16px;padding:12px 22px;min-height:48px;border-radius:14px;border:1.5px solid #d3dde8;background:#fff;color:#33475b;cursor:pointer}
+.prm-never{display:flex;align-items:center;gap:10px;font-size:14px;color:#596b7d;cursor:pointer}.prm-never input{width:18px;height:18px;margin:0;accent-color:#1d6fb8}
+.prm-ov{position:fixed;inset:0;z-index:200;background:rgba(15,27,45,.6);display:grid;place-items:center;padding:16px;overflow:auto;animation:prmIn .25s ease}
+.prm-ov .prm-pop{animation:prmUp .3s ease}
+@keyframes prmIn{from{opacity:0}}@keyframes prmUp{from{transform:translateY(18px);opacity:0}}
+@media (prefers-reduced-motion:reduce){.prm-ov,.prm-ov .prm-pop{animation:none}}
+@media (max-width:640px){.prm-card{padding:24px 20px;border-radius:22px}.prm-card p{font-size:15.5px}.prm-side{min-width:0;flex-basis:100%;padding:16px}.prm-cta{width:100%}.prm-cd-c b{font-size:28px}
+  .prm-bar-in{padding:10px 16px;padding-inline-end:52px;font-size:14.5px;justify-content:flex-start;text-align:start}.prm-pbody{padding:20px 20px 22px}.prm-pop h2{font-size:24px}}
+/* لوحة المعلم */
+.prm-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 14px}
+.prm-form .full{grid-column:1/-1}.prm-form label.f{display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:600}
+.prm-kinds{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.prm-kind{font:inherit;display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 10px;border-radius:16px;border:2px solid var(--line,#d3dde8);background:var(--surface,#fff);color:inherit;cursor:pointer}
+.prm-kind[aria-pressed=true]{border-color:var(--v-green,#006C35);background:color-mix(in srgb,var(--v-green,#006C35) 8%,var(--surface,#fff))}
+.prm-kind b{font-size:15px}.prm-kind small{font-size:12.5px;color:var(--muted,#596b7d);text-align:center}
+.prm-mini{width:100%;max-width:120px;height:58px;border-radius:8px;background:#e8eef5;position:relative;overflow:hidden}
+.prm-mini i{position:absolute;display:block;border-radius:3px}
+.prm-tones{display:flex;gap:10px;flex-wrap:wrap}
+.prm-tone{width:44px;height:44px;border-radius:12px;border:3px solid transparent;cursor:pointer;box-shadow:inset 0 0 0 2px rgba(255,255,255,.6)}
+.prm-tone[aria-pressed=true]{border-color:var(--ink,#0f1b2d)}
+.prm-prev{border:1.5px dashed var(--line,#c9d6e4);border-radius:20px;padding:16px;background:#e9eef4;display:grid;place-items:center;overflow:hidden}
+.prm-prev>.prm-bar,.prm-prev>.prm-card{width:100%;box-sizing:border-box}.prm-prev>.prm-bar{border-radius:12px}
+.prm-list{display:flex;flex-direction:column;gap:8px}
+.prm-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 14px;border-radius:14px;background:var(--surface-2,#f4f6fb)}
+.prm-row .tx{flex:1 1 220px;min-width:0;display:flex;flex-direction:column;gap:2px}.prm-row .tx b{font-size:15.5px}
+.prm-st{font-size:12.5px;font-weight:700;padding:3px 10px;border-radius:99px;background:#e2e8f0;color:#33475b;white-space:nowrap}
+.prm-st.on{background:#dcf3e6;color:#0d6b3c}.prm-st.wait{background:#fdf0dc;color:#8a4b00}
+.prm-row .acts{display:flex;gap:6px;flex-wrap:wrap}
+@media (max-width:640px){.prm-form{grid-template-columns:1fr}.prm-kinds{grid-template-columns:1fr}}
+.prm-card .prm-main>h2{color:#fff!important}.prm-card .prm-main>p{color:#c9d6e4!important}.prm-pop .prm-pbody>h2{color:#0f1b2d!important}.prm-pop .prm-pbody>p{color:#4a5c6e!important}
+.prm-toast{position:fixed;bottom:20px;inset-inline-start:20px;z-index:150;width:min(390px,calc(100vw - 32px));box-sizing:border-box;background:#fff;color:#0f1b2d;border-radius:20px;border:1px solid #e1e8f0;border-top:5px solid var(--prm-c);box-shadow:0 18px 50px -12px rgba(15,27,45,.4);padding:18px 18px 18px 16px;text-align:start;animation:prmSide .35s ease}
+.prm-trow{display:flex;gap:14px;align-items:flex-start}
+.prm-tico{flex:none;width:46px;height:46px;border-radius:14px;background:var(--prm-c);color:var(--prm-ink);display:grid;place-items:center}.prm-tico .prm-i{width:26px;height:26px}
+.prm-tbody{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px;padding-inline-end:28px}
+.prm-ttl{font-size:17px;line-height:1.45;color:#0f1b2d}
+.prm-toast .prm-tbody>p{margin:0;font-size:14.5px;line-height:1.75;color:#4a5c6e!important;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.prm-tmeta{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;font-size:13.5px;color:#33475b}.prm-tmeta li{display:flex;align-items:center;gap:6px}.prm-tmeta .prm-i{width:16px;height:16px;color:#1d6fb8}
+.prm-toast .prm-cd{gap:6px}.prm-toast .prm-cd-c{background:#f4f6fb;padding:6px 0;border-radius:10px}.prm-toast .prm-cd-c b{font-size:20px;color:#0f1b2d}.prm-toast .prm-cd-c small{font-size:11.5px;color:#596b7d}
+.prm-toast .prm-acts{margin-top:4px;gap:8px}.prm-toast .prm-cta{font-size:15px;padding:9px 16px;min-height:44px;border-radius:12px}.prm-toast .prm-later{font-size:14.5px;padding:8px 14px;min-height:44px;border-radius:12px}
+.prm-tclose{position:absolute;top:8px;inset-inline-end:8px;width:40px;height:40px;border:0;border-radius:99px;background:transparent;color:#596b7d;display:grid;place-items:center;cursor:pointer}.prm-tclose:hover{background:#f0f3f7}.prm-tclose svg{width:18px;height:18px}
+.prm-prev>.prm-toast{position:relative;bottom:auto;inset-inline-start:auto;animation:none}
+@keyframes prmSide{from{transform:translateY(24px);opacity:0}}
+@media (prefers-reduced-motion:reduce){.prm-toast{animation:none}}
+@media (max-width:640px){.prm-toast{bottom:12px;inset-inline:12px;width:auto;padding:14px}.prm-toast .prm-tmeta{display:none}.prm-toast .prm-acts{flex-wrap:nowrap}.prm-toast .prm-cta{width:auto;flex:1 1 auto}.prm-tico{width:40px;height:40px}}
+.prm-badge .prm-i{width:16px;height:16px}
+.prm-purp{display:flex;flex-wrap:wrap;gap:8px}
+.prm-pp{font:inherit;font-size:14.5px;font-weight:600;display:inline-flex;align-items:center;gap:8px;padding:10px 14px;min-height:44px;border-radius:12px;border:1.5px solid var(--line,#d3dde8);background:var(--surface,#fff);color:inherit;cursor:pointer}
+.prm-pp .prm-i{width:18px;height:18px;color:var(--v-teal,#00A19B)}
+.prm-pp[aria-pressed=true]{border-color:var(--v-green,#006C35);background:color-mix(in srgb,var(--v-green,#006C35) 9%,var(--surface,#fff))}
+/*PRM-END*/
 </style>
 <style>/* ====== محاكيات الصفين الخامس والسادس ====== */
 .appwin.files{--app:#1f5f9e}.fx-path{display:flex;gap:6px;align-items:center;padding:8px 10px;background:#fff;border-bottom:1px solid #dde3e8;font-size:13.5px;flex-wrap:wrap}
@@ -2858,7 +2947,7 @@ function renderTeacher(){const base=location.origin&&location.origin!=='null'&&!
     h('p',{},'حدّد الدرس الذي تريد أن يحلّه الطلاب، ثم انسخ الرابط وأرسله لهم. الطالب الذي يفتح الرابط يرى هذا الدرس فقط.'),gradesHint(),
     base?null:h('p',{class:'msg bad'},'الروابط تعمل من موقعك المنشور. افتح هذه الصفحة من موقعك ليظهر الرابط كاملًا.'),
     dc.el,h('div',{class:'send card'},out)),h('section',{class:'card'},list));
-  teacherDash({links:linksPanel,exam:examBuilder(base),roster:rosterHelp(),news:newsBox(),msgs:msgBox(),stats:statsBox(),settings:h('div',{class:'stack'},gradesCard(),pinHelp(),deviceReset())})}
+  teacherDash({links:linksPanel,exam:examBuilder(base),roster:rosterHelp(),news:h('div',{class:'stack'},promoBox(),newsBox()),msgs:msgBox(),stats:statsBox(),settings:h('div',{class:'stack'},gradesCard(),pinHelp(),deviceReset())})}
 /* ====== إدارة الفصول والطلاب (صفحة المعلم) ====== */
 function adminPin(){try{return sessionStorage.getItem('rqm4:tp')||''}catch(e){return ''}}
 async function adminCall(op,extra){const r=await fetch(SHEET_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({admin:1,pin:adminPin(),op},extra||{}))});return r.json()}
@@ -3170,6 +3259,110 @@ function examBuilder(base){const sel=new Set();let total=20;const out=h('div',{c
     h('p',{},'اختر الدروس التي تريد مهامها العملية في الاختبار، وحدّد الدرجة الكلية. تُقسم الدرجة بالتساوي على المهام، وتُحفظ التقارير في مجلد «الاختبار النهائي».'),
     h('div',{class:'row'},h('label',{for:'ex-total',style:'font-weight:700'},'الدرجة الكلية للاختبار:'),tot),dc.el,h('div',{class:'send card'},out),h('details',{},h('summary',{style:'cursor:pointer;font-weight:700'},'اختيار مهام الاختبار'),h('div',{style:'margin-top:10px'},list)))}
 
+/*PRM*/
+/* ====== الإعلانات البارزة: شريط علوي / بطاقة مميزة / نافذة منبثقة (مشترك بين الموقع ولوحة المعلم) ====== */
+const PRM_TONES={blue:['#1d6fb8','#ffffff','أزرق'],orange:['#f08a24','#1a0c04','برتقالي'],green:['#157a4f','#ffffff','أخضر'],teal:['#137a6b','#ffffff','فيروزي'],navy:['#0f1b2d','#ffffff','كحلي']};
+const PRM_KINDS={bar:'شريط علوي',card:'بطاقة مميزة',popup:'تنبيه جانبي'};
+const PRM_TONE_OPTS={bar:['blue','orange','green'],card:['orange','green','blue'],popup:['blue','teal','navy','orange']};
+const PRM_I={
+  bell:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>',
+  info:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>',
+  alert:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>',
+  star:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 15l.7 1.8 1.8.7-1.8.7L19 20l-.7-1.8-1.8-.7 1.8-.7z"/></svg>',
+  book:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/><path d="M4 19.5V21h16"/></svg>',
+  mega:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v2a1 1 0 0 0 1 1h3l5 4V6L7 10H4a1 1 0 0 0-1 1z"/><path d="M16 9a3 3 0 0 1 0 6M19 6a7 7 0 0 1 0 12"/></svg>',
+  arrow:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>',
+  x:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>',
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
+  cal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>',
+  trophy:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg>'};
+/* الغرض: أيقونة + شارة مقترحة */
+const PRM_PURPOSES=[['bell','إشعار'],['info','معلومة'],['cal','موعد'],['alert','تنبيه مهم'],['book','درس أو مشروع'],['star','تهنئة'],['trophy','مسابقة'],['mega','إعلان']];
+const prmIco=p=>PRM_I[p.icon]?p.icon:'bell';
+const prmIc=(k,cls)=>h('span',{class:'prm-i'+(cls?' '+cls:''),html:PRM_I[k],'aria-hidden':'true'});
+const prmDate=d=>{try{return new Date(String(d).slice(0,10)+'T12:00:00').toLocaleDateString('ar-SA',{weekday:'long',day:'numeric',month:'long'})}catch(e){return d}};
+const prmEnd=d=>new Date(String(d).slice(0,10)+'T23:59:59');
+const prmExt=u=>/^https?:/.test(u||'');
+function prmBtn(p,cls){if(!p.btn)return null;return h('a',{href:p.link||'#',class:cls,target:prmExt(p.link)?'_blank':null,rel:prmExt(p.link)?'noopener':null},p.btn,prmIc('arrow'))}
+/* عدّ تنازلي حتى نهاية يوم الانتهاء */
+function prmCountdown(end){const box=h('div',{class:'prm-cd'});const cells=[['d','يومًا'],['h','ساعة'],['m','دقيقة']].map(([k,t])=>{const b=h('b',{},'–');return[k,b,h('div',{class:'prm-cd-c'},b,h('small',{},t))]});
+  const tick=()=>{if(!box.isConnected&&tick.started)return clearInterval(tick.t);tick.started=1;let s=Math.max(0,(prmEnd(end)-Date.now())/1000);const v={d:Math.floor(s/86400),h:Math.floor(s%86400/3600),m:Math.floor(s%3600/60)};cells.forEach(([k,b])=>b.textContent=ar(String(v[k]).padStart(2,'0')))};
+  box.append(...cells.map(c=>c[2]));tick();tick.t=setInterval(tick,30000);return box}
+/* p = {id,kind,tone,badge,title,text,points[],btn,link,end,countdown} */
+function promoView(p,o){o=o||{};const T=PRM_TONES[p.tone]||PRM_TONES[(PRM_TONE_OPTS[p.kind]||['blue'])[0]];const pts=(p.points||[]).filter(Boolean).slice(0,3);
+  const sty=`--prm-c:${T[0]};--prm-ink:${T[1]}`;
+  if(p.kind==='bar'){return h('div',{class:'prm-bar',style:sty,role:'region','aria-label':'إعلان'},h('div',{class:'prm-bar-in'},prmIc(prmIco(p)),
+      p.title?h('b',{},p.title):null,p.text?h('span',{},p.text):null,prmBtn(p,'prm-bar-a')),
+    o.onClose?h('button',{type:'button',class:'prm-x','aria-label':'إغلاق الإعلان',html:PRM_I.x,onclick:o.onClose}):null)}
+  const metas=pts.map(t=>h('li',{},prmIc('check'),t));
+  const cd=p.countdown&&p.end?prmCountdown(p.end):null;
+  if(p.kind==='card'){return h('section',{class:'prm-card',style:sty,'aria-label':p.title||'إعلان'},h('span',{class:'prm-deco','aria-hidden':'true'}),
+      h('div',{class:'prm-main'},h('div',{class:'prm-tags'},h('span',{class:'prm-badge'},prmIc(prmIco(p)),p.badge||null),p.end?h('span',{class:'prm-tag'},prmIc('cal'),'حتى '+prmDate(p.end)):null),
+        h('h2',{},p.title||''),p.text?h('p',{},p.text):null,metas.length?h('ul',{class:'prm-meta'},metas):null,
+        p.btn?h('div',{class:'prm-acts'},prmBtn(p,'prm-cta')):null),
+      cd?h('div',{class:'prm-side'},h('span',{},'يتبقى حتى الموعد'),cd):null)}
+  /* تنبيه جانبي صغير لا يحجب الصفحة */
+  const close=o.onClose?h('button',{type:'button',class:'prm-tclose','aria-label':'إغلاق التنبيه',html:PRM_I.x,onclick:()=>o.onClose()}):null;
+  const later=o.onClose?h('button',{type:'button',class:'prm-later',onclick:()=>o.onClose()},'لاحقًا'):null;
+  const cta=prmBtn(p,'prm-cta');if(cta&&o.onClose)cta.addEventListener('click',()=>o.onClose());
+  return h('aside',{class:'prm-toast',style:sty,'aria-label':p.title||'تنبيه'},close,
+    h('div',{class:'prm-trow'},h('span',{class:'prm-tico'},prmIc(prmIco(p))),
+      h('div',{class:'prm-tbody'},p.badge?h('span',{class:'prm-kick'},p.badge):null,h('b',{class:'prm-ttl'},p.title||''),p.text?h('p',{},p.text):null,
+        (p.end||pts.length)?h('ul',{class:'prm-tmeta'},p.end?h('li',{},prmIc('cal'),'حتى '+prmDate(p.end)):null,metas):null,
+        cd,(cta||later)?h('div',{class:'prm-acts'},cta,later):null)))}
+
+/* ====== لوحة المعلم: الإعلانات البارزة ====== */
+function promoBox(){const msg=h('p',{class:'msg',role:'status'});const list=h('div',{class:'prm-list'});const prev=h('div',{class:'prm-prev'});
+  const ymd=d=>d.toISOString().slice(0,10);const today=ymd(new Date());
+  const blank=()=>({kind:'bar',tone:'blue',icon:'bell',badge:'إشعار',title:'',text:'',points:[],btn:'',link:'',start:today,end:ymd(new Date(Date.now()+7*864e5)),countdown:false});
+  let cur=blank(),editRow=0,data=[];
+  const minis={bar:[['0','0','100%','12px','var(--c)']],card:[['8px','8px','calc(100% - 16px)','28px','#0f1b2d'],['14px','14px','30px','6px','var(--c)']],popup:[['6px','24px','46px','28px','#fff'],['10px','29px','12px','12px','var(--c)']]};
+  const kindBtns=Object.keys(PRM_KINDS).map(k=>{const mini=h('span',{class:'prm-mini','aria-hidden':'true',style:'--c:#f08a24'},minis[k].map(([l,t,w,hh,bg])=>h('i',{style:`right:${l};top:${t};width:${w};height:${hh};background:${bg}`})));
+    return h('button',{type:'button',class:'prm-kind','aria-pressed':'false','data-k':k,onclick:()=>{cur.kind=k;if(PRM_TONE_OPTS[k].indexOf(cur.tone)<0)cur.tone=PRM_TONE_OPTS[k][0];paint()}},mini,h('b',{},PRM_KINDS[k]),
+      h('small',{},{bar:'أعلى كل الصفحات، للأخبار والتذكير',card:'في الصفحة الرئيسية، للأخبار والمناسبات المهمة',popup:'بطاقة صغيرة في زاوية الشاشة، لا تحجب الموقع'}[k]))});
+  const tones=h('div',{class:'prm-tones'});
+  const purp=h('div',{class:'prm-purp'});
+  function drawPurp(){purp.replaceChildren(...PRM_PURPOSES.map(([k,t])=>h('button',{type:'button',class:'prm-pp','aria-pressed':String((cur.icon||'bell')===k),onclick:()=>{const old=(PRM_PURPOSES.find(x=>x[0]===cur.icon)||[])[1];if(!fBadge.value.trim()||fBadge.value.trim()===old)fBadge.value=t;cur.icon=k;sync();drawPurp()}},prmIc(k),t)))}
+  const inp=(ph,max,ltr)=>h('input',{type:'text',maxlength:max,placeholder:ph,dir:ltr?'ltr':null,oninput:sync});
+  const fBadge=inp('مثال: إشعار، موعد، تهنئة',20),fTitle=inp('مثال: مسابقة المبرمج الصغير',80),
+    fText=h('textarea',{rows:3,maxlength:400,placeholder:'مثال: الاختبار القصير للوحدة الثانية يوم الأحد، راجع الملخص قبله.',oninput:sync}),
+    fPts=h('textarea',{rows:3,maxlength:260,placeholder:'اختياري — سطر لكل نقطة (حتى ٣ نقاط)\nمثال: للصف الخامس\nمدة الاختبار ١٠ دقائق',oninput:sync}),
+    fBtn=inp('مثال: اقرأ الملخص، التفاصيل، سجّل الآن',30),fLink=inp('https://forms.gle/…  أو  #lessons',300,true),
+    fStart=h('input',{type:'date',onchange:sync,oninput:sync}),fEnd=h('input',{type:'date',onchange:sync,oninput:sync}),fCd=h('input',{type:'checkbox',onchange:sync});
+  const lab=(t,el,cls,hint)=>h('label',{class:'f'+(cls?' '+cls:'')},t,el,hint?h('small',{class:'note',style:'font-weight:400'},hint):null);
+  const rowBadge=lab('الشارة',fBadge,null,'كلمة قصيرة تظهر فوق العنوان'),rowPts=lab('نقاط مختصرة (اختياري)',fPts,'full'),rowCd=h('label',{class:'full note',style:'display:flex;gap:8px;align-items:center;cursor:pointer'},fCd,'أظهر عدًّا تنازليًا حتى تاريخ الانتهاء (مفيد للمواعيد والمسابقات)');
+  function sync(){Object.assign(cur,{badge:fBadge.value,title:fTitle.value,text:fText.value,points:fPts.value.split('\n').map(x=>x.trim()).filter(Boolean).slice(0,3),btn:fBtn.value,link:fLink.value.trim(),start:fStart.value,end:fEnd.value,countdown:fCd.checked});drawPrev()}
+  function fill(p){fBadge.value=p.badge||'';fTitle.value=p.title||'';fText.value=p.text||'';fPts.value=(p.points||[]).join('\n');fBtn.value=p.btn||'';fLink.value=p.link||'';fStart.value=p.start||'';fEnd.value=p.end||'';fCd.checked=!!p.countdown}
+  function drawPrev(){const p=Object.assign({},cur);if(!p.title&&!(p.kind==='bar'&&p.text))p.title='عنوان الإعلان يظهر هنا';prev.replaceChildren(promoView(p))}
+  function paint(){kindBtns.forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.k===cur.kind)));
+    tones.replaceChildren(...PRM_TONE_OPTS[cur.kind].map(t=>h('button',{type:'button',class:'prm-tone','aria-pressed':String(t===cur.tone),'aria-label':'اللون: '+PRM_TONES[t][2],title:PRM_TONES[t][2],style:'background:'+PRM_TONES[t][0],onclick:()=>{cur.tone=t;paint()}})));
+    const bar=cur.kind==='bar';rowBadge.hidden=bar;rowPts.hidden=bar;rowCd.hidden=bar;fTitle.placeholder=bar?'الجزء البارز، مثال: اختبار الوحدة الثانية يوم الأحد':'مثال: اختبار الوحدة الثانية يوم الأحد';drawPurp();drawPrev()}
+  const saveB=h('button',{type:'button',class:'btn',onclick:save},'نشر في الموقع');
+  const cancelB=h('button',{type:'button',class:'btn ghost',hidden:true,onclick:()=>reset()},'إلغاء التعديل');
+  function reset(){cur=blank();editRow=0;fill(cur);saveB.textContent='نشر في الموقع';cancelB.hidden=true;paint()}
+  async function call(op,extra){msg.className='msg';msg.textContent='جارٍ الحفظ…';try{const j=await adminCall(op,extra);if(j.status==='pin'){msg.className='msg bad';msg.textContent='رمز الإدارة غير صحيح.';return false}if(!j.ok){msg.className='msg bad';msg.textContent=j.message||'تعذّر الحفظ.';return false}
+      msg.className=j.message?'msg ok':'msg';msg.textContent=j.message||'';data=j.promos||[];drawList();return true}catch(e){msg.className='msg bad';msg.textContent='تعذّر الاتصال بجدولك. تأكد أن كود الجدول محدَّث ومنشور بإصدار جديد.';return false}}
+  async function save(){sync();if(!cur.title.trim()&&!(cur.kind==='bar'&&cur.text.trim())){fTitle.focus();msg.className='msg bad';msg.textContent='اكتب عنوان الإعلان.';return}
+    if(cur.link&&!/^https?:\/\/|^#/.test(cur.link)){fLink.focus();msg.className='msg bad';msg.textContent='الرابط يجب أن يبدأ بـ https://';return}
+    if(cur.start&&cur.end&&cur.end<cur.start){fEnd.focus();msg.className='msg bad';msg.textContent='تاريخ الانتهاء قبل تاريخ البداية.';return}
+    if(await call('promoSave',Object.assign({row:editRow},cur)))reset()}
+  const status=p=>!p.active?['موقوف','']:p.start&&p.start>today?['مجدول — يبدأ '+p.start,'wait']:p.end&&p.end<today?['انتهى','']:['ظاهر الآن','on'];
+  function drawList(){list.replaceChildren(...(data.length?data.map(p=>{const[st,c]=status(p);const del=(()=>{let armed=false;const b=h('button',{type:'button',class:'rm-del',onclick:()=>{if(!armed){armed=true;b.textContent='تأكيد؟';setTimeout(()=>{armed=false;b.textContent='حذف'},3000);return}call('promoDel',{row:p.row})}},'حذف');return b})();
+      return h('div',{class:'prm-row'},h('span',{class:'prm-st '+c},st),h('span',{class:'tx'},h('b',{},p.title||p.text),h('small',{class:'note'},PRM_KINDS[p.kind]+(p.end?' · حتى '+p.end:''))),
+        h('span',{class:'acts'},h('button',{type:'button',class:'btn ghost',onclick:()=>{cur=Object.assign(blank(),p);editRow=p.row;fill(cur);saveB.textContent='حفظ التعديل';cancelB.hidden=false;paint();form.scrollIntoView({behavior:'smooth',block:'start'})}},'تعديل'),
+          h('button',{type:'button',class:'btn ghost',onclick:()=>call('promoToggle',{row:p.row})},p.active?'إيقاف':'تفعيل'),del))}):[h('p',{class:'note'},'لا توجد إعلانات بارزة بعد.')]))}
+  const form=h('div',{class:'prm-form'},h('div',{class:'full stack',style:'gap:8px'},h('b',{},'١. نوع الإعلان'),purp),h('div',{class:'full stack',style:'gap:8px'},h('b',{},'٢. طريقة العرض'),h('div',{class:'prm-kinds'},kindBtns)),
+    h('div',{class:'full stack',style:'gap:8px'},h('b',{},'٣. اللون'),tones),
+    h('b',{class:'full'},'٤. المحتوى'),rowBadge,lab('العنوان',fTitle),lab('النص',fText,'full'),rowPts,
+    lab('نص الزر',fBtn,null,'اتركه فارغًا إن لم تحتج زرًا'),lab('رابط الزر',fLink,null,'رابط درس أو مشروع أو صفحة أو نموذج'),
+    lab('يبدأ الظهور',fStart),lab('ينتهي في',fEnd,null,'يختفي الإعلان تلقائيًا بعد هذا اليوم'),rowCd,
+    h('div',{class:'full stack',style:'gap:8px'},h('b',{},'معاينة كما سيظهر في الموقع'),prev),
+    h('div',{class:'full row',style:'gap:8px;flex-wrap:wrap'},saveB,cancelB),h('div',{class:'full'},msg));
+  fill(cur);paint();if(SHEET_URL)call('promos');
+  return h('section',{class:'card stack'},h('h2',{style:'font-size:20px'},'إعلان بارز (إشعار، موعد، تنبيه، تهنئة، مسابقة…)'),
+    h('p',{class:'note'},'كل الأنواع لا تحجب الموقع ولا تُلزم الزائر بشيء: الشريط أعلى الصفحات ويُغلق بضغطة، والبطاقة في الصفحة الرئيسية، والتنبيه الجانبي يظهر مرة واحدة فقط لكل زائر في زاوية الشاشة. إن كان أكثر من إعلان من النوع نفسه ظاهرًا يظهر الأحدث.'),
+    form,h('h3',{style:'font-size:17px;margin:10px 0 0'},'إعلاناتك البارزة'),list)}
+/*PRM-END*/
 function route(){const id=location.hash.slice(1);if(isTeacher())renderTeacher();else if(wantsTeacher())renderTeacherGate();else if(EXAM_IDS.length){if(isLate()&&LATE_MODE==='close'&&!progress[examKey(EXAM_IDS,EXAM_TOTAL)])renderClosed(EXAM_TITLE);else renderExam()}
   else if(ASSIGNED.length&&isLate()&&LATE_MODE==='close'&&(ASSIGNED.length===1?!progress[ASSIGNED[0]]:!ASSIGNED.includes(id)||!progress[id])){if(ASSIGNED.length===1||ASSIGNED.includes(id))renderClosed(LESSONS[ASSIGNED.includes(id)?id:ASSIGNED[0]].title);else renderAssigned()}else if(ASSIGNED.length){if(ASSIGNED.length===1)renderLesson(LESSONS[ASSIGNED[0]]);else if(ASSIGNED.includes(id))renderLesson(LESSONS[id]);else renderAssigned()}else if(REQUIRE_LINK)renderNeedLink();else if(LESSONS[id])renderLesson(LESSONS[id]);else renderHome();window.scrollTo(0,0)}
 addEventListener('hashchange',route);route();
