@@ -1443,6 +1443,11 @@ a.hd-ico{color:var(--brand1)}
   .hd-box .hd-hint{white-space:normal;text-align:center;padding:4px 0}
   .hd-need{padding:6px 12px;font-size:13px}.hd-nw{display:none}
 }
+/* زر التقرير المفصل في الواجهة */
+.hero-btn.hero-rep{background:rgba(10,24,44,.38);border-color:rgba(255,214,102,.65);box-shadow:0 10px 24px -12px rgba(0,0,0,.4)}
+.hero-btn.hero-rep:hover{background:rgba(10,24,44,.5)}
+.hero-btn.hero-rep>span:first-child{background:linear-gradient(135deg,#ffd166,#f4b400);color:#3a2a00}
+@media (min-width:641px){.hero-acts{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}.hero-acts .hero-btn{padding:11px 12px;gap:10px;min-width:0}.hero-acts .hero-btn>span:first-child{width:38px;height:38px}.hero-acts .hero-btn b{font-size:15.5px}.hero-acts .hero-btn small{font-size:12px;line-height:1.5}}
 
 body{margin:0}[hidden]{display:none!important}img{max-width:100%}
 </style>
@@ -4524,7 +4529,7 @@ function siteHome(){const q=h('input',{type:'search',id:'q',placeholder:'ابح�
     h('section',{class:'hero'},h('div',{class:'hero-t'},h('span',{class:'pill'},'المهارات الرقمية · الصفوف ٤ — ٦'),h('h1',{},'تعلّم المهارات الرقمية',h('br'),'خطوة بخطوة'),
         h('p',{},'شرح مبسّط لكل الدروس، والكتب الدراسية، وملخصات للمراجعة، وخطوات عملية مع محاكيات تتدرّب عليها من الجوال أو الحاسب.'),
         h('div',{class:'hero-search'},h('span',{html:ICON.search,'aria-hidden':'true',style:'display:flex;color:#4f6275'}),q),res,
-        h('div',{class:'hero-acts'},PLATFORM_URL?h('a',{href:PLATFORM_URL,class:'hero-btn hero-proj'},h('span',{html:ICON.cap,'aria-hidden':'true'}),h('span',{},h('b',{},'المشاريع المطلوبة'),h('small',{},'نفّذ مشروعك وأرسله للمعلم'))):null,h('a',{href:'#lessons',class:'hero-btn'},h('span',{html:ICON.play,'aria-hidden':'true'}),h('span',{},h('b',{},'ابدأ التعلّم'),h('small',{},'الدروس والتدريب العملي'))))),
+        h('div',{class:'hero-acts'},PLATFORM_URL?h('a',{href:PLATFORM_URL,class:'hero-btn hero-proj'},h('span',{html:ICON.cap,'aria-hidden':'true'}),h('span',{},h('b',{},'المشاريع المطلوبة'),h('small',{},'نفّذ مشروعك وأرسله للمعلم'))):null,h('a',{href:'#lessons',class:'hero-btn'},h('span',{html:ICON.play,'aria-hidden':'true'}),h('span',{},h('b',{},'ابدأ التعلّم'),h('small',{},'الدروس والتدريب العملي'))),h('a',{href:'#report',class:'hero-btn hero-rep'},h('span',{html:ICON.report,'aria-hidden':'true'}),h('span',{},h('b',{},'التقرير المفصل'),h('small',{},'لولي الأمر: درجات ابنك وإنجازاته'))))),
       h('div',{class:'hero-ph','aria-hidden':'true'},h('div',{},h('img',{src:HERO_IMG,alt:''})))),
     h('div',{class:'stat-strip'},[[ar(total),'درسًا ومشروعًا'],[ar(Object.keys(UNITS).length),'وحدة دراسية'],['٦','كتب دراسية'],['٣','صفوف دراسية']].map(([n,t])=>h('div',{},h('b',{class:'num'},n),h('span',{},t)))),
     newsBar(),
