@@ -923,6 +923,9 @@ body.dash-mode .foot{border:0!important;padding:0!important;background:none!impo
 .sv-row{display:grid;grid-template-columns:minmax(120px,170px) 1fr 36px;gap:10px;align-items:center;font-size:14.5px}.sv-bar{height:10px;border-radius:99px;background:var(--surface-2,#eef2f6);overflow:hidden}.sv-bar i{display:block;height:100%;background:var(--v-teal,#00A19B);border-radius:99px}
 .sv-tx{background:var(--surface-2,#f4f6fb);border-radius:12px;padding:10px 14px}.sv-tx p{margin:4px 0 0;line-height:1.7}
 .name-opt small.name-ocls{display:inline-block;margin-inline-start:8px;font-weight:600;font-size:12.5px;opacity:.75}
+.retry-box{display:flex;flex-direction:column;gap:8px;align-items:flex-start;background:color-mix(in srgb,var(--brand2,#1f9e8a) 10%,var(--surface));border:1.5px solid color-mix(in srgb,var(--brand2,#1f9e8a) 45%,var(--line));border-radius:16px;padding:14px 16px}.retry-box b{font-size:17px}.retry-box span{color:var(--muted);line-height:1.7}
+.rt-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 14px;border-radius:14px;background:var(--surface-2,#f4f6fb)}.rt-row .tx{flex:1 1 220px;min-width:0;display:flex;flex-direction:column;gap:2px}
+.rt-g{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,var(--brand2,#1f9e8a) 8%,var(--surface))}.rt-chip{font-size:13px;background:var(--surface);border:1px solid var(--line);border-radius:99px;padding:3px 10px}
 
 /* ====== هيكل الموقع: الشريط الرسمي والقائمة والتذييل ====== */
 .wrap{max-width:1180px;margin:0 auto;padding-inline:max(16px,env(safe-area-inset-left,0px))}
@@ -2428,12 +2431,18 @@ function repView(R){const box=h('div',{class:'rep'});
     sec('الحل الصحيح خطوة بخطوة',h('ol',{class:'rv-steps'},(R.sol||[]).map(t=>h('li',{},t)))),R.reflect?sec('تقييم الطالب للمحاكي',h('p',{class:'rep-d'},R.reflect)):null);
   return box}
 /* بعد الإرسال يُقفل الدرس: استجابة واحدة لكل درس */
+/* فرصة أخرى يمنحها المعلم: تظهر للطالب في صفحة الدرس المرسل */
+function retrySlot(L,P){const box=h('div',{hidden:true});if(!SHEET_URL||!P||P.via!=='sheet'||!P.name)return box;
+  fetch(SHEET_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({retryCheck:1,name:P.name,cls:P.cls,lessonId:L.id})}).then(r=>r.json()).then(j=>{if(!j||!j.retry)return;box.hidden=false;
+    box.replaceChildren(h('div',{class:'retry-box'},h('b',{},'🔁 منحك معلمك فرصة أخرى في هذا الدرس'),h('span',{},'حُفظت محاولتك السابقة عند المعلم. نفّذ المهمة من جديد وأرسلها، وتُعتمد درجتك الجديدة.'),
+      h('button',{type:'button',class:'btn',onclick:()=>{delete progress[L.id];store.set('progress',progress);if(!student.name&&P.name){student={name:P.name,cls:P.cls};store.set('student',student)}renderLesson(L);scrollTo(0,0)}},'ابدأ المحاولة الجديدة')))}).catch(()=>{});
+  return box}
 function renderSent(L,P){const locked=ASSIGNED.length>0;const d=new Date(P.at);
   const back=!locked?h('a',{href:'#home',class:'back'},'→ كل الدروس'):ASSIGNED.length>1?h('a',{href:'#home',class:'back'},'→ دروسي المطلوبة'):null;
   app.replaceChildren(h('div',{class:'stack'},back,locked?masthead(true):null,
     h('div',{class:'l-head'},h('div',{class:'meta'},`${L.term.title} · ${L.unitLabel}: ${L.unit.title}`),h('h1',{},(L.project?'مشروع: ':'')+L.title)),
     h('section',{class:'card send stack'},h('div',{class:'scorebox'},h('div',{class:'big num'},ar(P.score),h('span',{style:'font-size:20px;color:var(--muted)'},' / ١٠')),h('div',{class:'stack',style:'gap:4px;min-width:0'},h('h2',{style:'font-size:22px'},P.via==='sheet'?(P.dup?'✓ سبق أن أرسلت هذا الدرس':'✓ وصل إنجازك إلى المعلم'):'✓ أرسلت إنجازك في هذا الدرس'),h('p',{class:'note'},`${P.name?P.name+' · فصل '+P.cls+' · ':''}${d.toLocaleDateString('ar-SA',{weekday:'long',day:'numeric',month:'long'})} ${d.toLocaleTimeString('ar-SA',{hour:'numeric',minute:'2-digit'})}`))),
-      h('p',{},'لكل درس استجابة واحدة فقط، ولا يمكن حلّه مرة أخرى.'),
+      h('p',{},'لكل درس استجابة واحدة فقط، إلا إذا منحك معلمك فرصة أخرى.'),retrySlot(L,P),
       (()=>{const s0=unitStatus(L.term,L.unit);if(L.extra||!s0.earned)return null;return h('div',{class:'stack',style:'gap:8px'},h('div',{class:'congrats'},h('b',{},`🎉 أحسنت يا ${String(student.name||P.name||'').split(' ')[0]}! أتممت وحدة «${L.unit.title}» بامتياز`),h('span',{},'هذه شهادتك:')),certBlock({T:L.term,U:L.unit,avg:s0.avg}))})(),
       P.rep?reportBlock(P.rep):null,
       P.link?h('details',{},h('summary',{class:'note',style:'cursor:pointer'},'فتحت النموذج ولم تضغط «إرسال»؟'),h('div',{class:'stack',style:'gap:8px;margin-top:8px'},h('p',{class:'note'},'افتح النموذج بإجاباتك نفسها واضغط «إرسال» مرة واحدة فقط.'),h('a',{class:'btn ghost',href:P.link,target:'_blank',rel:'noopener',style:'align-self:flex-start'},'افتح النموذج بإجاباتي'))):null)))}
@@ -2618,7 +2627,7 @@ function renderTeacher(){const base=location.origin&&location.origin!=='null'&&!
     h('p',{},'حدّد الدرس الذي تريد أن يحلّه الطلاب، ثم انسخ الرابط وأرسله لهم. الطالب الذي يفتح الرابط يرى هذا الدرس فقط.'),gradesHint(),
     base?null:h('p',{class:'msg bad'},'الروابط تعمل من موقعك المنشور. افتح هذه الصفحة من موقعك ليظهر الرابط كاملًا.'),
     dc.el,h('div',{class:'send card'},out)),h('section',{class:'card'},list));
-  teacherDash({links:linksPanel,exam:examBuilder(base),roster:rosterHelp(),news:h('div',{class:'stack'},promoBox(),stuBox(),newsBox()),msgs:msgBox(),stats:h('div',{class:'stack'},statsBox(),surveyBox()),settings:h('div',{class:'stack'},gradesCard(),pinHelp(),deviceReset())})}
+  teacherDash({links:linksPanel,exam:examBuilder(base),roster:h('div',{class:'stack'},rosterHelp(),retryBox()),news:h('div',{class:'stack'},promoBox(),stuBox(),newsBox()),msgs:msgBox(),stats:h('div',{class:'stack'},statsBox(),surveyBox()),settings:h('div',{class:'stack'},gradesCard(),pinHelp(),deviceReset())})}
 /* ====== إدارة الفصول والطلاب (صفحة المعلم) ====== */
 function adminPin(){try{return sessionStorage.getItem('rqm4:tp')||''}catch(e){return ''}}
 async function adminCall(op,extra){const r=await fetch(SHEET_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({admin:1,pin:adminPin(),op},extra||{}))});return r.json()}
@@ -2764,6 +2773,24 @@ function surveyBox(){const body=h('div',{class:'stack',style:'gap:14px'});const 
   return h('section',{class:'card stack'},h('h2',{style:'font-size:20px'},'📋 استبيان رأي الزوار'),
     h('p',{class:'note'},'استبيان قصير من ٥ أسئلة دون أسماء. لا يظهر في الموقع إلا عندما تنشر دعوة له، أو ترسل رابطه بنفسك.'),
     h('pre',{class:'preview',dir:'ltr'},link),h('div',{class:'row',style:'gap:8px;flex-wrap:wrap'},invite,copyB,clear),msg,body)}
+/* ====== منح فرصة أخرى في مشروع ====== */
+function retryBox(){const list=h('div',{class:'stack',style:'gap:8px'});const msg=h('p',{class:'msg',role:'status'});let cls='',data={subs:[],grants:[]};
+  const q=h('input',{type:'search',placeholder:'ابحث باسم الطالب أو الدرس…',oninput:()=>draw()});
+  const chips=h('div',{class:'row',style:'gap:6px;flex-wrap:wrap'});
+  const fmt=t=>{try{return new Date(t).toLocaleDateString('ar-SA',{day:'numeric',month:'short'})}catch(e){return ''}};
+  function drawChips(){chips.replaceChildren(...CLASSES.map(c=>h('button',{type:'button',class:'chip'+(c===cls?' on':''),onclick:()=>{cls=c;drawChips();load()}},c)))}
+  async function call(op,extra){try{const j=await adminCall(op,Object.assign({cls},extra||{}));if(j.status==='pin'){msg.className='msg bad';msg.textContent='رمز الإدارة غير صحيح.';return}if(!j.ok){msg.className='msg bad';msg.textContent=j.message||'تعذّر التنفيذ.';return}
+      if(j.message){msg.className='msg ok';msg.textContent=j.message}data={subs:j.subs||[],grants:j.grants||[]};draw()}catch(e){msg.className='msg bad';msg.textContent='تعذّر الاتصال بجدولك. تأكد أن كود الجدول محدَّث ومنشور بإصدار جديد.'}}
+  function load(){msg.textContent='';list.replaceChildren(h('p',{class:'note'},'جارٍ التحميل…'));call('subs')}
+  function draw(){if(!cls){list.replaceChildren(h('p',{class:'note'},'اختر الفصل لتظهر مشاريعه المرسلة.'));return}
+    const t=q.value.trim();const S=data.subs.filter(x=>!t||x.name.includes(t)||x.lesson.includes(t));
+    const G=data.grants.length?h('div',{class:'rt-g'},h('b',{},'فرص متاحة لم تُستخدم بعد:'),...data.grants.map(g=>h('span',{class:'rt-chip'},g.name+' — '+g.lesson))):null;
+    list.replaceChildren(...[G].concat(S.length?S.slice(0,80).map(x=>{const b=(()=>{let armed=false;const bt=h('button',{type:'button',class:'btn ghost',onclick:()=>{if(!armed){armed=true;bt.textContent='تأكيد؟';setTimeout(()=>{armed=false;bt.textContent='🔁 فرصة أخرى'},3000);return}msg.className='msg';msg.textContent='جارٍ التنفيذ…';call('retryGrant',{row:x.row,name:x.name,lessonId:x.id})}},'🔁 فرصة أخرى');return bt})();
+      return h('div',{class:'rt-row'},h('span',{class:'tx'},h('b',{},x.name),h('small',{class:'note'},x.lesson+' · '+ar(x.score)+' / ١٠ · '+fmt(x.at))),b)}):[h('p',{class:'note'},data.subs.length?'لا نتائج للبحث.':'لا توجد مشاريع مرسلة في هذا الفصل.')]).filter(Boolean))}
+  drawChips();draw();CLS_HOOKS.push(()=>{if(chips.isConnected)drawChips()});
+  return h('section',{class:'card stack'},h('h2',{style:'font-size:20px'},'🔁 منح الطالب فرصة أخرى في مشروع'),
+    h('p',{class:'note'},'اختر الفصل، ثم اضغط «فرصة أخرى» بجانب المشروع. تُنقل محاولته السابقة إلى ورقة «المحاولات السابقة» في جدولك، ويستطيع الطالب حل المشروع وإرساله من جديد. وإذا فتح الدرس من جهازه نفسه يظهر له زر «ابدأ المحاولة الجديدة».'),
+    chips,q,msg,list)}
 function statsBox(){const body=h('div',{class:'stack',style:'gap:14px'},h('p',{class:'note'},'جارٍ تحميل الإحصاءات…'));
   const fmtD=d=>{try{return new Date(d+'T12:00:00').toLocaleDateString('ar-SA',{day:'numeric',month:'short'})}catch(e){return d}};
   async function load(){body.replaceChildren(h('p',{class:'note'},'جارٍ تحميل الإحصاءات…'));try{const j=await adminCall('stats');if(j.status==='pin'){body.replaceChildren(h('p',{class:'msg bad'},'رمز الإدارة غير صحيح.'));return}if(!j.ok)throw 0;draw(j.stats)}catch(e){body.replaceChildren(h('p',{class:'msg bad'},'تعذّر تحميل الإحصاءات. تأكد أن كود الجدول محدَّث ومنشور.'))}}
