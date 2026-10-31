@@ -2840,7 +2840,7 @@ function repView(R){const box=h('div',{class:'rep'});
 /* فرصة أخرى يمنحها المعلم: تظهر للطالب في صفحة الدرس المرسل */
 function retrySlot(L,P){const box=h('div',{hidden:true});if(!SHEET_URL||!P||P.via!=='sheet'||!P.name)return box;
   fetch(SHEET_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({retryCheck:1,name:P.name,cls:P.cls,lessonId:L.id})}).then(r=>r.json()).then(j=>{if(!j||!j.retry)return;box.hidden=false;
-    box.replaceChildren(h('div',{class:'retry-box'},h('b',{},'🔁 منحك معلمك فرصة أخرى في هذا الدرس'),h('span',{},'حُفظت محاولتك السابقة عند المعلم. نفّذ المهمة من جديد وأرسلها، وتُعتمد درجتك الجديدة.'),
+    box.replaceChildren(h('div',{class:'retry-box'},h('b',{},'🔁 منحك معلمك فرصة أخرى في هذا الدرس'),h('span',{},'نفّذ المهمة من جديد وأرسلها، وتُعتمد درجتك الجديدة.'),
       h('button',{type:'button',class:'btn',onclick:()=>{delete progress[L.id];store.set('progress',progress);if(!student.name&&P.name){student={name:P.name,cls:P.cls};store.set('student',student)}renderLesson(L);scrollTo(0,0)}},'ابدأ المحاولة الجديدة')))}).catch(()=>{});
   return box}
 function renderSent(L,P){const locked=ASSIGNED.length>0;const d=new Date(P.at);
@@ -3195,7 +3195,7 @@ function retryBox(){const list=h('div',{class:'stack',style:'gap:8px'});const ms
       return h('div',{class:'rt-row'},h('span',{class:'tx'},h('b',{},x.name),h('small',{class:'note'},x.lesson+' · '+ar(x.score)+' / ١٠ · '+fmt(x.at))),b)}):[h('p',{class:'note'},data.subs.length?'لا نتائج للبحث.':'لا توجد مشاريع مرسلة في هذا الفصل.')]).filter(Boolean))}
   drawChips();draw();CLS_HOOKS.push(()=>{if(chips.isConnected)drawChips()});
   return h('section',{class:'card stack'},h('h2',{style:'font-size:20px'},'🔁 منح الطالب فرصة أخرى في مشروع'),
-    h('p',{class:'note'},'اختر الفصل، ثم اضغط «فرصة أخرى» بجانب المشروع. تُنقل محاولته السابقة إلى ورقة «المحاولات السابقة» في جدولك، ويستطيع الطالب حل المشروع وإرساله من جديد. وإذا فتح الدرس من جهازه نفسه يظهر له زر «ابدأ المحاولة الجديدة».'),
+    h('p',{class:'note'},'اختر الفصل، ثم اضغط «فرصة أخرى» بجانب المشروع. تُحذف محاولته السابقة وأي فرصة سابقة له في الدرس نفسه، فلا تتكرر، ويستطيع حل المشروع وإرساله من جديد. وإذا فتح الدرس من جهازه نفسه يظهر له زر «ابدأ المحاولة الجديدة». الدرجة السابقة تبقى مسجّلة في «سجل العمليات».'),
     chips,q,msg,list)}
 function statsBox(){const body=h('div',{class:'stack',style:'gap:14px'},h('p',{class:'note'},'جارٍ تحميل الإحصاءات…'));
   const fmtD=d=>{try{return new Date(d+'T12:00:00').toLocaleDateString('ar-SA',{day:'numeric',month:'short'})}catch(e){return d}};
