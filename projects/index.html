@@ -757,6 +757,9 @@ body.dash-mode .btn:not(.ghost):not(.wa):not(.mb-wa):not(.pm-wa):not(.rm-danger)
 .pn-hint{margin:0;background:#eef6f2;border-radius:12px;padding:8px 12px;font-size:14px;color:#2d4a3e}.lnk{background:none;border:0;color:var(--v-green);font:inherit;font-weight:800;text-decoration:underline;cursor:pointer;padding:0}
 .dq-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 .dq{display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:start;border:1.5px solid #e2ece7;background:#fff;border-radius:18px;padding:16px;font:inherit;color:var(--v-navy);cursor:pointer;transition:border-color .15s,transform .15s}.dq:hover{border-color:var(--v-teal);transform:translateY(-2px)}
+a.dq{text-decoration:none}
+.dq.dq-kashf{grid-column:1/-1;border-color:var(--v-teal);background:linear-gradient(135deg,#f2faf6,#eef8f7)}
+.dq.dq-kashf:focus-visible{outline:3px solid var(--v-teal);outline-offset:2px}
 .dq-ic{font-size:26px;width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#e6f4ec,#e2f5f4);display:grid;place-items:center;margin-bottom:4px}.dq b{font-size:16.5px}.dq small{color:#5b6b66;line-height:1.6}
 .dash-tip{background:linear-gradient(135deg,#fbf6ea,#fff)!important;border-color:#eadcb8!important}.dash-tip p{margin:4px 0 0;color:#5b4a22}
 body.dash-mode .gr-chip.on{border-color:var(--v-green);background:#eaf5ef}body.dash-mode .gr-chip.on .gr-ck{background:var(--v-green);border-color:var(--v-green)}
@@ -3325,7 +3328,8 @@ function teacherDash(panels){document.body.classList.add('dash-mode');
   const home=h('div',{class:'stack'},h('section',{class:'card stack'},h('h2',{style:'font-size:20px'},'ماذا تريد أن تفعل؟'),h('div',{class:'dq-grid'},
       quick('links','🔗','أرسل مشروعًا','اختر الدرس وانسخ رابطه أو انشره في الموقع'),quick('exam','📝','أنشئ اختبارًا','اختبار نهائي بمهام عملية ودرجة'),
       quick('roster','👥','الطلاب والفصول','إضافة واستيراد ورموز أولياء الأمور'),quick('news','📌','إعلان للطلاب','يظهر في «المطلوب هذا الأسبوع»'),
-      quick('msgs','💬','رسائل الزوار','أسئلة أولياء الأمور والرد عليها'),quick('stats','📊','الإحصاءات','الزيارات والصفحات الأكثر استخدامًا'))),
+      quick('msgs','💬','رسائل الزوار','أسئلة أولياء الأمور والرد عليها'),quick('stats','📊','الإحصاءات','الزيارات والصفحات الأكثر استخدامًا'),
+      TSLUG?null:h('a',{class:'dq dq-kashf',href:'https://claude.ai/artifact/UvNHS4ebyWLF4ms82xrZ75',target:'_blank',rel:'noopener'},h('span',{class:'dq-ic','aria-hidden':'true'},'📒'),h('b',{},'كشف الدرجات والمتابعة'),h('small',{},'الدرجات والمتابعة الأسبوعية لكل الفصول · متزامن مع الجوال · يفتح في Claude بحسابك')))),
     h('section',{class:'card dash-tip'},h('b',{},'💡 تذكير'),h('p',{},'نتائج الطلاب وكشوف الدرجات وتحليل الأخطاء تجدها في جدولك على Google Sheets، وتتحدث تلقائيًا مع كل إرسال.')));
   const P=Object.assign({home},panels);
   const nav=h('nav',{class:'dnav',role:'tablist','aria-label':'أقسام لوحة المعلم'});const main=h('div',{class:'dmain'});
@@ -3336,7 +3340,7 @@ function teacherDash(panels){document.body.classList.add('dash-mode');
     const t=nav.querySelector('.on');if(t&&t.scrollIntoView)t.scrollIntoView({block:'nearest',inline:'center'});window.scrollTo({top:0,behavior:'smooth'})};
   nav.replaceChildren(...DASH_TABS.filter(([k])=>P[k]).map(([k,ic,t])=>h('button',{type:'button',role:'tab','data-tab':k,onclick:()=>dashGo(k)},h('span',{'aria-hidden':'true'},ic),h('span',{},t))));
   const hero=h('header',{class:'dhero'},h('div',{class:'dh-top'},h('div',{class:'dh-id'},h('span',{class:'dh-av','aria-hidden':'true'},'👨‍🏫'),h('div',{},h('small',{},'لوحة المعلم'),h('h1',{},'مرحبًا أستاذ '+String(INFO.teacher).trim().split(/\s+/)[0]),h('p',{},INFO.subject+' · '+INFO.school))),
-      h('div',{class:'dh-acts'},h('span',{class:'dh-date'},today),h('a',{class:'dh-btn',href:'https://m-zahrani.com/',target:'_blank',rel:'noopener'},'🌐 الموقع'),h('button',{type:'button',class:'dh-btn',onclick:()=>{try{sessionStorage.removeItem('rqm4:t');sessionStorage.removeItem('rqm4:tp')}catch(e){}location.href=location.pathname+'?'+TQ+'teacher'}},'خروج'))),
+      h('div',{class:'dh-acts'},h('span',{class:'dh-date'},today),TSLUG?null:h('a',{class:'dh-btn',href:'https://claude.ai/artifact/UvNHS4ebyWLF4ms82xrZ75',target:'_blank',rel:'noopener'},'📒 الكشف'),h('a',{class:'dh-btn',href:'https://m-zahrani.com/',target:'_blank',rel:'noopener'},'🌐 الموقع'),h('button',{type:'button',class:'dh-btn',onclick:()=>{try{sessionStorage.removeItem('rqm4:t');sessionStorage.removeItem('rqm4:tp')}catch(e){}location.href=location.pathname+'?'+TQ+'teacher'}},'خروج'))),
     h('div',{class:'dk-row'},kpi('stu','👥','طالبًا','roster'),kpi('cls','🏫','فصول','roster'),kpi('msg','💬','رسائل جديدة','msgs'),kpi('vis','📊','زيارات اليوم','stats')),
     h('p',{class:'dh-warn'},'🔒 خاص بالمعلم — لا تشارك هذه الصفحة مع الطلاب'));
   app.replaceChildren(h('div',{class:'dash'},hero,nav,main));dashGo(cur);
