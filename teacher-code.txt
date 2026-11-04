@@ -101,7 +101,7 @@ function classList_(ss) {
   return sh.getRange(2, 1, n - 1, 1).getValues().map(r => String(r[0]).trim()).filter(Boolean);
 }
 
-const CODE_VER = '2026-11-04d';
+const CODE_VER = '2026-11-04e';
 function doGet(e) {
   if (e && e.parameter && e.parameter.action === 'teacher') {
     const slug = String(e.parameter.t || '').toLowerCase();
@@ -1485,7 +1485,11 @@ function tgSend_(text, link, btn) {
     const r = JSON.parse(UrlFetchApp.fetch('https://api.telegram.org/bot' + tok + '/sendMessage', { method: 'post', contentType: 'application/json', payload: JSON.stringify(body), muteHttpExceptions: true }).getContentText());
     if (r && r.ok) return { ok: true };
     const desc = String(r && r.description || '');
-    return { ok: false, message: /not enough rights|administrator|chat not found|forbidden/i.test(desc) ? 'أضف البوت مشرفًا (Admin) في القناة بصلاحية النشر.' : 'رفض تلجرام الرسالة: ' + desc };
+    const why = /chat not found/i.test(desc) ? 'لم يجد تلجرام القناة: تأكد من معرّف القناة (مثل ‎@gatemajed) وأن البوت مضاف إليها.'
+      : /not enough rights|need administrator|administrator rights/i.test(desc) ? 'البوت مضاف لكن بلا صلاحية «نشر الرسائل»: من إعدادات المشرفين في القناة افتح البوت وفعّل Post Messages.'
+      : /bot is not a member|forbidden/i.test(desc) ? 'البوت ليس مشرفًا في هذه القناة: أضفه من «المشرفون» وليس كمشترك.'
+      : /unauthorized/i.test(desc) ? 'رمز البوت لم يعد صالحًا: انسخ الرمز من جديد من ‎@BotFather.' : 'رفض تلجرام الرسالة.';
+    return { ok: false, message: why + ' (رد تلجرام: ' + desc + ')' };
   } catch (err) { return { ok: false, message: 'تعذّر الاتصال بتلجرام. شغّل الدالة authorizeTelegram مرة من محرر الكود.' }; }
 }
 /* شغّلها مرة واحدة من المحرر (اختر الدالة ثم ▶ تشغيل) لمنح الإذن بالاتصال بتلجرام */
