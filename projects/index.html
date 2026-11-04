@@ -2935,7 +2935,7 @@ function retrySlot(L,P){const box=h('div',{hidden:true});if(!SHEET_URL||!P||P.vi
   const show=(...k)=>{box.hidden=false;box.replaceChildren(h('div',{class:'retry-box'},...k))};
   const askUI=()=>{const note=h('textarea',{rows:2,maxlength:200,placeholder:'لماذا تطلب فرصة أخرى؟ (اختياري)',style:'width:100%;min-height:56px'});const m=h('p',{class:'msg',role:'status'});
     const b=h('button',{type:'button',class:'btn',onclick:async()=>{if(b.dataset.busy)return;b.dataset.busy='1';b.textContent='جارٍ الإرسال…';
-      try{const j=await post({retryReq:1,n:P.name,c:P.cls,l:L.id,note:note.value});if(j&&j.ok){show(h('b',{},'⏳ وصل طلبك إلى المعلم'),h('span',{},'سيُراجع المعلم طلبك. حدّث الصفحة لاحقًا: إن وافق يُفتح الدرس لك تلقائيًا.'))}else{m.className='msg bad';m.textContent=(j&&j.message)||'تعذّر إرسال الطلب.';delete b.dataset.busy;b.textContent='🔁 طلب فرصة أخرى'}}
+      try{const j=await post({retryReq:1,n:P.name,c:P.cls,l:L.id,note:note.value});if(j&&j.ok){show(h('b',{},'⏳ وصل طلبك إلى المعلم'),h('span',{},'سيُراجع المعلم طلبك. حدّث الصفحة لاحقًا: إن وافق يُفتح الدرس لك تلقائيًا.'))}else{m.className='msg bad';m.textContent=(j&&j.message&&!/^بيانات ناقصة|^تعذّر تنفيذ/.test(j.message))?j.message:'تعذّر إرسال الطلب الآن. حاول لاحقًا أو أخبر معلمك.';delete b.dataset.busy;b.textContent='🔁 طلب فرصة أخرى'}}
       catch(e){m.className='msg bad';m.textContent='تعذّر الاتصال. حاول مرة أخرى.';delete b.dataset.busy;b.textContent='🔁 طلب فرصة أخرى'}}},'🔁 طلب فرصة أخرى');
     show(h('b',{},'تريد أن تحسّن درجتك؟'),h('span',{},'يمكنك أن تطلب من معلمك فرصة أخرى لحل هذا الدرس، وله أن يوافق أو يعتذر.'),note,b,m)};
   post({retryCheck:1,n:P.name,c:P.cls,l:L.id}).then(j=>{if(!j)return;
