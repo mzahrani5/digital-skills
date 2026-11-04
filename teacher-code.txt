@@ -1,0 +1,1729 @@
+/**
+ * كود جدول المعلم — بوابة المهارات الرقمية (m-zahrani.com)
+ * نسخة عامة لأي معلم: لا تحتوي أي رمز أو بيانات.
+ * بعد اللصق: إعدادات المشروع ← خصائص النص البرمجي ← أضف ADMIN_PIN = رمزك.
+ *
+ * يُلصق هذا الكود في: الإضافات ← Apps Script داخل جدول Google Sheets.
+ * يستقبل كل إرسال من الموقع، ويحفظه في ورقة «الاستجابات»،
+ * ويرفض الإرسال المكرر لنفس الطالب في نفس الدرس،
+ * ويحدّث ورقة «كشف الدرجات» العامة وكشفًا مستقلًا لكل فصل،
+ * ويحفظ تقرير كل طالب في مجلد فصله داخل Google Drive.
+ */
+
+const ROOT_FOLDER = 'إنجازات المهارات الرقمية';
+
+const SHEET_RESP = 'الاستجابات';
+const SHEET_GRID = 'كشف الدرجات';
+const HEAD = ['وقت الإكمال', 'اسم الطالب', 'الفصل', 'الرمز', 'الدرس', 'الدرجة', 'المهمة', 'الأسئلة', 'تقييم المحاكي', 'إجابات الأسئلة', 'التقرير الكامل', 'موعد التسليم', 'الخطوات'];
+
+/* يعمل الكود بطريقتين: داخل الجدول (الإضافات ← Apps Script)،
+   أو مشروعًا مستقلًا من script.google.com — وفي هذه الحالة ينشئ الجدول بنفسه */
+function ss_() {
+  const props = PropertiesService.getScriptProperties();
+  const id = props.getProperty('SS_ID');
+  if (id) { try { return SpreadsheetApp.openById(id); } catch (e) {} }
+  try { const a = SpreadsheetApp.getActiveSpreadsheet(); if (a) { props.setProperty('SS_ID', a.getId()); return a; } } catch (e) {}
+  const created = SpreadsheetApp.create('إنجازات المهارات الرقمية - الصف الرابع');
+  props.setProperty('SS_ID', created.getId());
+  return created;
+}
+
+function doPost(e) {
+  try {
+    const q = JSON.parse(e.postData.contents);
+    if (q.checkName) return out_(checkName_(ss_(), q.cls, q.name));
+    if (q.visit) return out_(visit_(ss_(), q));
+    if (q.retryCheck) return out_(retryCheck_(ss_(), q));
+    if (q.sentCheck) return out_(sentCheck_(ss_(), q));
+    if (q.retryReq) return out_(retryReq_(ss_(), q));
+    if (q.checkSent) return out_(checkSent_(ss_(), q));
+  } catch (err) {}
+  // أي استعلام لم يُعالَج أعلاه لا يصل أبدًا إلى حفظ الإنجاز
+  try { const q0 = JSON.parse(e.postData.contents); if (q0 && (q0.checkName || q0.visit || q0.retryCheck || q0.checkSent || q0.sentCheck || q0.retryReq)) return out_({ ok: false, status: 'error', message: 'تعذّر تنفيذ الطلب.' }); } catch (err) { return out_({ ok: false, status: 'error', message: 'طلب غير صالح' }); }
+  const lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    const d = JSON.parse(e.postData.contents);
+    const ss = ss_();
+    // طلب تقرير ولي الأمر فقط (إرسال الطالب يحمل حقل report نصيًا مع رقم الدرس فلا يُخلط به)
+    if (d.starOpt && d.code != null && !d.lessonId) return out_(starOpt_(ss, d.code, !!d.on));
+    if (d.report && d.code != null && !d.lessonId && !d.exam) return out_(parentReport_(ss, d.code, d.consent));
+    if (d.contact) return out_(contact_(ss, d));
+    if (d.survey) return out_(survey_(ss, d));
+    if (d.admin) return out_(admin_(ss, d));
+    const m = matchName_(ss, d.cls, d.name);
+    if (m.status === 'ok') d.name = m.name;
+    else if (m.status !== 'noroster') return out_({ ok: false, status: 'unknown_name', message: 'الاسم غير موجود في كشف الفصل. اكتب اسمك كما في كشف المدرسة.' });
+    if (d.exam) return out_(handleExam_(ss, d));
+    const sh = respSheet_(ss);
+    const name = norm_(d.name), cls = norm_(d.cls), id = String(d.lessonId || '');
+    if (!name || !cls || !id) return out_({ ok: false, status: 'error', message: 'بيانات ناقصة' });
+    if ((d.score === undefined || d.score === null || d.score === '') && !d.task && !d.quiz) return out_({ ok: false, status: 'error', message: 'لا يوجد إنجاز لإرساله' });
+    if (closedIds_().indexOf(id) >= 0) return out_({ ok: false, status: 'closed', message: 'أغلق المعلم استقبال هذا المشروع.' });
+
+    const vals = sh.getDataRange().getValues();
+    for (let i = vals.length - 1; i >= 1; i--) {
+      if (sameStudent_(vals[i][1], d.name) && clsKey_(vals[i][2]) === clsKey_(d.cls) && String(vals[i][3]) === id) {
+        if (isFakeRow_(vals[i])) { if (sh.getLastRow() > 2) sh.deleteRow(i + 1); else sh.getRange(i + 1, 1, 1, sh.getMaxColumns()).clearContent(); continue; }
+        return out_({ ok: false, status: 'duplicate', score: fixScoreCell_(sh, i + 1, vals[i]) });
+      }
+    }
+    sh.appendRow([new Date(), d.name, d.cls, id, d.lesson, safeScore_(d.score, d.task, d.quiz), d.task, d.quiz, d.reflect, d.answers || '', d.report || '', d.late ? 'متأخر' : 'في الموعد', JSON.stringify(d.steps || [])]);
+    try { formatResp_(sh); } catch (err) { console.error(err); audit_(ss, 'خطأ في تنسيق الاستجابات', String(err)); }
+    try { updateGrid_(ss); } catch (err) { console.error(err); audit_(ss, 'خطأ في تحديث الكشوف', String(err)); }
+    try { retryUsed_(ss, d.name, d.cls, id); } catch (err) { console.error(err); }
+    try { saveToClassFolder_(ss, d); } catch (err) { console.error(err); }
+    return out_({ ok: true, status: 'saved' });
+  } catch (err) {
+    return out_({ ok: false, status: 'error', message: String(err) });
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/* قائمة الفصول: تُقرأ من ورقة «الفصول» — أضف فصلًا جديدًا بكتابته في سطر جديد */
+const SHEET_CLASSES = 'الفصول';
+function classesSheet_(ss) {
+  let sh = ss.getSheetByName(SHEET_CLASSES);
+  if (!sh) {
+    sh = ss.insertSheet(SHEET_CLASSES);
+    sh.setRightToLeft(true);
+    sh.getRange(1, 1, 4, 1).setValues([['الفصول (أضف كل فصل في سطر جديد)'], ['رابع 1'], ['رابع 2'], ['رابع 3']]);
+    sh.getRange(1, 1).setFontWeight('bold').setBackground('#16324f').setFontColor('#ffffff');
+    sh.setColumnWidth(1, 280);
+  }
+  return sh;
+}
+function classList_(ss) {
+  const sh = classesSheet_(ss);
+  const n = sh.getLastRow();
+  if (n < 2) return [];
+  return sh.getRange(2, 1, n - 1, 1).getValues().map(r => String(r[0]).trim()).filter(Boolean);
+}
+
+const CODE_VER = '2026-11-04d';
+function doGet(e) {
+  if (e && e.parameter && e.parameter.action === 'teacher') {
+    const slug = String(e.parameter.t || '').toLowerCase();
+    const o = teachersGet_().find(x => x.slug === slug);
+    if (!o || !o.on) return out_({ ok: false, status: 'none' });
+    if (!o.url) return out_({ ok: false, status: 'setup', name: o.name });
+    return out_({ ok: true, teacher: { slug: o.slug, name: o.name, school: o.school, region: o.region, grades: o.grades, url: o.url } });
+  }
+  if (e && e.parameter && e.parameter.action === 'ver') return out_({ ok: true, ver: CODE_VER, message: 'كود الجدول محدَّث (إصدار ' + CODE_VER + ')' });
+  const ss = ss_();
+  if (e && e.parameter && e.parameter.action === 'news') { const cl = closedIds_(); const live = l => { const m = String(l || '').match(/[?&]lesson=([^&#]+)/); if (!m) return true; const ids = decodeURIComponent(m[1]).split(','); return ids.some(x => cl.indexOf(x.trim()) < 0); };
+    return out_({ ok: true, news: newsList_(ss, false).filter(n => live(n.link)), promos: promosList_(ss, false).filter(p => live(p.link)), stu: stuGet_(), closed: cl, maint: maintGet_(), videos: videosGet_(), tg: TELEGRAM, stars: starsOn_() ? stars_(ss, false) : [] }); }
+  if (e && e.parameter && e.parameter.action === 'classes') return out_({ ok: true, classes: classList_(ss), closed: closedIds_(), maint: maintGet_(), videos: videosGet_() });
+  return out_({ ok: true, status: 'ready' });
+}
+
+/* شغّل هذه الدالة يدويًا مرة واحدة إن أردت تجهيز الأوراق قبل أول إرسال */
+function setup() {
+  const ss = ss_();
+  formatResp_(respSheet_(ss));
+  formatClasses_(ss);
+  ensureParentCodes_(ss);
+  formatRoster_(rosterSheet_(ss));
+  updateGrid_(ss);
+  const old = ss.getSheetByName('Sheet1') || ss.getSheetByName('ورقة1');
+  if (old && ss.getSheets().length > 1) ss.deleteSheet(old);
+  Logger.log('تم تجهيز الجدول. رابطه: ' + ss.getUrl());
+}
+
+function respSheet_(ss) {
+  let sh = ss.getSheetByName(SHEET_RESP);
+  if (!sh) {
+    sh = ss.insertSheet(SHEET_RESP);
+    sh.appendRow(HEAD);
+    formatResp_(sh);
+  }
+  return sh;
+}
+
+/* ===== التنسيق ===== */
+const NAVY = '#16324f', GOLD = '#f6c445';
+function scoreRules_(range) {
+  return [
+    SpreadsheetApp.newConditionalFormatRule().whenNumberGreaterThanOrEqualTo(8).setBackground('#d9f2e3').setFontColor('#17844e').setBold(true).setRanges([range]).build(),
+    SpreadsheetApp.newConditionalFormatRule().whenNumberBetween(5, 7.99).setBackground('#fdf1d6').setFontColor('#a86a00').setBold(true).setRanges([range]).build(),
+    SpreadsheetApp.newConditionalFormatRule().whenNumberLessThan(5).setBackground('#fbe4e4').setFontColor('#c93b3b').setBold(true).setRanges([range]).build()
+  ];
+}
+function lateRule_(range) {
+  return SpreadsheetApp.newConditionalFormatRule().whenTextEqualTo('متأخر').setBackground('#fde8d4').setFontColor('#b45309').setBold(true).setRanges([range]).build();
+}
+function band_(sh, range) {
+  sh.getBandings().forEach(b => b.remove());
+  const bd = range.applyRowBanding(SpreadsheetApp.BandingTheme.LIGHT_GREY, true, false);
+  bd.setHeaderRowColor(NAVY).setFirstRowColor('#ffffff').setSecondRowColor('#f2f6fa');
+}
+function formatResp_(sh) {
+  const cols = HEAD.length, rows = Math.max(sh.getLastRow(), 2);
+  sh.setRightToLeft(true);
+  sh.setFrozenRows(1);
+  sh.setFrozenColumns(2);
+  sh.getRange(1, 1, 1, cols).setValues([HEAD]).setFontWeight('bold').setFontColor('#ffffff').setBackground(NAVY)
+    .setHorizontalAlignment('center').setVerticalAlignment('middle').setWrap(true).setFontSize(11);
+  sh.setRowHeight(1, 38);
+  [150, 180, 85, 75, 250, 70, 320, 230, 220, 300, 360, 100, 120].forEach((w, i) => sh.setColumnWidth(i + 1, w));
+  const body = sh.getRange(2, 1, rows - 1, cols);
+  body.setVerticalAlignment('top').setHorizontalAlignment('right').setFontSize(10.5);
+  sh.getRange(2, 1, rows - 1, 1).setNumberFormat('yyyy/mm/dd  hh:mm').setHorizontalAlignment('center');
+  sh.getRange(2, 3, rows - 1, 2).setHorizontalAlignment('center');
+  sh.getRange(2, 6, rows - 1, 1).setHorizontalAlignment('center').setFontSize(12).setFontWeight('bold');
+  sh.getRange(2, 2, rows - 1, 1).setFontWeight('bold');
+  sh.getRange(2, 7, rows - 1, 3).setWrapStrategy(SpreadsheetApp.WrapStrategy.WRAP);
+  sh.getRange(2, 10, rows - 1, 2).setWrapStrategy(SpreadsheetApp.WrapStrategy.CLIP);
+  sh.getRange(2, 13, rows - 1, 1).setWrapStrategy(SpreadsheetApp.WrapStrategy.CLIP).setFontColor('#9aa5b1').setFontSize(8);
+  sh.getRange(2, 12, rows - 1, 1).setHorizontalAlignment('center');
+  sh.getRange(1, 1, rows, cols).setBorder(true, true, true, true, true, true, '#d3dde6', SpreadsheetApp.BorderStyle.SOLID);
+  band_(sh, sh.getRange(1, 1, rows, cols));
+  sh.setConditionalFormatRules(scoreRules_(sh.getRange(2, 6, Math.max(rows - 1, 1), 1)).concat([lateRule_(sh.getRange(2, 12, Math.max(rows - 1, 1), 1))]));
+}
+function formatClasses_(ss) {
+  const sh = classesSheet_(ss), rows = Math.max(sh.getLastRow(), 2);
+  sh.setRightToLeft(true);
+  sh.setColumnWidth(1, 300);
+  sh.getRange(1, 1).setFontWeight('bold').setFontColor('#ffffff').setBackground(NAVY).setHorizontalAlignment('center');
+  sh.setRowHeight(1, 34);
+  sh.getRange(2, 1, rows - 1, 1).setFontSize(12).setHorizontalAlignment('center');
+  sh.getRange(1, 1, rows, 1).setBorder(true, true, true, true, true, true, '#d3dde6', SpreadsheetApp.BorderStyle.SOLID);
+}
+
+/* شغّل هذه الدالة مرة واحدة لتنسيق كل الأوراق والبيانات الموجودة */
+function formatAll() {
+  const ss = ss_();
+  formatResp_(respSheet_(ss));
+  formatClasses_(ss);
+  ensureParentCodes_(ss);
+  formatRoster_(rosterSheet_(ss));
+  if (ss.getSheetByName(SHEET_EXAM)) formatExam_(ss.getSheetByName(SHEET_EXAM));
+  updateGrid_(ss);
+  Logger.log('تم تنسيق كل الأوراق.');
+}
+
+function norm_(s) {
+  return String(s == null ? '' : s)
+    .replace(/[٠-٩]/g, c => '٠١٢٣٤٥٦٧٨٩'.indexOf(c))
+    .replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه')
+    .replace(/\s+/g, ' ').trim();
+}
+
+/* توحيد اسم الفصل: «٤/١» و«4/1» و«رابع 1» = 4-1 */
+function clsKey_(c) {
+  const s = String(c == null ? '' : c).replace(/[٠-٩]/g, x => '٠١٢٣٤٥٦٧٨٩'.indexOf(x));
+  const m = s.match(/(\d+)\D+(\d+)/);
+  if (m) return m[1] + '-' + m[2];
+  const one = s.match(/(\d+)/);
+  const g = /خامس/.test(s) ? '5' : /سادس/.test(s) ? '6' : '4';
+  return one ? g + '-' + one[1] : s.replace(/[\/\\]/g, '-').trim() || 'بدون فصل';
+}
+
+function clsLabel_(c) {
+  const k = clsKey_(c), m = k.match(/^([456])-(\d+)$/);
+  return m ? ({ '4': 'رابع ', '5': 'خامس ', '6': 'سادس ' })[m[1]] + m[2] : k;
+}
+
+function out_(o) {
+  return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON);
+}
+
+/* ترتيب الدروس حسب المنهج: t1-u2-3 ، t1-u2-p (مشروع) ، t2-u4-x (إثرائي) */
+function order_(id) {
+  const gm = String(id).match(/^g([56])-/), gw = gm ? Number(gm[1]) * 100000 : 0;
+  const m = String(id).replace(/^g[56]-/, '').match(/^t(\d)-u(\d)-(\w+)$/);
+  if (!m) return 999999;
+  const last = m[3] === 'p' ? 9 : m[3] === 'x' ? 8 : Number(m[3]);
+  return gw + Number(m[1]) * 1000 + Number(m[2]) * 10 + last;
+}
+
+function updateGrid_(ss) {
+  const vals = respSheet_(ss).getDataRange().getValues().slice(1).filter(r => String(r[3]));
+  const roster = rosterList_(ss);
+  buildGrid_(ss, SHEET_GRID, vals, 0, roster);
+  const keys = [...new Set(vals.map(r => clsKey_(r[2])).concat(roster.map(r => clsKey_(r.cls))))].sort();
+  keys.forEach((k, i) => buildGrid_(ss, 'كشف ' + clsLabel_(k.replace('-', '/')), vals.filter(r => clsKey_(r[2]) === k), i + 1, roster.filter(r => clsKey_(r.cls) === k)));
+  try { buildAnalysis_(ss, vals); } catch (e) { console.error(e); }
+  try { buildBadges_(ss, vals); } catch (e) { console.error(e); }
+}
+
+function buildGrid_(ss, sheetName, vals, pos, roster) {
+  const lessons = {}, students = {};
+  (roster || []).forEach(r => { const key = clsKey_(r.cls) + '|' + norm_(r.name); if (!students[key]) students[key] = { name: r.name, cls: clsLabel_(r.cls), s: {} }; });
+  vals.forEach(r => {
+    const id = String(r[3]);
+    if (!id) return;
+    lessons[id] = String(r[4]).split(':').pop().trim() || id;
+    const key = clsKey_(r[2]) + '|' + norm_(r[1]);
+    if (!students[key]) students[key] = { name: String(r[1]).trim(), cls: clsLabel_(r[2]), s: {} };
+    if (students[key].s[id] == null) students[key].s[id] = Number(r[5]);
+  });
+  const ids = Object.keys(lessons).sort((a, b) => order_(a) - order_(b));
+  const list = Object.values(students).sort((a, b) => a.cls.localeCompare(b.cls) || a.name.localeCompare(b.name, 'ar'));
+
+  let g = ss.getSheetByName(sheetName);
+  if (!g) { g = ss.insertSheet(sheetName, pos); }
+  g.setRightToLeft(true);
+  g.getBandings().forEach(b => b.remove());
+  g.clear();
+  g.setConditionalFormatRules([]);
+  const head = ['م', 'الطالب', 'الفصل'].concat(ids.map(id => lessons[id]), ['عدد الدروس', 'المتوسط']);
+  const rows = list.map((st, i) => {
+    const sc = ids.map(id => (st.s[id] == null ? 'لم يسلّم' : st.s[id]));
+    const done = sc.filter(v => typeof v === 'number');
+    const avg = done.length ? Math.round(done.reduce((a, b) => a + b, 0) / done.length * 10) / 10 : '';
+    return [i + 1, st.name, st.cls].concat(sc, [done.length, avg]);
+  });
+  g.getRange(1, 1, 1, head.length).setValues([head]).setFontWeight('bold').setBackground(NAVY).setFontColor('#ffffff').setWrap(true)
+    .setVerticalAlignment('middle').setHorizontalAlignment('center').setFontSize(10.5);
+  g.setRowHeight(1, 52);
+  g.setFrozenRows(1);
+  g.setFrozenColumns(Math.min(3, head.length));
+  g.setColumnWidth(1, 40);
+  g.setColumnWidth(2, 200);
+  g.setColumnWidth(3, 80);
+  for (let c = 4; c <= head.length; c++) g.setColumnWidth(c, 95);
+  g.getRange(1, head.length - 1, 1, 2).setBackground('#0f5c52');
+  if (rows.length) {
+    g.getRange(2, 1, rows.length, head.length).setValues(rows).setHorizontalAlignment('center');
+    g.getRange(2, 2, rows.length, 1).setHorizontalAlignment('right');
+    const bg = rows.map(r => r.slice(3).map((v, j) => {
+      if (j === ids.length) return null;
+      if (typeof v !== 'number') return j < ids.length ? '#fde8e8' : null;
+      return v >= 8 ? '#e1f4e8' : v >= 5 ? '#fdf1d6' : '#fbe4e4';
+    }));
+    g.getRange(2, 4, rows.length, ids.length + 2).setBackgrounds(bg);
+    g.getRange(2, 1, rows.length, head.length).setFontSize(11).setVerticalAlignment('middle');
+    g.getRange(2, 2, rows.length, 1).setFontWeight('bold');
+    g.getRange(2, head.length, rows.length, 1).setFontWeight('bold').setFontSize(12).setNumberFormat('0.0');
+    g.setRowHeights(2, rows.length, 30);
+    if (ids.length) g.getRange(2, 4, rows.length, ids.length).setFontColor('#14283d');
+  }
+  g.getRange(1, 1, Math.max(rows.length + 1, 1), head.length).setBorder(true, true, true, true, true, true, '#c9d4de', SpreadsheetApp.BorderStyle.SOLID);
+}
+
+/* مجلد لكل فصل، وفيه ملف لكل طالب يجمع تقارير إنجازه */
+function folderIn_(parent, name) {
+  const it = parent.getFoldersByName(name);
+  return it.hasNext() ? it.next() : parent.createFolder(name);
+}
+
+/* ملفات الطالب في Drive: البحث فقط دون إنشاء مجلدات */
+function studentDocs_(ss, cls, name) {
+  const out = [];
+  const file = DriveApp.getFileById(ss.getId()), parents = file.getParents();
+  const base = parents.hasNext() ? parents.next() : DriveApp.getRootFolder();
+  const r = base.getFoldersByName(ROOT_FOLDER); if (!r.hasNext()) return out;
+  const cf = r.next().getFoldersByName(clsLabel_(cls)); if (!cf.hasNext()) return out;
+  const folder = cf.next(), want = norm_(name);
+  const it = folder.getFiles();
+  while (it.hasNext()) { const f = it.next(); const nm = f.getName().split(' — ')[0]; if (norm_(nm) === want || sameStudent_(nm, name)) out.push(f); }
+  return out;
+}
+function renameStudentDoc_(ss, cls, oldName, newName) {
+  studentDocs_(ss, cls, oldName).forEach(f => f.setName(String(newName).replace(/\s+/g, ' ').trim() + ' — تقارير الإنجاز'));
+}
+/* حذف كل ما يخص الطالب عند حذفه من الكشف: إنجازاته، اختباره، طلباته، فرصه، محاولاته المؤرشفة، وملف تقاريره في Drive */
+function purgeStudent_(ss, cls, name) {
+  let rows = 0, files = 0;
+  const wipe = (sh, ni, ci) => {
+    if (!sh || sh.getLastRow() < 2) return;
+    const v = sh.getRange(2, 1, sh.getLastRow() - 1, Math.max(ni, ci) + 1).getValues();
+    for (let i = v.length - 1; i >= 0; i--) {
+      if (sameStudent_(v[i][ni], name) && clsKey_(v[i][ci]) === clsKey_(cls)) {
+        if (sh.getLastRow() > 2) sh.deleteRow(i + 2); else sh.getRange(i + 2, 1, 1, sh.getMaxColumns()).clearContent();
+        rows++;
+      }
+    }
+  };
+  wipe(ss.getSheetByName(SHEET_RESP), 1, 2);
+  wipe(ss.getSheetByName(SHEET_EXAM), 1, 2);
+  wipe(ss.getSheetByName(SHEET_GRANT), 2, 1);
+  wipe(ss.getSheetByName(SHEET_ARCH), 2, 3);
+  wipe(ss.getSheetByName(SHEET_REQ), 2, 1);
+  try { studentDocs_(ss, cls, name).forEach(f => { f.setTrashed(true); files++; }); } catch (err) { console.error(err); }
+  return { rows, files };
+}
+function saveToClassFolder_(ss, d) {
+  const file = DriveApp.getFileById(ss.getId());
+  const parents = file.getParents();
+  const base = parents.hasNext() ? parents.next() : DriveApp.getRootFolder();
+  const root = folderIn_(base, ROOT_FOLDER);
+  const clsFolder = folderIn_(root, clsLabel_(d.cls));
+  const docName = String(d.name).replace(/\s+/g, ' ').trim() + ' — تقارير الإنجاز';
+  const it = clsFolder.getFilesByName(docName);
+  let doc;
+  if (it.hasNext()) {
+    doc = DocumentApp.openById(it.next().getId());
+  } else {
+    doc = DocumentApp.create(docName);
+    DriveApp.getFileById(doc.getId()).moveTo(clsFolder);
+    const b0 = doc.getBody();
+    b0.clear();
+    b0.appendParagraph('تقارير إنجاز الطالب: ' + String(d.name).trim()).setHeading(DocumentApp.ParagraphHeading.TITLE).setLeftToRight(false);
+    b0.appendParagraph('وزارة التعليم — ' + prof_().region).setLeftToRight(false);
+    b0.appendParagraph('المهارات الرقمية · ' + prof_().school + ' · المعلم: ' + prof_().name + ' · فصل ' + clsLabel_(d.cls)).setLeftToRight(false);
+  }
+  const body = doc.getBody();
+  body.appendHorizontalRule();
+  body.appendParagraph(String(d.lesson).split('·').pop().trim() + ' — الدرجة ' + d.score + ' من 10').setHeading(DocumentApp.ParagraphHeading.HEADING2).setLeftToRight(false);
+  if (d.image) {
+    /* بطاقة التقرير المصوّرة كما رآها الطالب */
+    const blob = Utilities.newBlob(Utilities.base64Decode(d.image), 'image/jpeg', String(d.name).trim() + ' - تقرير.jpg');
+    const p = body.appendParagraph('');
+    p.setAlignment(DocumentApp.HorizontalAlignment.CENTER);
+    const img = p.appendInlineImage(blob);
+    const w = 430;
+    img.setWidth(w).setHeight(Math.round(w * (Number(d.imgH) || 1600) / (Number(d.imgW) || 1080)));
+  } else {
+    String(d.report || '').split('\n').slice(2).forEach(line => body.appendParagraph(line).setLeftToRight(false));
+  }
+  doc.saveAndClose();
+}
+
+/* ===== قائمة الطلاب ===== */
+const SHEET_ROSTER = 'الطلاب';
+function rosterSheet_(ss) {
+  let sh = ss.getSheetByName(SHEET_ROSTER);
+  if (!sh) {
+    sh = ss.insertSheet(SHEET_ROSTER);
+    sh.getRange(1, 1, 1, 4).setValues([['الفصل', 'اسم الطالب', 'رمز ولي الأمر', 'موافقة ولي الأمر']]);
+    formatRoster_(sh);
+  }
+  return sh;
+}
+function formatRoster_(sh) {
+  sh.setRightToLeft(true); sh.setFrozenRows(1);
+  sh.getRange(1, 1, 1, 4).setValues([['الفصل', 'اسم الطالب', 'رمز ولي الأمر', 'موافقة ولي الأمر']]);
+  sh.getRange(1, 1, 1, 4).setFontWeight('bold').setFontColor('#ffffff').setBackground(NAVY).setHorizontalAlignment('center');
+  sh.setColumnWidth(1, 110); sh.setColumnWidth(2, 260); sh.setColumnWidth(3, 150); sh.setColumnWidth(4, 170); sh.setRowHeight(1, 34);
+  const n = sh.getLastRow(); if (n > 1) { sh.getRange(2, 3, n - 1, 1).setHorizontalAlignment('center').setFontWeight('bold').setFontColor('#16324f'); sh.getRange(2, 4, n - 1, 1).setNumberFormat('yyyy-mm-dd hh:mm').setHorizontalAlignment('center'); }
+}
+function rosterList_(ss) {
+  const sh = rosterSheet_(ss), n = sh.getLastRow();
+  if (n < 2) return [];
+  return sh.getRange(2, 1, n - 1, 2).getValues().map(r => ({ cls: String(r[0]).trim(), name: String(r[1]).replace(/\s+/g, ' ').trim() })).filter(r => r.cls && r.name);
+}
+function rosterByClass_(ss) {
+  const out = {};
+  const classes = classList_(ss);
+  rosterList_(ss).forEach(r => {
+    const match = classes.find(c => clsKey_(c) === clsKey_(r.cls)) || r.cls;
+    (out[match] = out[match] || []).push(r.name);
+  });
+  Object.keys(out).forEach(k => out[k].sort((a, b) => a.localeCompare(b, 'ar')));
+  return out;
+}
+
+/* ===== تحليل الأخطاء الشائعة ===== */
+const SHEET_ANALYSIS = 'تحليل الأخطاء';
+function buildAnalysis_(ss, vals) {
+  const L = {};
+  const add = (id, title, score, max, steps) => {
+    if (!id) return;
+    const o = L[id] = L[id] || { title: title, n: 0, sum: 0, max: max, steps: {} };
+    o.n++; o.sum += Number(score) / max;
+    (steps || []).forEach(s => { const k = String(s.t); const e = o.steps[k] = o.steps[k] || { wrong: 0, total: 0 }; e.total++; if (!s.ok) e.wrong++; });
+  };
+  vals.forEach(r => { let st = []; try { st = JSON.parse(r[12] || '[]'); } catch (e) {} add(String(r[3]), String(r[4]).split(':').pop().trim(), r[5], 10, st); });
+  const ex = ss.getSheetByName(SHEET_EXAM);
+  if (ex && ex.getLastRow() > 1) ex.getRange(2, 1, ex.getLastRow() - 1, HEAD_EX.length).getValues().forEach(r => {
+    let tasks = []; try { tasks = JSON.parse(r[11] || '[]'); } catch (e) {}
+    tasks.forEach(tk => add(tk.id, tk.title, tk.ratio, 1, tk.steps));
+  });
+  let g = ss.getSheetByName(SHEET_ANALYSIS);
+  if (!g) g = ss.insertSheet(SHEET_ANALYSIS);
+  g.setRightToLeft(true); g.getBandings().forEach(b => b.remove()); g.clear(); g.setConditionalFormatRules([]);
+  const head = ['الدرس', 'عدد المسلّمين', 'متوسط الإتقان', 'الخطوة', 'عدد من أخطأ', 'نسبة الخطأ'];
+  const rows = [];
+  Object.keys(L).sort((a, b) => order_(a) - order_(b)).forEach(id => {
+    const o = L[id], steps = Object.keys(o.steps).map(k => [k, o.steps[k]]).sort((a, b) => b[1].wrong / b[1].total - a[1].wrong / a[1].total);
+    if (!steps.length) steps.push(['(لا توجد خطوات مسجّلة)', { wrong: 0, total: 1 }]);
+    steps.forEach((s, k) => rows.push([k ? '' : o.title, k ? '' : o.n, k ? '' : Math.round(o.sum / o.n * 100) / 100, s[0], s[1].wrong, s[1].total ? s[1].wrong / s[1].total : 0]));
+  });
+  g.getRange(1, 1, 1, head.length).setValues([head]).setFontWeight('bold').setFontColor('#ffffff').setBackground('#7c2d12').setHorizontalAlignment('center').setWrap(true);
+  g.setFrozenRows(1); g.setRowHeight(1, 38);
+  [200, 95, 105, 330, 95, 95].forEach((w, i) => g.setColumnWidth(i + 1, w));
+  if (rows.length) {
+    g.getRange(2, 1, rows.length, head.length).setValues(rows).setVerticalAlignment('middle');
+    g.getRange(2, 1, rows.length, 1).setFontWeight('bold');
+    g.getRange(2, 2, rows.length, 3).setHorizontalAlignment('center');
+    g.getRange(2, 4, rows.length, 1).setHorizontalAlignment('right');
+    g.getRange(2, 3, rows.length, 1).setNumberFormat('0%');
+    g.getRange(2, 5, rows.length, 2).setHorizontalAlignment('center');
+    g.getRange(2, 6, rows.length, 1).setNumberFormat('0%').setFontWeight('bold');
+    const pr = g.getRange(2, 6, rows.length, 1);
+    g.setConditionalFormatRules([
+      SpreadsheetApp.newConditionalFormatRule().whenNumberGreaterThanOrEqualTo(0.5).setBackground('#fbe4e4').setFontColor('#c93b3b').setRanges([pr]).build(),
+      SpreadsheetApp.newConditionalFormatRule().whenNumberBetween(0.25, 0.4999).setBackground('#fdf1d6').setFontColor('#a86a00').setRanges([pr]).build(),
+      SpreadsheetApp.newConditionalFormatRule().whenNumberLessThan(0.25).setBackground('#e6f7ee').setFontColor('#17844e').setRanges([pr]).build()]);
+    g.getRange(1, 1, rows.length + 1, head.length).setBorder(true, true, true, true, true, true, '#e5d5cb', SpreadsheetApp.BorderStyle.SOLID);
+  }
+}
+
+/* ===== الأوسمة: إتمام وحدة كاملة بمتوسط 8 فأكثر ===== */
+const SHEET_BADGES = 'الأوسمة';
+const UNITS = {
+  't1-u1': ['تعلّم الأساسيات', 4], 't1-u2': ['العمل على النص', 5], 't1-u3': ['عالمي المتصل', 5], 't1-u4': ['البرمجة باستخدام سكراتش', 5],
+  't2-u1': ['عرضي التقديمي', 5], 't2-u2': ['العمل على الأرقام', 3], 't2-u3': ['استخدام الوسائط المتعددة', 5], 't2-u4': ['مقدمة في علم الروبوت', 3]
+};
+function badgesFrom_(vals) {
+  const S = {};
+  vals.forEach(r => {
+    const id = String(r[3]), m = id.match(/^(t\d-u\d)-(\w+)$/); if (!m || m[2] === 'x') return;
+    const key = clsKey_(r[2]) + '|' + norm_(r[1]);
+    const o = S[key] = S[key] || { name: String(r[1]).trim(), cls: clsLabel_(r[2]), u: {} };
+    const u = o.u[m[1]] = o.u[m[1]] || {};
+    if (u[id] == null) u[id] = Number(r[5]);
+  });
+  return Object.values(S).map(o => {
+    const got = Object.keys(o.u).filter(k => UNITS[k] && Object.keys(o.u[k]).length >= UNITS[k][1] && Object.values(o.u[k]).reduce((a, b) => a + b, 0) / Object.keys(o.u[k]).length >= 8);
+    return { name: o.name, cls: o.cls, units: got.sort((a, b) => order_(a + '-1') - order_(b + '-1')) };
+  }).filter(o => o.units.length);
+}
+function buildBadges_(ss, vals) {
+  const list = badgesFrom_(vals).sort((a, b) => a.cls.localeCompare(b.cls) || b.units.length - a.units.length || a.name.localeCompare(b.name, 'ar'));
+  let g = ss.getSheetByName(SHEET_BADGES);
+  if (!g) g = ss.insertSheet(SHEET_BADGES);
+  g.setRightToLeft(true); g.getBandings().forEach(b => b.remove()); g.clear();
+  const head = ['الطالب', 'الفصل', 'عدد الأوسمة', 'الوحدات التي أتقنها (متوسط 8 فأكثر)'];
+  g.getRange(1, 1, 1, head.length).setValues([head]).setFontWeight('bold').setFontColor('#3d2a00').setBackground('#f6c445').setHorizontalAlignment('center');
+  g.setFrozenRows(1); g.setRowHeight(1, 36);
+  [200, 90, 95, 520].forEach((w, i) => g.setColumnWidth(i + 1, w));
+  if (list.length) {
+    const rows = list.map(o => [o.name, o.cls, o.units.length, o.units.map(k => '🏅 ' + UNITS[k][0]).join('   ')]);
+    g.getRange(2, 1, rows.length, head.length).setValues(rows).setVerticalAlignment('middle');
+    g.getRange(2, 1, rows.length, 1).setFontWeight('bold');
+    g.getRange(2, 2, rows.length, 2).setHorizontalAlignment('center');
+    g.getRange(2, 3, rows.length, 1).setFontWeight('bold').setFontSize(12);
+  }
+}
+
+/* ===== الملخص الأسبوعي بالبريد ===== */
+/* شغّل enableWeeklyEmail مرة واحدة: يصلك ملخص كل خميس الساعة 2 ظهرًا. وشغّل sendSummaryNow لتجربته الآن */
+function enableWeeklyEmail() {
+  disableWeeklyEmail();
+  ScriptApp.newTrigger('weeklySummary').timeBased().onWeekDay(ScriptApp.WeekDay.THURSDAY).atHour(14).inTimezone('Asia/Riyadh').create();
+  Logger.log('تم التفعيل: يصلك الملخص كل خميس الساعة 2 ظهرًا على ' + Session.getEffectiveUser().getEmail());
+}
+function disableWeeklyEmail() {
+  ScriptApp.getProjectTriggers().forEach(tr => { if (tr.getHandlerFunction() === 'weeklySummary') ScriptApp.deleteTrigger(tr); });
+}
+function sendSummaryNow() { weeklySummary(); Logger.log('تم إرسال الملخص إلى ' + Session.getEffectiveUser().getEmail()); }
+function weeklySummary() {
+  const ss = ss_();
+  const since = new Date(Date.now() - 7 * 864e5);
+  const all = respSheet_(ss).getDataRange().getValues().slice(1).filter(r => String(r[3]));
+  const week = all.filter(r => r[0] instanceof Date ? r[0] >= since : new Date(r[0]) >= since);
+  const roster = rosterList_(ss), classes = classList_(ss);
+  const esc = s => String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+  let html = '<div dir="rtl" style="font-family:Tahoma,Arial;color:#14283d;max-width:640px">'
+    + '<div style="background:linear-gradient(135deg,#1d6fb8,#1f9e8a);color:#fff;padding:18px 20px;border-radius:14px"><div style="font-size:13px;opacity:.9">وزارة التعليم · ' + esc(prof_().region) + ' · ' + esc(prof_().school) + '</div><div style="font-size:13px;opacity:.85">الملخص الأسبوعي · منصة مشاريع المنزل</div><div style="font-size:22px;font-weight:bold">المهارات الرقمية — الصف الرابع</div><div style="font-size:13px;opacity:.85">من ' + since.toLocaleDateString('ar-SA') + ' إلى ' + new Date().toLocaleDateString('ar-SA') + '</div></div>';
+  html += '<h3 style="margin:18px 0 8px">الإنجازات هذا الأسبوع</h3><table style="border-collapse:collapse;width:100%;font-size:14px"><tr style="background:#eef3f8"><th style="padding:8px;text-align:right">الفصل</th><th style="padding:8px">عدد التسليمات</th><th style="padding:8px">متوسط الدرجة</th></tr>';
+  classes.forEach(c => {
+    const rs = week.filter(r => clsKey_(r[2]) === clsKey_(c));
+    const avg = rs.length ? Math.round(rs.reduce((a, r) => a + Number(r[5]), 0) / rs.length * 10) / 10 : '—';
+    html += '<tr><td style="padding:8px;border-top:1px solid #e3e8f0">' + esc(c) + '</td><td style="padding:8px;text-align:center;border-top:1px solid #e3e8f0">' + rs.length + '</td><td style="padding:8px;text-align:center;border-top:1px solid #e3e8f0">' + avg + ' / 10</td></tr>';
+  });
+  html += '</table>';
+  const lessonIds = [...new Set(week.map(r => String(r[3])))].sort((a, b) => order_(a) - order_(b));
+  if (lessonIds.length && roster.length) {
+    html += '<h3 style="margin:18px 0 8px">لم يسلّموا دروس هذا الأسبوع</h3>';
+    lessonIds.forEach(id => {
+      const title = String((week.find(r => String(r[3]) === id) || [])[4] || id).split(':').pop().trim();
+      const sent = new Set(all.filter(r => String(r[3]) === id).map(r => clsKey_(r[2]) + '|' + norm_(r[1])));
+      const missing = roster.filter(r => !sent.has(clsKey_(r.cls) + '|' + norm_(r.name)));
+      html += '<p style="margin:6px 0"><b>' + esc(title) + '</b> — ' + (missing.length ? missing.length + ' طالبًا: ' + missing.map(r => esc(r.name) + ' (' + esc(clsLabel_(r.cls)) + ')').join('، ') : 'سلّم الجميع ✓') + '</p>';
+    });
+  } else if (!roster.length) {
+    html += '<p style="color:#8a5a00">أضف أسماء الطلاب في ورقة «الطلاب» ليظهر لك هنا من لم يسلّم.</p>';
+  }
+  const an = ss.getSheetByName(SHEET_ANALYSIS);
+  if (an && an.getLastRow() > 1) {
+    const top = an.getRange(2, 1, an.getLastRow() - 1, 6).getValues();
+    let cur = '', hard = [];
+    top.forEach(r => { if (r[0]) cur = r[0]; if (Number(r[5]) >= 0.5 && Number(r[4]) >= 2) hard.push([cur, r[3], r[5]]); });
+    hard.sort((a, b) => b[2] - a[2]);
+    if (hard.length) {
+      html += '<h3 style="margin:18px 0 8px">خطوات أخطأ فيها نصف الطلاب أو أكثر</h3><ul style="padding-right:18px;margin:0">';
+      hard.slice(0, 8).forEach(h => { html += '<li style="margin:4px 0"><b>' + esc(h[0]) + ':</b> ' + esc(h[1]) + ' — ' + Math.round(h[2] * 100) + '٪</li>'; });
+      html += '</ul>';
+    }
+  }
+  html += '<p style="margin-top:18px;font-size:13px"><a href="' + ss.getUrl() + '">افتح جدول الدرجات</a></p></div>';
+  MailApp.sendEmail({ to: Session.getEffectiveUser().getEmail(), subject: 'الملخص الأسبوعي — المهارات الرقمية (الصف الرابع)', htmlBody: html });
+}
+
+/* ===== الاختبار النهائي ===== */
+const SHEET_EXAM = 'الاختبار النهائي';
+const EXAM_FOLDER = 'الاختبار النهائي';
+const HEAD_EX = ['وقت التسليم', 'اسم الطالب', 'الفصل', 'رمز الاختبار', 'مهام الاختبار', 'الدرجة', 'من', 'النسبة', 'تفاصيل المهام', 'التقرير الكامل', 'موعد التسليم', 'الخطوات'];
+function examSheet_(ss) {
+  let sh = ss.getSheetByName(SHEET_EXAM);
+  if (!sh) { sh = ss.insertSheet(SHEET_EXAM); sh.appendRow(HEAD_EX); formatExam_(sh); }
+  return sh;
+}
+function formatExam_(sh) {
+  const cols = HEAD_EX.length, rows = Math.max(sh.getLastRow(), 2);
+  sh.setRightToLeft(true); sh.setFrozenRows(1); sh.setFrozenColumns(2);
+  sh.getRange(1, 1, 1, cols).setValues([HEAD_EX]).setFontWeight('bold').setFontColor('#ffffff').setBackground('#b5541f')
+    .setHorizontalAlignment('center').setVerticalAlignment('middle').setWrap(true);
+  sh.setRowHeight(1, 38);
+  [150, 180, 85, 110, 260, 75, 55, 75, 380, 380, 100, 120].forEach((w, i) => sh.setColumnWidth(i + 1, w));
+  sh.getRange(2, 12, Math.max(rows - 1, 1), 1).setWrapStrategy(SpreadsheetApp.WrapStrategy.CLIP).setFontColor('#9aa5b1').setFontSize(8);
+  sh.getRange(2, 1, rows - 1, cols).setVerticalAlignment('top').setHorizontalAlignment('right').setFontSize(10.5);
+  sh.getRange(2, 1, rows - 1, 1).setNumberFormat('yyyy/mm/dd  hh:mm').setHorizontalAlignment('center');
+  sh.getRange(2, 2, rows - 1, 1).setFontWeight('bold');
+  sh.getRange(2, 3, rows - 1, 6).setHorizontalAlignment('center');
+  sh.getRange(2, 6, rows - 1, 1).setFontWeight('bold').setFontSize(12);
+  sh.getRange(2, 8, rows - 1, 1).setNumberFormat('0%').setFontWeight('bold');
+  sh.getRange(2, 5, rows - 1, 1).setWrapStrategy(SpreadsheetApp.WrapStrategy.WRAP);
+  sh.getRange(2, 9, rows - 1, 2).setWrapStrategy(SpreadsheetApp.WrapStrategy.CLIP);
+  sh.getRange(1, 1, rows, cols).setBorder(true, true, true, true, true, true, '#e3d3c7', SpreadsheetApp.BorderStyle.SOLID);
+  sh.getBandings().forEach(b => b.remove());
+  sh.getRange(1, 1, rows, cols).applyRowBanding(SpreadsheetApp.BandingTheme.LIGHT_GREY, true, false).setHeaderRowColor('#b5541f').setFirstRowColor('#ffffff').setSecondRowColor('#fbf3ee');
+  const pr = sh.getRange(2, 8, Math.max(rows - 1, 1), 1);
+  sh.setConditionalFormatRules([
+    SpreadsheetApp.newConditionalFormatRule().whenNumberGreaterThanOrEqualTo(0.8).setBackground('#d9f2e3').setFontColor('#17844e').setRanges([pr]).build(),
+    SpreadsheetApp.newConditionalFormatRule().whenNumberBetween(0.5, 0.7999).setBackground('#fdf1d6').setFontColor('#a86a00').setRanges([pr]).build(),
+    SpreadsheetApp.newConditionalFormatRule().whenNumberLessThan(0.5).setBackground('#fbe4e4').setFontColor('#c93b3b').setRanges([pr]).build(),
+    lateRule_(sh.getRange(2, 11, Math.max(rows - 1, 1), 1))]);
+}
+function handleExam_(ss, d) {
+  const sh = examSheet_(ss);
+  const name = norm_(d.name), id = String(d.examId || '');
+  if (!name || !d.cls || !id) return { ok: false, status: 'error', message: 'بيانات ناقصة' };
+  const vals = sh.getDataRange().getValues();
+  for (let i = 1; i < vals.length; i++) {
+    if (sameStudent_(vals[i][1], d.name) && clsKey_(vals[i][2]) === clsKey_(d.cls) && String(vals[i][3]) === id) return { ok: false, status: 'duplicate', score: vals[i][5] };
+  }
+  sh.appendRow([new Date(), d.name, d.cls, id, d.lessons, Number(d.score), Number(d.total), Number(d.pct), d.tasks || '', d.report || '', d.late ? 'متأخر' : 'في الموعد', JSON.stringify(d.steps || [])]);
+  formatExam_(sh);
+  try { updateGrid_(ss); } catch (err) { console.error(err); }
+  try { saveExamDoc_(ss, d); } catch (err) { console.error(err); }
+  return { ok: true, status: 'saved' };
+}
+function saveExamDoc_(ss, d) {
+  const parents = DriveApp.getFileById(ss.getId()).getParents();
+  const base = parents.hasNext() ? parents.next() : DriveApp.getRootFolder();
+  const clsFolder = folderIn_(folderIn_(folderIn_(base, ROOT_FOLDER), EXAM_FOLDER), clsLabel_(d.cls));
+  const docName = String(d.name).replace(/\s+/g, ' ').trim() + ' — الاختبار النهائي';
+  const it = clsFolder.getFilesByName(docName);
+  let doc;
+  if (it.hasNext()) doc = DocumentApp.openById(it.next().getId());
+  else {
+    doc = DocumentApp.create(docName);
+    DriveApp.getFileById(doc.getId()).moveTo(clsFolder);
+    const b0 = doc.getBody(); b0.clear();
+    b0.appendParagraph('الاختبار النهائي — ' + String(d.name).trim()).setHeading(DocumentApp.ParagraphHeading.TITLE).setLeftToRight(false);
+    b0.appendParagraph('وزارة التعليم — ' + prof_().region).setLeftToRight(false);
+    b0.appendParagraph('المهارات الرقمية · ' + prof_().school + ' · المعلم: ' + prof_().name + ' · فصل ' + clsLabel_(d.cls)).setLeftToRight(false);
+  }
+  const body = doc.getBody();
+  body.appendHorizontalRule();
+  body.appendParagraph('الدرجة ' + d.score + ' من ' + d.total + ' (' + Math.round(Number(d.pct) * 100) + '٪)').setHeading(DocumentApp.ParagraphHeading.HEADING2).setLeftToRight(false);
+  if (d.image) {
+    const blob = Utilities.newBlob(Utilities.base64Decode(d.image), 'image/jpeg', String(d.name).trim() + ' - الاختبار.jpg');
+    const p = body.appendParagraph(''); p.setAlignment(DocumentApp.HorizontalAlignment.CENTER);
+    const img = p.appendInlineImage(blob); const w = 430;
+    img.setWidth(w).setHeight(Math.round(w * (Number(d.imgH) || 2000) / (Number(d.imgW) || 1080)));
+  } else {
+    String(d.report || '').split('\n').forEach(line => body.appendParagraph(line).setLeftToRight(false));
+  }
+  doc.saveAndClose();
+}
+
+/* تصفير كامل للبدء من جديد — شغّلها يدويًا عند الحاجة فقط:
+   تمسح كل الاستجابات، وتعيد بناء الكشوف فارغة، وتنقل مجلد التقارير إلى المهملات (يمكن استعادته خلال 30 يومًا).
+   ورقة «الفصول» تبقى كما هي. */
+function resetAll() {
+  const ss = ss_();
+  const sh = respSheet_(ss);
+  const max = sh.getMaxRows();
+  if (max > 1) sh.getRange(2, 1, max - 1, sh.getMaxColumns()).clearContent();
+  if (max > 2) sh.deleteRows(3, max - 2);
+  ss.getSheets().forEach(g => { if ((g.getName().indexOf('كشف ') === 0 || g.getName() === SHEET_EXAM || g.getName() === SHEET_ANALYSIS || g.getName() === SHEET_BADGES) && ss.getSheets().length > 1) ss.deleteSheet(g); });
+  try {
+    const parents = DriveApp.getFileById(ss.getId()).getParents();
+    const base = parents.hasNext() ? parents.next() : DriveApp.getRootFolder();
+    const it = base.getFoldersByName(ROOT_FOLDER);
+    while (it.hasNext()) it.next().setTrashed(true);
+  } catch (e) { console.error(e); }
+  formatResp_(sh);
+  updateGrid_(ss);
+  Logger.log('تم التصفير. الجدول جاهز للبدء من جديد.');
+}
+
+/* إن أردت: شغّل هذه الدالة يدويًا لإنشاء مجلدات الفصول لكل الإرسالات السابقة */
+function rebuildFolders() {
+  const ss = ss_();
+  respSheet_(ss).getDataRange().getValues().slice(1).forEach(r => saveToClassFolder_(ss, { name: r[1], cls: r[2], lesson: r[4], score: r[5], report: r[10] }));
+}
+
+
+/* ===================== تقارير أولياء الأمور =====================
+   لكل طالب رمز سري في العمود C من ورقة «الطلاب».
+   يكتب ولي الأمر الرمز في صفحة «تقرير ولي الأمر» على الموقع، فيصله تقرير ابنه فقط.
+   شغّل makeParentCodes لإنشاء الرموز لكل الطلاب، ولإنشاء مستند بطاقات الرموز للطباعة. */
+function parentUrl_() { let sl = ''; try { sl = (JSON.parse(PropertiesService.getScriptProperties().getProperty('PROFILE') || '{}') || {}).slug || ''; } catch (e) {} return 'https://m-zahrani.com/' + (sl ? '?t=' + sl : '') + '#report'; }
+const CODE_ABC = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+function normCode_(c) {
+  return String(c == null ? '' : c).replace(/[٠-٩]/g, x => '٠١٢٣٤٥٦٧٨٩'.indexOf(x)).toUpperCase().replace(/[^A-Z0-9]/g, '');
+}
+function newCode_(used) {
+  for (;;) {
+    let c = ''; for (let i = 0; i < 8; i++) c += CODE_ABC[Math.floor(Math.random() * CODE_ABC.length)];
+    if (!used.has(c)) { used.add(c); return c.slice(0, 4) + '-' + c.slice(4); }
+  }
+}
+/* يضيف رمزًا لكل طالب ليس له رمز، ولا يغيّر الرموز الموجودة */
+function ensureParentCodes_(ss) {
+  const sh = rosterSheet_(ss), n = sh.getLastRow();
+  if (n < 2) return 0;
+  const rng = sh.getRange(2, 1, n - 1, 3), v = rng.getValues();
+  const used = new Set(v.map(r => normCode_(r[2])).filter(Boolean));
+  let added = 0;
+  v.forEach(r => { if (String(r[0]).trim() && String(r[1]).trim() && !normCode_(r[2])) { r[2] = newCode_(used); added++; } });
+  if (added) sh.getRange(2, 3, n - 1, 1).setValues(v.map(r => [r[2]]));
+  return added;
+}
+/* شغّلها يدويًا: تنشئ الرموز الناقصة، ومستند «بطاقات رموز أولياء الأمور» للطباعة والقص */
+function makeParentCodes() {
+  const ss = ss_();
+  const added = ensureParentCodes_(ss);
+  formatRoster_(rosterSheet_(ss));
+  const sh = rosterSheet_(ss), n = sh.getLastRow();
+  const rows = n < 2 ? [] : sh.getRange(2, 1, n - 1, 3).getValues().filter(r => String(r[1]).trim() && normCode_(r[2]));
+  const doc = DocumentApp.create('بطاقات رموز أولياء الأمور');
+  const body = doc.getBody();
+  body.appendParagraph('بطاقات رموز أولياء الأمور — المهارات الرقمية').setHeading(DocumentApp.ParagraphHeading.HEADING1).setLeftToRight(false);
+  body.appendParagraph('قصّ البطاقة وأعطها لولي أمر الطالب. الرمز خاص بطالب واحد، فلا تشاركه مع غيره.').setLeftToRight(false);
+  const byCls = {};
+  rows.forEach(r => (byCls[clsLabel_(r[0])] = byCls[clsLabel_(r[0])] || []).push(r));
+  Object.keys(byCls).sort().forEach(c => {
+    body.appendParagraph('فصل ' + c).setHeading(DocumentApp.ParagraphHeading.HEADING2).setLeftToRight(false);
+    const cells = byCls[c].sort((a, b) => String(a[1]).localeCompare(String(b[1]), 'ar')).map(r => [
+      'ولي أمر الطالب: ' + String(r[1]).trim() + '\nالفصل: ' + c + '\n\nرمز التقرير: ' + String(r[2]).trim() + '\n\nافتح: ' + parentUrl_() + '\nثم اكتب الرمز لترى تقرير ابنك في المهارات الرقمية.\n— المعلم ' + prof_().name]);
+    const t = body.appendTable(cells);
+    try { t.setBorderWidth(1); } catch (e) {}
+  });
+  doc.saveAndClose();
+  try {
+    const parents = DriveApp.getFileById(ss.getId()).getParents();
+    const base = parents.hasNext() ? parents.next() : DriveApp.getRootFolder();
+    DriveApp.getFileById(doc.getId()).moveTo(base);
+  } catch (e) {}
+  Logger.log('أُضيف ' + added + ' رمزًا جديدًا. عدد البطاقات: ' + rows.length + '. افتح مستند «بطاقات رموز أولياء الأمور» في Drive لطباعته.');
+}
+/* تقرير طالب واحد فقط لمن يملك رمزه */
+function parentReport_(ss, code, consent) {
+  const cache = CacheService.getScriptCache();
+  const fails = Number(cache.get('pfail') || 0);
+  if (fails > 300) return { ok: false, status: 'busy', message: 'محاولات كثيرة. حاول بعد ١٠ دقائق.' };
+  const c = normCode_(code);
+  const sh = rosterSheet_(ss), n = sh.getLastRow();
+  const all = c.length === 8 && n > 1 ? sh.getRange(2, 1, n - 1, 4).getValues() : [];
+  const idx = all.findIndex(r => normCode_(r[2]) === c && String(r[1]).trim());
+  const row = idx >= 0 ? all[idx] : null;
+  if (!row) { cache.put('pfail', String(fails + 1), 600); Utilities.sleep(700); return { ok: false, status: 'invalid' }; }
+  if (!row[3]) {
+    if (!consent) return { ok: false, status: 'consent', message: 'يلزم موافقة ولي الأمر أولًا.' };
+    sh.getRange(idx + 2, 4).setValue(new Date());
+    audit_(ss, 'موافقة ولي أمر', String(row[1]) + ' — ' + String(row[0]));
+  }
+  const name = String(row[1]).replace(/\s+/g, ' ').trim(), ck = clsKey_(row[0]);
+  const mine = r => norm_(r[1]) === norm_(name) && clsKey_(r[2]) === ck;
+  const parse = x => { try { const v = JSON.parse(x || '[]'); return Array.isArray(v) ? v : []; } catch (e) { return []; } };
+  const iso = d => d instanceof Date ? d.toISOString() : String(d || '');
+  const resp = respSheet_(ss).getDataRange().getValues().slice(1).filter(r => r[3]);
+  const classIds = {};
+  resp.filter(r => clsKey_(r[2]) === ck).forEach(r => { if (!classIds[r[3]]) classIds[r[3]] = String(r[4]); });
+  const lessons = resp.filter(mine).map(r => ({ id: String(r[3]), title: String(r[4]), at: iso(r[0]), score: Number(r[5]), task: String(r[6]), quiz: String(r[7]),
+    answers: String(r[9]), late: String(r[11]) === 'متأخر', steps: parse(r[12]) })).sort((a, b) => order_(a.id) - order_(b.id));
+  const got = new Set(lessons.map(l => l.id));
+  const missing = Object.keys(classIds).filter(id => !got.has(id)).sort((a, b) => order_(a) - order_(b)).map(id => ({ id: id, title: classIds[id] }));
+  const exSh = ss.getSheetByName(SHEET_EXAM);
+  const exams = exSh ? exSh.getDataRange().getValues().slice(1).filter(r => r[3] && mine(r)).map(r => ({ at: iso(r[0]), lessons: String(r[4]), score: Number(r[5]), total: Number(r[6]),
+    pct: Number(r[7]), tasks: String(r[8]), late: String(r[10]) === 'متأخر', steps: parse(r[11]) })) : [];
+  const b = badgesFrom_(resp).find(o => norm_(o.name) === norm_(name) && clsKey_(o.cls) === ck);
+  const badges = b ? b.units.map(u => {
+    const sc = lessons.filter(l => l.id.indexOf(u + '-') === 0 && !/-x$/.test(l.id)).map(l => l.score);
+    return { unit: u, title: UNITS[u] ? UNITS[u][0] : u, avg: sc.length ? Math.round(sc.reduce((x, y) => x + y, 0) / sc.length * 10) / 10 : 0 };
+  }) : [];
+  return { ok: true, student: { name: name, cls: clsLabel_(row[0]) }, stars: starsOk_().indexOf(c) >= 0, starsOn: starsOn_(), lessons: lessons, missing: missing, exams: exams, badges: badges, at: new Date().toISOString() };
+}
+
+
+/* ===================== إدارة الفصول والطلاب من صفحة المعلم =====================
+   كل عملية تحتاج رمز الإدارة. غيّر الرمز هنا إن أردت (ثم انشر إصدارًا جديدًا). */
+const ADMIN_PIN = '';
+/* الأفضل: ضع رمزك في «إعدادات المشروع ← خصائص النص البرمجي» باسم ADMIN_PIN، فلا يظهر في الكود أبدًا */
+/* بيانات المعلم صاحب هذا الجدول (تُضبط تلقائيًا من صفحة المعلم) */
+const PROF_DEF = { name: 'المعلم', school: 'المدرسة', region: 'الإدارة العامة للتعليم' };
+function prof_() { try { const p = JSON.parse(PropertiesService.getScriptProperties().getProperty('PROFILE') || '{}') || {}; return { name: p.name || PROF_DEF.name, school: p.school || PROF_DEF.school, region: p.region || PROF_DEF.region }; } catch (e) { return PROF_DEF; } }
+/* سجل المعلمين (في جدول صاحب الموقع فقط) */
+function teachersGet_() { try { return JSON.parse(PropertiesService.getScriptProperties().getProperty('TEACHERS') || '[]') || []; } catch (e) { return []; } }
+function teachersPut_(L) { PropertiesService.getScriptProperties().setProperty('TEACHERS', JSON.stringify(L)); }
+function adminPin_() { return PropertiesService.getScriptProperties().getProperty('ADMIN_PIN') || ADMIN_PIN; }
+
+function admin_(ss, d) {
+  const cache = CacheService.getScriptCache();
+  const fails = Number(cache.get('afail') || 0);
+  if (fails > 20) return { ok: false, status: 'busy', message: 'محاولات كثيرة. حاول بعد ١٠ دقائق.' };
+  const pin = String(d.pin == null ? '' : d.pin).replace(/[٠-٩]/g, x => '٠١٢٣٤٥٦٧٨٩'.indexOf(x)).trim();
+  if (!adminPin_()) return { ok: false, status: 'nopin', message: 'لم يُضبط رمز الدخول بعد: في Apps Script افتح «إعدادات المشروع ← خصائص النص البرمجي» وأضف خاصية باسم ADMIN_PIN وقيمتها رمزك.' };
+  if (pin !== adminPin_()) { cache.put('afail', String(fails + 1), 600); Utilities.sleep(800); return { ok: false, status: 'pin', message: 'رمز الإدارة غير صحيح.' }; }
+  cache.remove('afail');
+  const op = String(d.op || 'list');
+  if (op === 'auth') return { ok: true };
+  if (op !== 'list' && op !== 'messages') audit_(ss, 'إدارة: ' + op, [d.cls, d.name, d.newName, d.row].filter(x => x != null && x !== '').join(' — '));
+  let msg = '';
+  if (op === 'list') { ensureParentCodes_(ss); formatRoster_(rosterSheet_(ss)); }
+  if (op === 'messages' || op === 'list') { try { purgeMessages_(ss); } catch (e) { console.error(e); } }
+  if (op === 'addClass') {
+    const c = String(d.cls || '').replace(/\s+/g, ' ').trim();
+    if (!c) return { ok: false, message: 'اكتب اسم الفصل.' };
+    if (classList_(ss).some(x => norm_(x) === norm_(c))) return { ok: false, message: 'الفصل «' + c + '» موجود من قبل.' };
+    classesSheet_(ss).appendRow([c]); formatClasses_(ss);
+    msg = 'أُضيف الفصل «' + c + '».';
+  } else if (op === 'delClass') {
+    const c = String(d.cls || '').trim();
+    const sh = classesSheet_(ss), n = sh.getLastRow();
+    for (let r = n; r >= 2; r--) if (norm_(sh.getRange(r, 1).getValue()) === norm_(c)) sh.deleteRow(r);
+    const removed = deleteRosterRows_(ss, r => norm_(r[0]) === norm_(c));
+    formatClasses_(ss); updateGrid_(ss);
+    msg = 'حُذف الفصل «' + c + '»' + (removed ? ' مع ' + students_(removed) : '') + '.';
+  } else if (op === 'addStudents') {
+    const c = String(d.cls || '').replace(/\s+/g, ' ').trim();
+    const names = (Array.isArray(d.names) ? d.names : []).map(x => String(x).replace(/\s+/g, ' ').trim()).filter(x => x && x.length <= 80).slice(0, 600);
+    if (!c || !names.length) return { ok: false, message: 'اختر الفصل وأضف اسمًا واحدًا على الأقل.' };
+    if (!classList_(ss).some(x => norm_(x) === norm_(c))) { classesSheet_(ss).appendRow([c]); formatClasses_(ss); }
+    const sh = rosterSheet_(ss), n = sh.getLastRow();
+    const v = n > 1 ? sh.getRange(2, 1, n - 1, 4).getValues() : [];
+    const have = new Set(v.filter(r => norm_(r[0]) === norm_(c)).map(r => norm_(r[1])));
+    const used = new Set(v.map(r => normCode_(r[2])).filter(Boolean));
+    const rows = [];
+    names.forEach(nm => { if (!have.has(norm_(nm))) { have.add(norm_(nm)); rows.push([c, nm, newCode_(used), '']); } });
+    if (rows.length) { sh.getRange(sh.getLastRow() + 1, 1, rows.length, 4).setValues(rows); sortRoster_(ss); formatRoster_(sh); updateGrid_(ss); }
+    const skipped = names.length - rows.length;
+    msg = (rows.length ? 'أُضيف ' + students_(rows.length) + ' إلى «' + c + '»' : 'لم يُضف أحد إلى «' + c + '»') + (skipped ? ' (تُرك ' + (skipped === 1 ? 'اسم واحد مكرر' : skipped + ' أسماء مكررة') + ')' : '') + '.';
+  } else if (op === 'delStudent') {
+    const removed = deleteRosterRows_(ss, r => norm_(r[0]) === norm_(d.cls) && norm_(r[1]) === norm_(d.name));
+    let pr = { rows: 0, files: 0 };
+    if (removed) { try { pr = purgeStudent_(ss, d.cls, d.name); } catch (err) { console.error(err); } updateGrid_(ss); audit_(ss, 'حذف طالب', d.name + ' — ' + d.cls + ' (إنجازات: ' + pr.rows + '، ملفات Drive: ' + pr.files + ')'); }
+    msg = removed ? 'حُذف الطالب «' + d.name + '»' + (pr.rows ? ' وحُذفت إنجازاته (' + pr.rows + ')' : '') + (pr.files ? '، ونُقل ملف تقاريره في Drive إلى سلة المهملات (يمكن استرجاعه خلال ٣٠ يومًا)' : '') + '.' : 'لم يُعثر على الطالب.';
+  } else if (op === 'renameStudent') {
+    const sh = rosterSheet_(ss), n = sh.getLastRow(), nn = String(d.newName || '').replace(/\s+/g, ' ').trim();
+    if (!nn) return { ok: false, message: 'اكتب الاسم الجديد.' };
+    let done = false;
+    if (n > 1) { const v = sh.getRange(2, 1, n - 1, 2).getValues(); v.forEach((r, i) => { if (!done && norm_(r[0]) === norm_(d.cls) && norm_(r[1]) === norm_(d.name)) { sh.getRange(i + 2, 2).setValue(nn); done = true; } }); }
+    let moved = 0;
+    if (done) {
+      // نقل إنجازات الطالب السابقة إلى الاسم الجديد حتى لا تنفصل عن تقريره
+      [respSheet_(ss), ss.getSheetByName(SHEET_EXAM)].forEach(g => {
+        if (!g || g.getLastRow() < 2) return;
+        const rg = g.getRange(2, 2, g.getLastRow() - 1, 2), v = rg.getValues(); let ch = false;
+        v.forEach(r => { if (norm_(r[0]) === norm_(d.name) && clsKey_(r[1]) === clsKey_(d.cls)) { r[0] = nn; ch = true; moved++; } });
+        if (ch) rg.setValues(v);
+      });
+      try { renameStudentDoc_(ss, d.cls, d.name, nn); } catch (err) { console.error(err); }
+      sortRoster_(ss); updateGrid_(ss);
+    }
+    msg = done ? 'عُدّل الاسم' + (moved ? ' ونُقلت إنجازاته السابقة إلى الاسم الجديد.' : '.') : 'لم يُعثر على الطالب.';
+  } else if (op === 'newYear') {
+    if (String(d.confirm || '').trim() !== 'عام جديد') return { ok: false, message: 'اكتب «عام جديد» للتأكيد.' };
+    let backup = '';
+    try {
+      const tz = Session.getScriptTimeZone() || 'Asia/Riyadh';
+      const copy = DriveApp.getFileById(ss.getId()).makeCopy('نسخة احتياطية - ' + ss.getName() + ' - ' + Utilities.formatDate(new Date(), tz, 'yyyy-MM-dd HH:mm'));
+      backup = copy.getUrl();
+    } catch (e) { console.error(e); }
+    resetAll();
+    const sh = rosterSheet_(ss), max = sh.getMaxRows();
+    if (max > 1) sh.getRange(2, 1, max - 1, sh.getMaxColumns()).clearContent();
+    if (max > 2) sh.deleteRows(3, max - 2);
+    if (d.dropClasses) { const cs = classesSheet_(ss), m = cs.getMaxRows(); if (m > 1) cs.getRange(2, 1, m - 1, 1).clearContent(); if (m > 2) cs.deleteRows(3, m - 2); }
+    const au = ss.getSheetByName(SHEET_AUDIT); if (au && au.getLastRow() > 1) au.deleteRows(2, au.getLastRow() - 1);
+    audit_(ss, 'بدء عام دراسي جديد', 'مُسحت بيانات الطلاب والتقارير' + (backup ? ' (حُفظت نسخة احتياطية)' : ''));
+    formatRoster_(sh); formatClasses_(ss); updateGrid_(ss);
+    msg = 'بدأ عام دراسي جديد: مُسحت التقارير والطلاب' + (d.dropClasses ? ' والفصول' : '') + '.' + (backup ? ' حُفظت نسخة احتياطية من الجدول في Drive.' : '');
+  } else if (op === 'prefs') {
+    return { ok: true, grades: String(PropertiesService.getScriptProperties().getProperty('GRADES') || '').split(',').filter(Boolean).map(Number) };
+  } else if (op === 'setGrades') {
+    const g = (Array.isArray(d.grades) ? d.grades : []).map(Number).filter(x => x === 4 || x === 5 || x === 6);
+    if (!g.length) return { ok: false, message: 'اختر مرحلة واحدة على الأقل.' };
+    PropertiesService.getScriptProperties().setProperty('GRADES', g.join(','));
+    return { ok: true, grades: g, message: 'حُفظت المراحل.' };
+  } else if (op === 'stats') {
+    return { ok: true, stats: stats_(ss) };
+  } else if (op === 'news') {
+    return { ok: true, news: newsList_(ss, true) };
+  } else if (op === 'newsAdd') {
+    const text = String(d.text || '').replace(/\s+/g, ' ').trim().slice(0, 300);
+    if (!text) return { ok: false, message: 'اكتب نص الإعلان.' };
+    const cl = Array.isArray(d.classes) ? d.classes.map(x => String(x).replace(/\s+/g, ' ').trim()).filter(Boolean).slice(0, 30) : [];
+    const g = cl.length ? cl.join('، ') : (['4', '5', '6'].indexOf(String(d.grade)) >= 0 ? String(d.grade) : 'الكل');
+    const link = /^https?:\/\/|^#/.test(String(d.link || '')) ? String(d.link).slice(0, 300) : '';
+    const until = /^\d{4}-\d{2}-\d{2}$/.test(String(d.until || '')) ? String(d.until) : '';
+    newsSheet_(ss).appendRow([new Date(), g, text, link, until]);
+    if (d.promo && link) {
+      const exam = d.pkind === 'exam';
+      const who = cl.length ? ' لفصل ' + cl.join('، ') : (g === 'الكل' ? '' : ' للصف ' + ({ '4': 'الرابع', '5': 'الخامس', '6': 'السادس' })[g]);
+      const show = PROMO_KINDS[d.pshow] ? d.pshow : 'bar';
+      const name = text.replace(/^(مشروع|مشاريع|اختبار):\s*/, '');
+      const row = promoRow_({ kind: show, tone: show === 'card' ? (exam ? 'blue' : 'orange') : (show === 'popup' ? (exam ? 'blue' : 'teal') : (exam ? 'blue' : 'orange')), icon: exam ? 'alert' : 'book', badge: exam ? 'اختبار جديد' : 'مشروع جديد',
+        title: show === 'bar' ? (exam ? 'اختبار جديد' : 'مشروع جديد') + who + ':' : name,
+        text: show === 'bar' ? name : (who ? 'مطلوب' + who.replace(' لفصل ', ' من فصل ').replace(' للصف ', ' من الصف ') + '.' : 'مطلوب من جميع الطلاب.'), btn: exam ? 'ابدأ الاختبار' : 'ابدأ الحل', link: link,
+        start: ymd_(new Date()), end: until, countdown: false });
+      if (row) { promoSheet_(ss).appendRow(row); audit_(ss, 'إعلان تلقائي في الموقع', row[4] + ' ' + row[5]); }
+    }
+    let tgm = '';
+    if (d.tg) {
+      const exam = d.pkind === 'exam', who = cl.length ? ' لفصل ' + cl.join('، ') : '';
+      const r = tgSend_((exam ? '📝 اختبار جديد' : '📌 مشروع جديد') + who + '\n\n' + text.replace(/^(مشروع|مشاريع|اختبار):\s*/, '') + (until ? '\n⏰ آخر موعد: ' + until : ''), link, exam ? 'ابدأ الاختبار' : 'ابدأ الحل');
+      tgm = r.ok ? '، ونُشر في قناة التلجرام' : ' (لم يُنشر في التلجرام: ' + r.message + ')';
+    }
+    return { ok: true, message: 'نُشر الإعلان في الموقع' + tgm + '.', news: newsList_(ss, true) };
+  } else if (op === 'newsDel') {
+    const sh = newsSheet_(ss), r = Number(d.row);
+    let link = '', gone = 0;
+    if (r >= 2 && r <= sh.getLastRow()) { link = String(sh.getRange(r, 4).getValue() || '').trim(); if (sh.getLastRow() > 2) sh.deleteRow(r); else sh.getRange(r, 1, 1, 5).clearContent(); }
+    if (link) gone = delAutoPromos_(ss, link);
+    return { ok: true, message: 'حُذف الإعلان' + (gone ? ' وإعلانه في أعلى الموقع' : '') + '.', news: newsList_(ss, true) };
+  } else if (op === 'subs') {
+    try { purgeFake_(ss); } catch (e) { console.error(e); }
+    return { ok: true, subs: subsList_(ss, d.cls), grants: grantsList_(ss, d.cls) };
+  } else if (op === 'retryGrant') {
+    const g = grantRetry_(ss, Number(d.row), d.name, d.lessonId);
+    return { ok: g.ok, message: g.message, subs: subsList_(ss, d.cls), grants: grantsList_(ss, d.cls) };
+  } else if (op === 'reqs') {
+    return { ok: true, reqs: reqsList_(ss) };
+  } else if (op === 'reqDecide') {
+    const rs = reqSheet_(ss), ri = Number(d.req);
+    if (!(ri >= 2 && ri <= rs.getLastRow())) return { ok: false, message: 'لم يُعثر على الطلب. حدّث القائمة.', reqs: reqsList_(ss) };
+    const q = rs.getRange(ri, 1, 1, 8).getValues()[0];
+    if (String(q[6]).trim() !== 'جديد') return { ok: false, message: 'تم البت في هذا الطلب من قبل.', reqs: reqsList_(ss) };
+    if (d.accept) {
+      const sh = respSheet_(ss), v = sh.getLastRow() > 1 ? sh.getRange(2, 1, sh.getLastRow() - 1, 4).getValues() : [];
+      let r = -1; for (let i = v.length - 1; i >= 0; i--) if (sameStudent_(v[i][1], q[2]) && clsKey_(v[i][2]) === clsKey_(q[1]) && String(v[i][3]) === String(q[3])) { r = i + 2; break; }
+      if (r < 0) { if (rs.getLastRow() > 2) rs.deleteRow(ri); else rs.getRange(ri, 1, 1, 8).clearContent(); return { ok: true, message: 'قُبل الطلب، ولا يوجد إرسال سابق له، فيستطيع الإرسال مباشرة.', reqs: reqsList_(ss) }; }
+      const g = grantRetry_(ss, r, q[2], q[3]);   // يحذف المحاولة السابقة والفرص والطلبات السابقة لنفس الدرس
+      if (!g.ok) return { ok: false, message: g.message, reqs: reqsList_(ss) };
+      return { ok: true, message: 'قُبل طلب ' + q[2] + '، ويجد الدرس مفتوحًا عند تحديث الصفحة.', reqs: reqsList_(ss) };
+    }
+    rs.getRange(ri, 7).setValue('مرفوض');
+    audit_(ss, 'رفض طلب فرصة', q[2] + ' — ' + q[1] + ' — ' + q[4]);
+    return { ok: true, message: 'رُفض طلب ' + q[2] + '.', reqs: reqsList_(ss) };
+  } else if (op === 'closed') {
+    return { ok: true, closed: closedIds_() };
+  } else if (op === 'closeSet') {
+    const ids = (Array.isArray(d.ids) ? d.ids : []).map(String).filter(x => /^[a-z0-9-]{3,40}$/i.test(x)).slice(0, 80);
+    let cur = closedIds_();
+    if (d.close) ids.forEach(x => { if (cur.indexOf(x) < 0) cur.push(x); }); else cur = cur.filter(x => ids.indexOf(x) < 0);
+    PropertiesService.getScriptProperties().setProperty('CLOSED', JSON.stringify(cur.slice(-300)));
+    audit_(ss, d.close ? 'إغلاق مشروع' : 'إعادة فتح مشروع', ids.join('، '));
+    return { ok: true, message: d.close ? 'أُغلق استقبال المشروع: لن يستطيع أي طالب حله أو إرساله حتى تعيد فتحه.' : 'أُعيد فتح المشروع للطلاب.', closed: cur };
+  } else if (op === 'maint') {
+    if (d.get) return { ok: true, maint: maintGet_() };
+    const v = { on: !!d.on, msg: String(d.msg || '').replace(/\s+/g, ' ').trim().slice(0, 200), until: String(d.until || '').slice(0, 40) };
+    PropertiesService.getScriptProperties().setProperty('MAINT', JSON.stringify(v));
+    audit_(ss, v.on ? 'تشغيل وضع الصيانة' : 'إيقاف وضع الصيانة', v.msg);
+    return { ok: true, message: v.on ? 'الموقع الآن في وضع الصيانة للزوار، وأنت ما زلت تراه عاديًا.' : 'عاد الموقع للعمل للجميع.', maint: v };
+  } else if (op === 'profileSet') {
+    const t = (v, n) => String(v || '').replace(/\s+/g, ' ').trim().slice(0, n);
+    const p = { name: t(d.name, 60), school: t(d.school, 80), region: t(d.region, 80), slug: /^[a-z][a-z0-9-]{1,24}$/.test(String(d.slug || '')) ? String(d.slug) : '' };
+    if (!p.name) return { ok: false, message: 'الاسم مطلوب.' };
+    PropertiesService.getScriptProperties().setProperty('PROFILE', JSON.stringify(p));
+    if (Array.isArray(d.grades) && !PropertiesService.getScriptProperties().getProperty('GRADES')) { const g = d.grades.map(Number).filter(x => [4, 5, 6].indexOf(x) >= 0); if (g.length) PropertiesService.getScriptProperties().setProperty('GRADES', JSON.stringify(g)); }
+    return { ok: true, profile: prof_() };
+  } else if (op === 'teachers') {
+    return { ok: true, teachers: teachersGet_() };
+  } else if (op === 'teacherSave') {
+    const t = (v, n) => String(v || '').replace(/\s+/g, ' ').trim().slice(0, n);
+    const slug = String(d.slug || '').toLowerCase().trim();
+    if (!/^[a-z][a-z0-9-]{1,24}$/.test(slug)) return { ok: false, message: 'الاسم المختصر للرابط: حروف إنجليزية صغيرة وأرقام فقط، يبدأ بحرف (مثل ahmad).' };
+    const url = String(d.url || '').trim();
+    if (url && !/^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]{20,}\/exec$/.test(url)) return { ok: false, message: 'رابط الجدول يجب أن يكون رابط النشر وينتهي بـ ‎/exec' };
+    const o = { slug: slug, name: t(d.name, 60), school: t(d.school, 80), region: t(d.region, 80) || PROF_DEF.region, grades: (Array.isArray(d.grades) ? d.grades : []).map(Number).filter(x => [4, 5, 6].indexOf(x) >= 0), url: url, on: d.on !== false, at: new Date().toISOString() };
+    if (!o.name || !o.school) return { ok: false, message: 'اكتب اسم المعلم والمدرسة.' };
+    const L = teachersGet_(); const i = L.findIndex(x => x.slug === (d.old || slug));
+    if (L.some((x, k) => x.slug === slug && k !== i)) return { ok: false, message: 'هذا الاسم المختصر مستخدم لمعلم آخر.' };
+    if (i >= 0) L[i] = Object.assign(L[i], o); else L.push(o);
+    teachersPut_(L); CacheService.getScriptCache().remove('t:' + slug);
+    audit_(ss, i >= 0 ? 'تعديل معلم' : 'إضافة معلم', o.name + ' (' + slug + ')');
+    return { ok: true, message: i >= 0 ? 'حُفظ التعديل.' : 'أُضيف المعلم.', teachers: L };
+  } else if (op === 'teacherDel') {
+    const L = teachersGet_().filter(x => x.slug !== String(d.slug)); teachersPut_(L); CacheService.getScriptCache().remove('t:' + d.slug);
+    audit_(ss, 'حذف معلم', String(d.slug));
+    return { ok: true, message: 'حُذف المعلم من القائمة. بيانات طلابه تبقى في جدوله هو.', teachers: L };
+  } else if (op === 'tg') {
+    const pr = PropertiesService.getScriptProperties();
+    return { ok: true, tg: { has: !!pr.getProperty('TG_TOKEN'), chat: pr.getProperty('TG_CHAT') || TG_CHAT_DEF, bot: pr.getProperty('TG_BOT') || '' } };
+  } else if (op === 'tgSet') {
+    const pr = PropertiesService.getScriptProperties();
+    const tok = String(d.token || '').trim(), chat = String(d.chat || '').trim() || TG_CHAT_DEF;
+    if (!/^@[A-Za-z0-9_]{4,}$|^-?\d{5,}$/.test(chat)) return { ok: false, message: 'اكتب معرّف القناة مثل ‎@gatemajed' };
+    if (d.clear) { pr.deleteProperty('TG_TOKEN'); pr.deleteProperty('TG_BOT'); return { ok: true, message: 'أُلغي ربط البوت.', tg: { has: false, chat: chat, bot: '' } }; }
+    if (tok) {
+      if (!/^\d{6,}:[A-Za-z0-9_-]{30,}$/.test(tok)) return { ok: false, message: 'رمز البوت غير صحيح. انسخه كما أرسله BotFather.' };
+      let me;
+      try { me = JSON.parse(UrlFetchApp.fetch('https://api.telegram.org/bot' + tok + '/getMe', { muteHttpExceptions: true }).getContentText()); } catch (err) { return { ok: false, message: 'تعذّر الاتصال بتلجرام. شغّل الدالة authorizeTelegram مرة من محرر الكود ثم حاول.' }; }
+      if (!me || !me.ok) return { ok: false, message: 'رفض تلجرام هذا الرمز. تأكد منه.' };
+      pr.setProperty('TG_TOKEN', tok); pr.setProperty('TG_BOT', '@' + me.result.username);
+    }
+    pr.setProperty('TG_CHAT', chat);
+    audit_(ss, 'ربط قناة التلجرام', chat);
+    return { ok: true, message: 'حُفظ. اضغط «رسالة تجربة» للتأكد أن البوت مشرف في القناة.', tg: { has: !!pr.getProperty('TG_TOKEN'), chat: chat, bot: pr.getProperty('TG_BOT') || '' } };
+  } else if (op === 'tgTest') {
+    const r = tgSend_('✅ تجربة: بوابة المهارات الرقمية مرتبطة بهذه القناة.', '#home', 'افتح الموقع');
+    return r.ok ? { ok: true, message: 'وصلت رسالة التجربة إلى القناة.' } : { ok: false, message: r.message };
+  } else if (op === 'tgPost') {
+    const t = String(d.text || '').trim().slice(0, 3500); if (!t) return { ok: false, message: 'اكتب نص الرسالة.' };
+    const r = tgSend_(t, d.link, String(d.btn || '').trim() || 'افتح الرابط');
+    if (r.ok) audit_(ss, 'رسالة في قناة التلجرام', t.slice(0, 80));
+    return r.ok ? { ok: true, message: 'نُشرت الرسالة في القناة.' } : { ok: false, message: r.message };
+  } else if (op === 'stars') {
+    return { ok: true, on: starsOn_(), stars: stars_(ss, true), optIns: starsOk_().length };
+  } else if (op === 'starsSet') {
+    PropertiesService.getScriptProperties().setProperty('STARS_ON', d.on ? '1' : '');
+    CacheService.getScriptCache().remove('stars');
+    return { ok: true, message: d.on ? 'ظهر قسم «نجوم الأسبوع» في الصفحة الرئيسية.' : 'أُخفي قسم «نجوم الأسبوع».', on: !!d.on, stars: stars_(ss, true), optIns: starsOk_().length };
+  } else if (op === 'videos') {
+    return { ok: true, videos: videosGet_() };
+  } else if (op === 'videoSet') {
+    const id = String(d.id || ''); if (!/^[a-z0-9-]{3,40}$/i.test(id)) return { ok: false, message: 'درس غير صحيح.' };
+    const all = videosGet_(); const u = String(d.url || '').trim();
+    const yt = ytId_(u);
+    if (u && !yt) return { ok: false, message: 'الرابط ليس رابط يوتيوب صحيحًا.' };
+    if (yt) all[id] = yt; else delete all[id];
+    PropertiesService.getScriptProperties().setProperty('VIDEOS', JSON.stringify(all));
+    return { ok: true, message: yt ? 'أُضيف الفيديو للدرس.' : 'حُذف فيديو الدرس.', videos: all };
+  } else if (op === 'stuGet') {
+    return { ok: true, stu: stuGet_() };
+  } else if (op === 'stuSet') {
+    const c = d.stu || {};
+    const t = (v, n) => String(v || '').replace(/\s+/g, ' ').trim().slice(0, n);
+    const v = { style: ['a', 'b'].indexOf(c.style) >= 0 ? c.style : '', title: t(c.title, 60), text: t(c.text, 220), btn: t(c.btn, 30) };
+    PropertiesService.getScriptProperties().setProperty('STU_PROMO', JSON.stringify(v));
+    audit_(ss, 'إعلان منصة المشاريع', v.style ? 'التصميم ' + (v.style === 'a' ? '١' : '٢') : 'إخفاء');
+    return { ok: true, message: v.style ? 'حُفظ، ويظهر الآن في الصفحة الرئيسية.' : 'حُفظ: الإعلان مخفي الآن.', stu: v };
+  } else if (op === 'promos') {
+    return { ok: true, promos: promosList_(ss, true) };
+  } else if (op === 'promoSave') {
+    const row = promoRow_(d);
+    if (!row) return { ok: false, message: 'اكتب عنوان الإعلان.' };
+    const sh = promoSheet_(ss), r = Number(d.row);
+    if (r >= 2 && r <= sh.getLastRow()) {
+      row[0] = sh.getRange(r, 1).getValue() || new Date(); row[12] = sh.getRange(r, 13).getValue() || 'مفعّل';
+      sh.getRange(r, 1, 1, 14).setValues([row]);
+      audit_(ss, 'تعديل إعلان بارز', row[4] || row[5]);
+      return { ok: true, message: 'حُفظ التعديل.', promos: promosList_(ss, true) };
+    }
+    sh.appendRow(row);
+    audit_(ss, 'نشر إعلان بارز', row[4] || row[5]);
+    let tgm = '';
+    if (d.tg) { const r = tgSend_([d.badge ? '🔔 ' + String(d.badge).trim() : '🔔', String(d.title || '').trim(), String(d.text || '').trim(), (Array.isArray(d.points) ? d.points : []).map(x => '• ' + String(x).trim()).join('\n')].filter(Boolean).join('\n\n'), d.link, String(d.btn || '').trim() || 'التفاصيل'); tgm = r.ok ? '، ونُشر في قناة التلجرام' : ' (لم يُنشر في التلجرام: ' + r.message + ')'; }
+    return { ok: true, message: 'نُشر الإعلان في الموقع' + tgm + '.', promos: promosList_(ss, true) };
+  } else if (op === 'promoToggle') {
+    const sh = promoSheet_(ss), r = Number(d.row);
+    if (r >= 2 && r <= sh.getLastRow()) { const c = sh.getRange(r, 13); c.setValue(String(c.getValue()) === 'موقوف' ? 'مفعّل' : 'موقوف'); }
+    return { ok: true, message: 'تم.', promos: promosList_(ss, true) };
+  } else if (op === 'promoDel') {
+    const sh = promoSheet_(ss), r = Number(d.row);
+    if (r >= 2 && r <= sh.getLastRow()) { if (sh.getLastRow() > 2) sh.deleteRow(r); else sh.getRange(r, 1, 1, 14).clearContent(); }
+    audit_(ss, 'حذف إعلان بارز', 'صف ' + r);
+    return { ok: true, message: 'حُذف الإعلان.', promos: promosList_(ss, true) };
+  } else if (op === 'survey') {
+    return { ok: true, survey: surveyStats_(ss) };
+  } else if (op === 'surveyClear') {
+    const sh = ss.getSheetByName(SHEET_SURVEY);
+    if (sh && sh.getLastRow() > 1) { sh.deleteRows(2, sh.getLastRow() - 1); audit_(ss, 'مسح نتائج الاستبيان', 'بدء جولة جديدة'); }
+    return { ok: true, message: 'مُسحت النتائج.', survey: surveyStats_(ss) };
+  } else if (op === 'messages') {
+    return { ok: true, messages: messagesList_(ss) };
+  } else if (op === 'msgDone') {
+    const sh = msgSheet_(ss), r = Number(d.row);
+    if (r >= 2 && r <= sh.getLastRow()) sh.getRange(r, 6).setValue(d.undo ? 'جديدة' : 'تم الرد');
+    return { ok: true, messages: messagesList_(ss) };
+  } else if (op === 'msgDel') {
+    const sh = msgSheet_(ss), r = Number(d.row);
+    if (r >= 2 && r <= sh.getLastRow()) { if (sh.getLastRow() > 2) sh.deleteRow(r); else sh.getRange(r, 1, 1, 6).clearContent(); }
+    return { ok: true, messages: messagesList_(ss) };
+  } else if (op === 'sentOf') {
+    return { ok: true, sent: sentOf_(ss, d.cls, d.name) };
+  } else if (op === 'retry') {
+    const n = retry_(ss, d.cls, d.name, String(d.id || ''), d.kind === 'exam');
+    return { ok: n > 0, message: n ? 'تم: يستطيع «' + d.name + '» حل «' + (d.title || d.id) + '» مرة أخرى. يفتح رابط الدرس نفسه على جهازه فيجده مفتوحًا.' : 'لم نجد إرسالًا لهذا الطالب في هذا الدرس.', sent: sentOf_(ss, d.cls, d.name) };
+  } else if (op !== 'list') {
+    return { ok: false, message: 'عملية غير معروفة.' };
+  }
+  return { ok: true, message: msg, classes: classList_(ss), students: adminRoster_(ss) };
+}
+/* ===================== منح فرصة أخرى =====================
+   يحذف إرسال الطالب في درس (أو اختبار) فيستطيع حله وإرساله من جديد.
+   وتتحقق صفحة الطالب عند فتحها: إذا لم يعد إرساله موجودًا في الجدول يُفتح الدرس له تلقائيًا. */
+function sentOf_(ss, cls, name) {
+  const mine = r => norm_(r[1]) === norm_(name) && clsKey_(r[2]) === clsKey_(cls);
+  const iso = v => v instanceof Date ? v.toISOString() : String(v || '');
+  const out = respSheet_(ss).getDataRange().getValues().slice(1).filter(r => r[3] && mine(r))
+    .map(r => ({ kind: 'lesson', id: String(r[3]), title: String(r[4]).split('·').pop().trim(), score: Number(r[5]), of: 10, at: iso(r[0]) }))
+    .sort((a, b) => order_(a.id) - order_(b.id));
+  const ex = ss.getSheetByName(SHEET_EXAM);
+  if (ex && ex.getLastRow() > 1) ex.getDataRange().getValues().slice(1).filter(r => r[3] && mine(r))
+    .forEach(r => out.push({ kind: 'exam', id: String(r[3]), title: 'الاختبار النهائي', score: Number(r[5]), of: Number(r[6]) || 20, at: iso(r[0]) }));
+  return out;
+}
+function retry_(ss, cls, name, id, exam) {
+  const sh = exam ? ss.getSheetByName(SHEET_EXAM) : respSheet_(ss);
+  if (!sh || sh.getLastRow() < 2 || !id) return 0;
+  const v = sh.getRange(2, 1, sh.getLastRow() - 1, 4).getValues();
+  let k = 0;
+  for (let i = v.length - 1; i >= 0; i--) {
+    if (norm_(v[i][1]) === norm_(name) && clsKey_(v[i][2]) === clsKey_(cls) && String(v[i][3]) === id) {
+      if (sh.getLastRow() > 2) sh.deleteRow(i + 2); else sh.getRange(i + 2, 1, 1, sh.getMaxColumns()).clearContent();
+      k++;
+    }
+  }
+  if (k) { audit_(ss, 'فرصة أخرى', String(name) + ' — ' + String(cls) + ' — ' + id); try { updateGrid_(ss); } catch (e) { console.error(e); } }
+  return k;
+}
+/* صفحة الطالب تسأل: أيّ من دروسي المرسلة ما زال في الجدول؟ */
+function checkSent_(ss, q) {
+  const cache = CacheService.getScriptCache(), ck = 'cs' + Math.floor(Date.now() / 60000), cn = Number(cache.get(ck) || 0);
+  if (cn > 600) return { ok: false, status: 'busy' };
+  cache.put(ck, String(cn + 1), 120);
+  let name = String(q.name || '');
+  const cls = String(q.cls || '');
+  if (!norm_(name) || !cls.trim()) return { ok: false };
+  const m = matchName_(ss, cls, name);
+  if (m.status === 'ok') name = m.name;
+  const ids = (Array.isArray(q.ids) ? q.ids : []).map(String).slice(0, 80);
+  const exams = (Array.isArray(q.exams) ? q.exams : []).map(String).slice(0, 20);
+  const mine = r => norm_(r[1]) === norm_(name) && clsKey_(r[2]) === clsKey_(cls);
+  const sent = [];
+  if (ids.length) {
+    const have = new Set(respSheet_(ss).getDataRange().getValues().slice(1).filter(mine).map(r => String(r[3])));
+    ids.forEach(id => { if (have.has(id)) sent.push(id); });
+  }
+  if (exams.length) {
+    const ex = ss.getSheetByName(SHEET_EXAM);
+    if (!ex) exams.forEach(id => sent.push(id));
+    else {
+      const have = new Set(ex.getLastRow() > 1 ? ex.getDataRange().getValues().slice(1).filter(mine).map(r => String(r[3])) : []);
+      exams.forEach(id => { if (have.has(id)) sent.push(id); });
+    }
+  }
+  return { ok: true, sent: sent };
+}
+function students_(k) { return k === 1 ? 'طالب واحد' : k === 2 ? 'طالبان' : (k <= 10 ? k + ' طلاب' : k + ' طالبًا'); }
+function adminRoster_(ss) {
+  const sh = rosterSheet_(ss), n = sh.getLastRow();
+  if (n < 2) return [];
+  return sh.getRange(2, 1, n - 1, 4).getValues().filter(r => String(r[0]).trim() && String(r[1]).trim())
+    .map(r => ({ cls: String(r[0]).trim(), name: String(r[1]).replace(/\s+/g, ' ').trim(), code: String(r[2] || ''), consent: r[3] instanceof Date ? r[3].toISOString() : (r[3] ? String(r[3]) : '') }));
+}
+function deleteRosterRows_(ss, test) {
+  const sh = rosterSheet_(ss), n = sh.getLastRow();
+  if (n < 2) return 0;
+  const v = sh.getRange(2, 1, n - 1, 4).getValues();
+  let k = 0;
+  for (let i = v.length - 1; i >= 0; i--) if (test(v[i])) { if (sh.getLastRow() > 2) sh.deleteRow(i + 2); else sh.getRange(i + 2, 1, 1, 4).clearContent(); k++; }
+  return k;
+}
+function sortRoster_(ss) {
+  const sh = rosterSheet_(ss), n = sh.getLastRow();
+  if (n > 2) sh.getRange(2, 1, n - 1, 4).sort([{ column: 1, ascending: true }, { column: 2, ascending: true }]);
+}
+
+
+/* ===================== رسائل الزوار من الموقع =====================
+   تُحفظ في ورقة «رسائل الموقع»، ويصلك بريد بكل رسالة، وتظهر في صفحة المعلم. */
+const SHEET_MSG = 'رسائل الموقع';
+function msgSheet_(ss) {
+  let sh = ss.getSheetByName(SHEET_MSG);
+  if (!sh) {
+    sh = ss.insertSheet(SHEET_MSG);
+    sh.getRange(1, 1, 1, 6).setValues([['الوقت', 'الاسم', 'الجوال', 'الرسالة', 'الصفحة', 'الحالة']]);
+    sh.setRightToLeft(true); sh.setFrozenRows(1);
+    sh.getRange(1, 1, 1, 6).setFontWeight('bold').setFontColor('#ffffff').setBackground(NAVY).setHorizontalAlignment('center');
+    sh.setColumnWidth(1, 150); sh.setColumnWidth(2, 180); sh.setColumnWidth(3, 130); sh.setColumnWidth(4, 420); sh.setColumnWidth(5, 120); sh.setColumnWidth(6, 90);
+  }
+  return sh;
+}
+function contact_(ss, d) {
+  if (d.website) return { ok: true }; // حقل فخّ للبرامج الآلية
+  if (!d.agree) return { ok: false, message: 'يلزم الموافقة على سياسة الخصوصية لإرسال الرسالة.' };
+  try { purgeMessages_(ss); } catch (e) {}
+  const name = String(d.name || '').replace(/\s+/g, ' ').trim().slice(0, 80);
+  const phone = String(d.phone || '').replace(/[٠-٩]/g, x => '٠١٢٣٤٥٦٧٨٩'.indexOf(x)).replace(/[^\d+]/g, '').slice(0, 16);
+  const msg = String(d.msg || '').trim().slice(0, 1500);
+  if (name.length < 2 || msg.length < 3) return { ok: false, message: 'اكتب اسمك ونص الرسالة.' };
+  if (!/^(\+?966|0)?5\d{8}$/.test(phone)) return { ok: false, message: 'رقم الجوال غير صحيح. اكتبه مثل 05xxxxxxxx' };
+  const cache = CacheService.getScriptCache();
+  const n = Number(cache.get('msgs') || 0);
+  if (n > 40) return { ok: false, message: 'الرسائل كثيرة الآن. حاول بعد قليل.' };
+  cache.put('msgs', String(n + 1), 600);
+  const safe = s => /^[=+\-@]/.test(s) ? "'" + s : s; // يمنع تحويل النص إلى معادلة
+  const sh = msgSheet_(ss);
+  sh.appendRow([new Date(), safe(name), "'" + phone, safe(msg), String(d.page || '').slice(0, 60), 'جديدة']);
+  sh.getRange(sh.getLastRow(), 4).setWrap(true);
+  try {
+    MailApp.sendEmail({
+      to: Session.getEffectiveUser().getEmail(),
+      subject: 'رسالة جديدة من بوابة المهارات الرقمية — ' + name,
+      body: 'الاسم: ' + name + '\nالجوال: ' + phone + '\n\n' + msg + '\n\n— تجدها أيضًا في ورقة «' + SHEET_MSG + '» وفي صفحة المعلم.'
+    });
+  } catch (e) { console.error(e); }
+  return { ok: true, message: 'وصلت رسالتك، وسيتواصل معك المعلم قريبًا.' };
+}
+function messagesList_(ss) {
+  const sh = ss.getSheetByName(SHEET_MSG);
+  if (!sh || sh.getLastRow() < 2) return [];
+  const v = sh.getRange(2, 1, sh.getLastRow() - 1, 6).getValues();
+  return v.map((r, i) => ({ row: i + 2, at: r[0] instanceof Date ? r[0].toISOString() : String(r[0]), name: String(r[1]).replace(/^'/, ''), phone: String(r[2]).replace(/^'/, ''), msg: String(r[3]).replace(/^'/, ''), page: String(r[4]), done: String(r[5]) === 'تم الرد' }))
+    .filter(m => m.name || m.msg).reverse().slice(0, 200);
+}
+
+
+/* ===================== حماية البيانات (نظام حماية البيانات الشخصية) ===================== */
+const SHEET_AUDIT = 'سجل العمليات';
+const MSG_KEEP_DONE_DAYS = 30;   // الرسائل التي تم الرد عليها تُحذف بعد 30 يومًا
+const MSG_KEEP_MAX_DAYS = 180;   // وأي رسالة تُحذف بعد 180 يومًا
+function audit_(ss, what, detail) {
+  try {
+    let sh = ss.getSheetByName(SHEET_AUDIT);
+    if (!sh) {
+      sh = ss.insertSheet(SHEET_AUDIT);
+      sh.getRange(1, 1, 1, 3).setValues([['الوقت', 'العملية', 'التفاصيل']]);
+      sh.setRightToLeft(true); sh.setFrozenRows(1);
+      sh.getRange(1, 1, 1, 3).setFontWeight('bold').setFontColor('#ffffff').setBackground(NAVY);
+      sh.setColumnWidth(1, 160); sh.setColumnWidth(2, 200); sh.setColumnWidth(3, 380);
+    }
+    sh.appendRow([new Date(), what, String(detail || '').slice(0, 300)]);
+  } catch (e) { console.error(e); }
+}
+function purgeMessages_(ss) {
+  const sh = ss.getSheetByName(SHEET_MSG);
+  if (!sh || sh.getLastRow() < 2) return 0;
+  const now = Date.now(), day = 864e5, v = sh.getRange(2, 1, sh.getLastRow() - 1, 6).getValues();
+  let k = 0;
+  for (let i = v.length - 1; i >= 0; i--) {
+    const at = v[i][0] instanceof Date ? v[i][0].getTime() : 0, age = at ? (now - at) / day : 0;
+    if (at && (age > MSG_KEEP_MAX_DAYS || (String(v[i][5]) === 'تم الرد' && age > MSG_KEEP_DONE_DAYS))) {
+      if (sh.getLastRow() > 2) sh.deleteRow(i + 2); else sh.getRange(i + 2, 1, 1, 6).clearContent();
+      k++;
+    }
+  }
+  if (k) audit_(ss, 'حذف تلقائي للرسائل', k + ' رسالة تجاوزت مدة الاحتفاظ');
+  return k;
+}
+
+
+/* ===================== «المطلوب هذا الأسبوع» في الصفحة الرئيسية ===================== */
+const SHEET_NEWS = 'إعلانات الموقع';
+function newsSheet_(ss) {
+  let sh = ss.getSheetByName(SHEET_NEWS);
+  if (!sh) {
+    sh = ss.insertSheet(SHEET_NEWS);
+    sh.getRange(1, 1, 1, 5).setValues([['وقت النشر', 'الصف أو الفصول (4 أو 5 أو 6 أو أسماء الفصول أو الكل)', 'النص', 'رابط (اختياري)', 'يظهر حتى (yyyy-mm-dd)']]);
+    sh.setRightToLeft(true); sh.setFrozenRows(1);
+    sh.getRange(1, 1, 1, 5).setFontWeight('bold').setFontColor('#ffffff').setBackground(NAVY);
+    sh.setColumnWidth(1, 140); sh.setColumnWidth(2, 170); sh.setColumnWidth(3, 420); sh.setColumnWidth(4, 260); sh.setColumnWidth(5, 170);
+  }
+  return sh;
+}
+function newsList_(ss, all) {
+  const sh = ss.getSheetByName(SHEET_NEWS);
+  if (!sh || sh.getLastRow() < 2) return [];
+  const today = Utilities.formatDate(new Date(), Session.getScriptTimeZone() || 'Asia/Riyadh', 'yyyy-MM-dd');
+  return sh.getRange(2, 1, sh.getLastRow() - 1, 5).getValues().map((r, i) => {
+    const until = r[4] instanceof Date ? Utilities.formatDate(r[4], Session.getScriptTimeZone() || 'Asia/Riyadh', 'yyyy-MM-dd') : String(r[4] || '').trim();
+    const g = String(r[1] || 'الكل').replace(/[٠-٩]/g, x => '٠١٢٣٤٥٦٧٨٩'.indexOf(x)).trim() || 'الكل';
+    const classes = /^(4|5|6|الكل)$/.test(g) ? [] : g.split(/[،,]/).map(x => x.trim()).filter(Boolean);
+    return { row: i + 2, at: r[0] instanceof Date ? r[0].toISOString() : String(r[0]), grade: classes.length ? '' : g, classes: classes, text: String(r[2] || ''), link: String(r[3] || ''), until: until };
+  }).filter(n => n.text && (all || !n.until || n.until >= today)).reverse().slice(0, all ? 50 : 12)
+    .map(n => all ? n : { grade: n.grade, classes: n.classes, text: n.text, link: n.link, until: n.until });
+}
+
+
+/* ===================== استبيان رأي الزوار (دون أسماء) ===================== */
+const SHEET_SURVEY = 'نتائج الاستبيان';
+const SURVEY_ROLES = ['طالب', 'ولي أمر', 'زائر'];
+const SURVEY_USEFUL = ['شرح الدروس', 'المحاكيات والتدريب', 'الملخصات', 'الاختبارات القصيرة', 'المشاريع', 'التقرير المفصل', 'ركن الذكاء الاصطناعي'];
+function surveySheet_(ss) {
+  let sh = ss.getSheetByName(SHEET_SURVEY);
+  if (!sh) {
+    sh = ss.insertSheet(SHEET_SURVEY);
+    sh.getRange(1, 1, 1, 6).setValues([['الوقت', 'المشارك', 'سهولة الاستخدام (١-٥)', 'الأكثر فائدة', 'المشكلة (إن وجدت)', 'الاقتراح']]);
+    sh.setRightToLeft(true); sh.setFrozenRows(1);
+    sh.getRange(1, 1, 1, 6).setFontWeight('bold').setFontColor('#ffffff').setBackground(NAVY);
+    sh.setColumnWidth(4, 260); sh.setColumnWidth(5, 300); sh.setColumnWidth(6, 340);
+  }
+  return sh;
+}
+function survey_(ss, d) {
+  if (d.website) return { ok: true };
+  const cache = CacheService.getScriptCache();
+  const n = Number(cache.get('surv') || 0);
+  if (n > 80) return { ok: false, message: 'الردود كثيرة الآن. حاول بعد قليل.' };
+  cache.put('surv', String(n + 1), 600);
+  const role = SURVEY_ROLES.indexOf(d.role) >= 0 ? d.role : '';
+  const ease = Math.round(Number(d.ease));
+  if (!role || !(ease >= 1 && ease <= 5)) return { ok: false, message: 'أجب عن السؤالين الأول والثاني على الأقل.' };
+  const useful = (Array.isArray(d.useful) ? d.useful : []).filter(x => SURVEY_USEFUL.indexOf(x) >= 0).slice(0, 7).join('، ');
+  const safe = v => { v = String(v || '').replace(/\s+/g, ' ').trim(); return /^[=+\-@]/.test(v) ? "'" + v : v; };
+  surveySheet_(ss).appendRow([new Date(), role, ease, useful, safe(d.problem).slice(0, 300), safe(d.suggest).slice(0, 400)]);
+  return { ok: true, message: 'شكرًا لك! وصل رأيك.' };
+}
+function surveyStats_(ss) {
+  const sh = ss.getSheetByName(SHEET_SURVEY);
+  const res = { n: 0, roles: {}, ease: [0, 0, 0, 0, 0], useful: {}, problems: 0, texts: [] };
+  if (!sh || sh.getLastRow() < 2) return res;
+  sh.getRange(2, 1, sh.getLastRow() - 1, 6).getValues().forEach(r => {
+    if (!r[1]) return;
+    res.n++; res.roles[r[1]] = (res.roles[r[1]] || 0) + 1;
+    const e = Number(r[2]); if (e >= 1 && e <= 5) res.ease[e - 1]++;
+    String(r[3] || '').split('، ').filter(Boolean).forEach(u => res.useful[u] = (res.useful[u] || 0) + 1);
+    if (String(r[4]).trim()) res.problems++;
+    if (String(r[4]).trim() || String(r[5]).trim()) res.texts.push({ at: r[0] instanceof Date ? r[0].toISOString() : String(r[0]), role: r[1], problem: String(r[4] || ''), suggest: String(r[5] || '') });
+  });
+  res.texts = res.texts.reverse().slice(0, 40);
+  return res;
+}
+
+
+/* يحذف إعلانات «مشروع جديد / اختبار جديد» التلقائية المرتبطة برابط مشروع */
+function delAutoPromos_(ss, link) {
+  const sh = ss.getSheetByName(SHEET_PROMO);
+  if (!sh || sh.getLastRow() < 2) return 0;
+  const v = sh.getRange(2, 1, sh.getLastRow() - 1, 9).getValues();
+  let n = 0;
+  for (let i = v.length - 1; i >= 0; i--) {
+    if (String(v[i][8]).trim() === link && /^(مشروع جديد|اختبار جديد)$/.test(String(v[i][3]).trim())) {
+      if (sh.getLastRow() > 2) sh.deleteRow(i + 2); else sh.getRange(i + 2, 1, 1, 14).clearContent();
+      n++;
+    }
+  }
+  if (n) audit_(ss, 'حذف إعلان تلقائي', link);
+  return n;
+}
+/* ===================== منح الطالب فرصة أخرى في مشروع ===================== */
+const SHEET_GRANT = 'فرص إضافية', SHEET_ARCH = 'المحاولات السابقة';
+function grantSheet_(ss) {
+  let sh = ss.getSheetByName(SHEET_GRANT);
+  if (!sh) {
+    sh = ss.insertSheet(SHEET_GRANT);
+    sh.getRange(1, 1, 1, 7).setValues([['وقت المنح', 'الفصل', 'اسم الطالب', 'رقم الدرس', 'الدرس', 'الدرجة السابقة', 'الحالة']]);
+    sh.setRightToLeft(true); sh.setFrozenRows(1); sh.getRange(1, 1, 1, 7).setFontWeight('bold').setFontColor('#ffffff').setBackground(NAVY);
+    sh.setColumnWidth(3, 240); sh.setColumnWidth(5, 240);
+  }
+  return sh;
+}
+function archiveSheet_(ss) {
+  let sh = ss.getSheetByName(SHEET_ARCH);
+  if (!sh) {
+    sh = ss.insertSheet(SHEET_ARCH);
+    sh.getRange(1, 1, 1, 13).setValues([['وقت الإعادة', 'وقت الإرسال', 'اسم الطالب', 'الفصل', 'رقم الدرس', 'الدرس', 'الدرجة', 'المهمة', 'الأسئلة', 'التأمل', 'الإجابات', 'التقرير', 'الموعد']]);
+    sh.setRightToLeft(true); sh.setFrozenRows(1); sh.getRange(1, 1, 1, 13).setFontWeight('bold').setFontColor('#ffffff').setBackground(NAVY);
+  }
+  return sh;
+}
+function subsList_(ss, cls) {
+  const sh = respSheet_(ss); if (sh.getLastRow() < 2) return [];
+  return sh.getRange(2, 1, sh.getLastRow() - 1, 6).getValues().map((r, i) => ({ row: i + 2, at: r[0] instanceof Date ? r[0].toISOString() : String(r[0]), name: String(r[1]).trim(), cls: String(r[2]).trim(), id: String(r[3]), lesson: String(r[4]), score: r[5] }))
+    .filter(x => x.name && x.id && (!cls || clsKey_(x.cls) === clsKey_(cls))).reverse();
+}
+function grantsList_(ss, cls) {
+  const sh = ss.getSheetByName(SHEET_GRANT); if (!sh || sh.getLastRow() < 2) return [];
+  return sh.getRange(2, 1, sh.getLastRow() - 1, 7).getValues().map(r => ({ cls: String(r[1]).trim(), name: String(r[2]).trim(), id: String(r[3]), lesson: String(r[4]), prev: r[5], status: String(r[6]).trim() }))
+    .filter(x => x.status === 'متاحة' && (!cls || clsKey_(x.cls) === clsKey_(cls)));
+}
+function retryCheck_(ss, q) {
+  q = { name: q.n || q.name, cls: q.c || q.cls, lessonId: q.l || q.lessonId };
+  const sh = ss.getSheetByName(SHEET_GRANT); if (!sh || sh.getLastRow() < 2) return { ok: true, retry: false, req: reqState_(ss, q.name, q.cls, String(q.lessonId || '')) };
+  const name = norm_(q.name), id = String(q.lessonId || '');
+  const ok = sh.getRange(2, 1, sh.getLastRow() - 1, 7).getValues().some(r => String(r[6]).trim() === 'متاحة' && norm_(r[2]) === name && clsKey_(r[1]) === clsKey_(q.cls) && String(r[3]) === id);
+  return { ok: true, retry: ok, req: reqState_(ss, q.name, q.cls, id) };
+}
+function retryUsed_(ss, nm, cls, id) {
+  const sh = ss.getSheetByName(SHEET_GRANT); if (!sh || sh.getLastRow() < 2) return;
+  const v = sh.getRange(2, 1, sh.getLastRow() - 1, 7).getValues();
+  // بعد استخدام الفرصة تُحذف من الورقة فلا تتراكم
+  for (let i = v.length - 1; i >= 0; i--) { const r = v[i]; if (norm_(r[2]) === norm_(nm) && clsKey_(r[1]) === clsKey_(cls) && String(r[3]) === String(id)) { if (sh.getLastRow() > 2) sh.deleteRow(i + 2); else sh.getRange(i + 2, 1, 1, 7).clearContent(); } }
+}
+
+/* نفس الطالب حتى لو اختلفت المسافات أو الهمزات أو الياء */
+function sameStudent_(a, b) { return norm_(a) === norm_(b) || nameTokens_(a).join(' ') === nameTokens_(b).join(' '); }
+/* هل أرسل الطالب هذا الدرس من قبل؟ (تقفل صفحة الطالب الإرسال فورًا على أي جهاز) */
+function sentCheck_(ss, q) {
+  q = { name: q.n || q.name, cls: q.c || q.cls, lessonId: q.l || q.lessonId };
+  const id = String(q.lessonId || ''), cls = String(q.cls || '');
+  if (!id || !cls.trim() || !norm_(q.name)) return { ok: false };
+  let name = String(q.name);
+  const m = matchName_(ss, cls, name);
+  if (m.status === 'ok') name = m.name;
+  else if (m.status !== 'noroster') return { ok: true, sent: false };
+  const sh = respSheet_(ss); if (sh.getLastRow() < 2) return { ok: true, sent: false };
+  const v = sh.getRange(2, 1, sh.getLastRow() - 1, 8).getValues();
+  for (let i = v.length - 1; i >= 0; i--) {
+    if (String(v[i][3]) === id && clsKey_(v[i][2]) === clsKey_(cls) && sameStudent_(v[i][1], name)) {
+      if (isFakeRow_(v[i])) { if (sh.getLastRow() > 2) sh.deleteRow(i + 2); else sh.getRange(i + 2, 1, 1, sh.getMaxColumns()).clearContent(); continue; }
+      return { ok: true, sent: true, score: fixScoreCell_(sh, i + 2, v[i]), at: v[i][0] instanceof Date ? v[i][0].toISOString() : '' };
+    }
+  }
+  return { ok: true, sent: false };
+}
+function grantRetry_(ss, r, name, lessonId) {
+    const sh = respSheet_(ss);
+    if (!(r >= 2 && r <= sh.getLastRow())) return { ok: false, message: 'لم يُعثر على الإرسال. حدّث القائمة.' };
+    const row = sh.getRange(r, 1, 1, sh.getLastColumn()).getValues()[0];
+    if (!sameStudent_(row[1], name) || String(row[3]) !== String(lessonId || '')) return { ok: false, message: 'تغيّرت البيانات. حدّث القائمة ثم حاول.' };
+    if (sh.getLastRow() > 2) sh.deleteRow(r); else sh.getRange(r, 1, 1, sh.getMaxColumns()).clearContent();
+    // تنظيف: حذف أي فرص سابقة لنفس الطالب في نفس الدرس، وأي محاولات مؤرشفة قديمة له، حتى لا تتكرر
+    const same = (nm, c, id) => sameStudent_(nm, row[1]) && clsKey_(c) === clsKey_(row[2]) && String(id) === String(row[3]);
+    const gs = grantSheet_(ss);
+    for (let i = gs.getLastRow(); i >= 2; i--) { const g = gs.getRange(i, 1, 1, 7).getValues()[0]; if (same(g[2], g[1], g[3])) { if (gs.getLastRow() > 2) gs.deleteRow(i); else gs.getRange(i, 1, 1, 7).clearContent(); } }
+    const ar = ss.getSheetByName(SHEET_ARCH);
+    if (ar) for (let i = ar.getLastRow(); i >= 2; i--) { const a = ar.getRange(i, 1, 1, 5).getValues()[0]; if (same(a[2], a[3], a[4])) { if (ar.getLastRow() > 2) ar.deleteRow(i); else ar.getRange(i, 1, 1, 13).clearContent(); } }
+    const rq = ss.getSheetByName(SHEET_REQ);
+    if (rq) for (let i = rq.getLastRow(); i >= 2; i--) { const q = rq.getRange(i, 1, 1, 4).getValues()[0]; if (same(q[2], q[1], q[3])) { if (rq.getLastRow() > 2) rq.deleteRow(i); else rq.getRange(i, 1, 1, 8).clearContent(); } }
+    gs.appendRow([new Date(), row[2], row[1], row[3], row[4], row[5], 'متاحة']);
+    try { formatResp_(sh); updateGrid_(ss); } catch (err) { console.error(err); }
+    audit_(ss, 'منح فرصة أخرى', row[1] + ' — ' + row[2] + ' — ' + row[4] + ' (الدرجة السابقة ' + row[5] + ')');
+    return { ok: true, message: 'مُنح ' + row[1] + ' فرصة أخرى في «' + row[4] + '». حُذفت محاولته السابقة، وتُعتمد درجته الجديدة عند إرساله.', row: row };
+}
+/* ===================== طلبات الطلاب لفرصة أخرى ===================== */
+const SHEET_REQ = 'طلبات الفرص', REQ_MAX = 8;
+function reqSheet_(ss) {
+  let sh = ss.getSheetByName(SHEET_REQ);
+  if (!sh) {
+    sh = ss.insertSheet(SHEET_REQ);
+    sh.getRange(1, 1, 1, 8).setValues([['وقت الطلب', 'الفصل', 'اسم الطالب', 'رقم الدرس', 'الدرس', 'الدرجة', 'الحالة', 'سبب الطالب']]);
+    sh.setRightToLeft(true); sh.setFrozenRows(1); sh.getRange(1, 1, 1, 8).setFontWeight('bold').setFontColor('#ffffff').setBackground(NAVY);
+    sh.setColumnWidth(3, 240); sh.setColumnWidth(5, 240); sh.setColumnWidth(8, 320);
+  }
+  return sh;
+}
+function reqsList_(ss) {
+  const sh = ss.getSheetByName(SHEET_REQ); if (!sh || sh.getLastRow() < 2) return [];
+  const L = sh.getRange(2, 1, sh.getLastRow() - 1, 8).getValues().map((r, i) => ({ req: i + 2, at: r[0] instanceof Date ? r[0].toISOString() : String(r[0]), cls: String(r[1]).trim(), name: String(r[2]).trim(), id: String(r[3]), lesson: String(r[4]), score: r[5], status: String(r[6]).trim(), note: String(r[7] || '') })).filter(x => x.name);
+  return L.filter(x => x.status === 'جديد').reverse().concat(L.filter(x => x.status !== 'جديد').reverse().slice(0, 20));
+}
+function reqMark_(ss, name, cls, id, status) {
+  const sh = ss.getSheetByName(SHEET_REQ); if (!sh || sh.getLastRow() < 2) return;
+  const v = sh.getRange(2, 1, sh.getLastRow() - 1, 7).getValues();
+  v.forEach((r, i) => { if (String(r[6]).trim() === 'جديد' && sameStudent_(r[2], name) && clsKey_(r[1]) === clsKey_(cls) && String(r[3]) === String(id)) sh.getRange(i + 2, 7).setValue(status); });
+}
+function reqState_(ss, name, cls, id) {
+  const sh = ss.getSheetByName(SHEET_REQ); if (!sh || sh.getLastRow() < 2) return '';
+  const v = sh.getRange(2, 1, sh.getLastRow() - 1, 7).getValues();
+  for (let i = v.length - 1; i >= 0; i--) if (sameStudent_(v[i][2], name) && clsKey_(v[i][1]) === clsKey_(cls) && String(v[i][3]) === String(id)) return String(v[i][6]).trim();
+  return '';
+}
+/* الطالب يطلب فرصة أخرى (إذا كانت درجته ٨ أو أقل) */
+function retryReq_(ss, q) {
+  q = { name: q.n || q.name, cls: q.c || q.cls, lessonId: q.l || q.lessonId, note: q.note };
+  const cache = CacheService.getScriptCache(), n = Number(cache.get('rq') || 0);
+  if (n > 200) return { ok: false, status: 'busy', message: 'طلبات كثيرة الآن. حاول بعد قليل.' };
+  cache.put('rq', String(n + 1), 600);
+  const id = String(q.lessonId || ''), cls = String(q.cls || '');
+  let name = String(q.name || '');
+  if (!id || !cls.trim() || !norm_(name)) return { ok: false, message: 'بيانات ناقصة.' };
+  const m = matchName_(ss, cls, name); if (m.status === 'ok') name = m.name; else if (m.status !== 'noroster') return { ok: false, message: 'الاسم غير موجود في كشف الفصل.' };
+  const sh = respSheet_(ss), v = sh.getLastRow() > 1 ? sh.getRange(2, 1, sh.getLastRow() - 1, 6).getValues() : [];
+  let row = null; for (let i = v.length - 1; i >= 0; i--) if (sameStudent_(v[i][1], name) && clsKey_(v[i][2]) === clsKey_(cls) && String(v[i][3]) === id) { row = v[i]; break; }
+  if (!row) return { ok: false, message: 'لم نجد إرسالك لهذا الدرس.' };
+  if ((typeof row[5] === 'number' && isFinite(row[5]) ? row[5] : 0) >= 10) return { ok: false, status: 'full', message: 'درجتك كاملة، أحسنت!' };
+  if ((typeof row[5] === 'number' && isFinite(row[5]) ? row[5] : 0) > REQ_MAX) return { ok: false, message: 'طلب الفرصة متاح لمن درجته ' + REQ_MAX + ' أو أقل.' };
+  if (reqState_(ss, name, cls, id) === 'جديد') return { ok: true, status: 'pending', message: 'طلبك السابق ما زال قيد المراجعة.' };
+  const safe = t => { t = String(t || '').replace(/\s+/g, ' ').trim().slice(0, 200); return /^[=+\-@]/.test(t) ? "'" + t : t; };
+  reqSheet_(ss).appendRow([new Date(), row[2], row[1], id, row[4], row[5], 'جديد', safe(q.note)]);
+  return { ok: true, status: 'pending', message: 'وصل طلبك إلى المعلم. حدّث الصفحة لاحقًا لتعرف الرد.' };
+}
+
+/* درجة سليمة دائمًا: إن وصلت غير رقمية تُحسب من المهمة (س/٧) والأسئلة (س من ن) */
+function safeScore_(score, task, quiz) {
+  const n = Number(score);
+  if (isFinite(n) && String(score) !== '' && score !== null) return Math.max(0, Math.min(10, n));
+  const toN = t => Number(String(t || '').replace(/[٠-٩]/g, x => '٠١٢٣٤٥٦٧٨٩'.indexOf(x)));
+  const tm = String(task || '').replace(/[٠-٩]/g, x => '٠١٢٣٤٥٦٧٨٩'.indexOf(x)).match(/\((\d+)\s*\/\s*7\)/);
+  const qm = String(quiz || '').replace(/[٠-٩]/g, x => '٠١٢٣٤٥٦٧٨٩'.indexOf(x)).match(/^(\d+)/);
+  const v = (tm ? toN(tm[1]) : 0) + (qm ? toN(qm[1]) : 0);
+  return isFinite(v) ? Math.max(0, Math.min(10, v)) : 0;
+}
+/* سطر وهمي: أُنشئ بالخطأ من استعلام صفحة الطالب (بلا درجة ولا مهمة ولا أسئلة) */
+function isFakeRow_(row) { const v = row[5]; return !(typeof v === 'number' && isFinite(v)) && !String(row[6] || '').trim() && !String(row[7] || '').trim(); }
+function purgeFake_(ss) {
+  const sh = respSheet_(ss); if (sh.getLastRow() < 2) return 0;
+  const v = sh.getRange(2, 1, sh.getLastRow() - 1, 8).getValues(); let n = 0;
+  for (let i = v.length - 1; i >= 0; i--) if (v[i][1] && isFakeRow_(v[i])) { if (sh.getLastRow() > 2) sh.deleteRow(i + 2); else sh.getRange(i + 2, 1, 1, sh.getMaxColumns()).clearContent(); n++; }
+  if (n) { audit_(ss, 'حذف إرسالات وهمية', n + ' سطر بلا درجة'); try { updateGrid_(ss); } catch (e) {} }
+  return n;
+}
+/* إصلاح خلية درجة تالفة (مثل ‎#NUM!‎) في ورقة الاستجابات */
+function fixScoreCell_(sh, r, row) {
+  const v = row[5];
+  if (typeof v === 'number' && isFinite(v)) return v;
+  const n = safeScore_(String(v).charAt(0) === '#' ? '' : v, row[6], row[7]);
+  try { sh.getRange(r, 6).setValue(n); } catch (e) { console.error(e); }
+  return n;
+}
+const TELEGRAM = 'https://t.me/gatemajed';
+function closedIds_() { try { const v = JSON.parse(PropertiesService.getScriptProperties().getProperty('CLOSED') || '[]'); return Array.isArray(v) ? v : []; } catch (e) { return []; } }
+function maintGet_() { try { const v = JSON.parse(PropertiesService.getScriptProperties().getProperty('MAINT') || '{}'); return v && v.on ? v : { on: false }; } catch (e) { return { on: false }; } }
+/* ===================== قناة التلجرام (بوت) =====================
+   الرمز يُحفظ في خصائص السكربت فقط (TG_TOKEN) ولا يظهر في الموقع. */
+const TG_CHAT_DEF = '', SITE_BASE = 'https://m-zahrani.com/';
+function absLink_(l) { l = String(l || '').trim(); if (!l) return ''; if (/^https?:\/\//.test(l)) return l; if (l[0] === '#') return SITE_BASE + l; if (l[0] === '/') return SITE_BASE + l.slice(1); return ''; }
+function tgSend_(text, link, btn) {
+  const pr = PropertiesService.getScriptProperties(), tok = pr.getProperty('TG_TOKEN');
+  if (!tok) return { ok: false, message: 'لم يُربط بوت التلجرام بعد (الإعدادات ← قناة التلجرام).' };
+  const body = { chat_id: pr.getProperty('TG_CHAT') || TG_CHAT_DEF, text: String(text).slice(0, 4000), disable_web_page_preview: true };
+  const u = absLink_(link); if (u) body.reply_markup = { inline_keyboard: [[{ text: String(btn || 'افتح الرابط').slice(0, 40), url: u }]] };
+  try {
+    const r = JSON.parse(UrlFetchApp.fetch('https://api.telegram.org/bot' + tok + '/sendMessage', { method: 'post', contentType: 'application/json', payload: JSON.stringify(body), muteHttpExceptions: true }).getContentText());
+    if (r && r.ok) return { ok: true };
+    const desc = String(r && r.description || '');
+    return { ok: false, message: /not enough rights|administrator|chat not found|forbidden/i.test(desc) ? 'أضف البوت مشرفًا (Admin) في القناة بصلاحية النشر.' : 'رفض تلجرام الرسالة: ' + desc };
+  } catch (err) { return { ok: false, message: 'تعذّر الاتصال بتلجرام. شغّل الدالة authorizeTelegram مرة من محرر الكود.' }; }
+}
+/* شغّلها مرة واحدة من المحرر (اختر الدالة ثم ▶ تشغيل) لمنح الإذن بالاتصال بتلجرام */
+function authorizeTelegram() { UrlFetchApp.fetch('https://api.telegram.org', { muteHttpExceptions: true }); Logger.log('تم منح الإذن.'); }
+
+/* ===================== نجوم الأسبوع =====================
+   يظهر الاسم الأول والفصل فقط، ولمن وافق ولي أمره من صفحة التقرير المفصل. */
+function starsOn_() { return PropertiesService.getScriptProperties().getProperty('STARS_ON') === '1'; }
+function starsOk_() { try { return JSON.parse(PropertiesService.getScriptProperties().getProperty('STARS_OK') || '[]') || []; } catch (e) { return []; } }
+function starOpt_(ss, code, on) {
+  const c = normCode_(code); if (c.length !== 8) return { ok: false };
+  const sh = rosterSheet_(ss), n = sh.getLastRow();
+  const row = n > 1 ? sh.getRange(2, 1, n - 1, 4).getValues().find(r => normCode_(r[2]) === c && String(r[1]).trim()) : null;
+  if (!row || !row[3]) return { ok: false };
+  const set = new Set(starsOk_()); on ? set.add(c) : set.delete(c);
+  PropertiesService.getScriptProperties().setProperty('STARS_OK', JSON.stringify([...set]));
+  CacheService.getScriptCache().remove('stars');
+  audit_(ss, on ? 'موافقة على نجوم الأسبوع' : 'إلغاء موافقة نجوم الأسبوع', String(row[1]) + ' — ' + String(row[0]));
+  return { ok: true, stars: !!on };
+}
+function stars_(ss, full) {
+  const cache = CacheService.getScriptCache();
+  if (!full) { const c = cache.get('stars'); if (c) try { return JSON.parse(c); } catch (e) {} }
+  const ok = new Set(starsOk_());
+  const sh = rosterSheet_(ss), n = sh.getLastRow();
+  const roster = n > 1 ? sh.getRange(2, 1, n - 1, 3).getValues().filter(r => String(r[1]).trim()) : [];
+  const since = Date.now() - 7 * 864e5, by = {};
+  respSheet_(ss).getDataRange().getValues().slice(1).forEach(r => {
+    const t = r[0] instanceof Date ? r[0].getTime() : Date.parse(r[0]); const sc = Number(r[5]);
+    if (!(t >= since) || !isFinite(sc) || !r[3] || /-x$/.test(String(r[3]))) return;
+    const k = clsKey_(r[2]) + '|' + norm_(r[1]); (by[k] = by[k] || { name: String(r[1]), cls: r[2], n: 0, sum: 0 }); by[k].n++; by[k].sum += sc;
+  });
+  let list = Object.values(by).map(o => { const rr = roster.find(x => clsKey_(x[0]) === clsKey_(o.cls) && sameStudent_(x[1], o.name)); return { name: o.name, cls: clsLabel_(o.cls), n: o.n, avg: Math.round(o.sum / o.n * 10) / 10, ok: !!(rr && ok.has(normCode_(rr[2]))) }; })
+    .filter(o => o.avg >= 9).sort((a, b) => b.n - a.n || b.avg - a.avg);
+  const per = {}; list = list.filter(o => (per[o.cls] = (per[o.cls] || 0) + 1) <= 5);
+  if (full) return list.slice(0, 40);
+  const pub = list.filter(o => o.ok).slice(0, 15).map(o => ({ first: String(o.name).trim().split(/\s+/)[0], cls: o.cls, n: o.n }));
+  cache.put('stars', JSON.stringify(pub), 1800);
+  return pub;
+}
+function videosGet_() { try { return JSON.parse(PropertiesService.getScriptProperties().getProperty('VIDEOS') || '{}') || {}; } catch (e) { return {}; } }
+function ytId_(u) { const m = String(u || '').match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/))([A-Za-z0-9_-]{11})/); return m ? m[1] : (/^[A-Za-z0-9_-]{11}$/.test(String(u || '')) ? String(u) : ''); }
+function stuGet_() { try { return JSON.parse(PropertiesService.getScriptProperties().getProperty('STU_PROMO') || '{}'); } catch (e) { return {}; } }
+
+/* ===================== الإعلانات البارزة: شريط / بطاقة / نافذة ===================== */
+const SHEET_PROMO = 'الإعلانات البارزة';
+const PROMO_KINDS = { bar: 'شريط علوي', card: 'بطاقة مميزة', popup: 'نافذة منبثقة' };
+const PROMO_TONES = ['blue', 'orange', 'green', 'teal', 'navy'];
+const PROMO_ICONS = ['bell', 'info', 'cal', 'alert', 'book', 'star', 'trophy', 'mega'];
+function promoSheet_(ss) {
+  let sh = ss.getSheetByName(SHEET_PROMO);
+  if (!sh) {
+    sh = ss.insertSheet(SHEET_PROMO);
+    sh.getRange(1, 1, 1, 14).setValues([['وقت النشر', 'النوع', 'اللون', 'الشارة', 'العنوان', 'النص', 'نقاط (سطر لكل نقطة)', 'نص الزر', 'رابط الزر', 'يبدأ', 'ينتهي', 'عدّ تنازلي', 'الحالة', 'الأيقونة']]);
+    sh.setRightToLeft(true); sh.setFrozenRows(1);
+    sh.getRange(1, 1, 1, 14).setFontWeight('bold').setFontColor('#ffffff').setBackground(NAVY);
+    sh.getRange('J:K').setNumberFormat('@');
+    sh.setColumnWidth(5, 220); sh.setColumnWidth(6, 320); sh.setColumnWidth(7, 220); sh.setColumnWidth(9, 220);
+  }
+  return sh;
+}
+function ymd_(v) { return v instanceof Date ? Utilities.formatDate(v, Session.getScriptTimeZone() || 'Asia/Riyadh', 'yyyy-MM-dd') : String(v || '').trim().slice(0, 10); }
+function promoRow_(d) {
+  const t = (v, n) => String(v || '').replace(/[ \t]+/g, ' ').trim().slice(0, n);
+  const kind = PROMO_KINDS[d.kind] ? d.kind : 'card';
+  const title = t(d.title, 80), text = t(d.text, 400);
+  if (!title && !(kind === 'bar' && text)) return null;
+  const pts = (Array.isArray(d.points) ? d.points : String(d.points || '').split('\n')).map(x => t(x, 80)).filter(Boolean).slice(0, 3).join('\n');
+  const link = /^https?:\/\/|^#/.test(String(d.link || '').trim()) ? String(d.link).trim().slice(0, 300) : '';
+  const dt = v => /^\d{4}-\d{2}-\d{2}$/.test(String(v || '')) ? String(v) : '';
+  return [new Date(), kind, PROMO_TONES.indexOf(d.tone) >= 0 ? d.tone : 'blue', t(d.badge, 20), title, text, pts, t(d.btn, 30), link, dt(d.start), dt(d.end), d.countdown ? 'نعم' : 'لا', 'مفعّل', PROMO_ICONS.indexOf(d.icon) >= 0 ? d.icon : 'bell'];
+}
+function promosList_(ss, all) {
+  const sh = ss.getSheetByName(SHEET_PROMO);
+  if (!sh || sh.getLastRow() < 2) return [];
+  const today = ymd_(new Date());
+  return sh.getRange(2, 1, sh.getLastRow() - 1, 14).getValues().map((r, i) => {
+    const kind = PROMO_KINDS[String(r[1]).trim()] ? String(r[1]).trim() : (Object.keys(PROMO_KINDS).filter(k => PROMO_KINDS[k] === String(r[1]).trim())[0] || 'card');
+    return { row: i + 2, id: r[0] instanceof Date ? String(r[0].getTime()) : String(i + 2), kind: kind, tone: String(r[2] || '').trim(), badge: String(r[3] || ''), title: String(r[4] || ''), text: String(r[5] || ''),
+      points: String(r[6] || '').split('\n').map(x => x.trim()).filter(Boolean).slice(0, 3), btn: String(r[7] || ''), link: String(r[8] || ''),
+      start: ymd_(r[9]), end: ymd_(r[10]), countdown: /^(نعم|yes|true)$/i.test(String(r[11]).trim()), active: String(r[12]).trim() !== 'موقوف', icon: PROMO_ICONS.indexOf(String(r[13]).trim()) >= 0 ? String(r[13]).trim() : 'bell' };
+  }).filter(p => (p.title || p.text) && (all || (p.active && (!p.start || p.start <= today) && (!p.end || p.end >= today))))
+    .reverse().slice(0, all ? 50 : 6).map(p => { if (!all) { delete p.row; delete p.active; } return p; });
+}
+
+
+/* ===================== التحقق من اسم الطالب دون كشف قائمة الأسماء ===================== */
+function nameTokens_(s) { return norm_(s).replace(/ى/g, 'ي').replace(/ؤ|ئ/g, 'ء').replace(/(^|\s)(عبد|ابو)\s+/g, '$1$2').replace(/[^؀-ۿa-zA-Z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim().split(' ').filter(w => w && w !== 'بن' && w !== 'ابن'); }
+function matchIn_(list, name) {
+  const T = nameTokens_(name);
+  if (T.length < 2) return { status: 'short' };
+  const exact = list.filter(r => nameTokens_(r.name).join(' ') === T.join(' '));
+  if (exact.length === 1) return { status: 'ok', rows: [exact[0]] };
+  const sub = list.filter(r => {
+    const R0 = nameTokens_(r.name);
+    if (R0[0] !== T[0] || R0[R0.length - 1] !== T[T.length - 1]) return false;
+    let i = 0; for (const w of R0) { if (w === T[i]) i++; } return i === T.length;
+  });
+  if (sub.length === 1) return { status: 'ok', rows: [sub[0]] };
+  if (sub.length > 1 || exact.length > 1) return { status: 'ambiguous', rows: (exact.length > 1 ? exact : sub).slice(0, 5) };
+  // تقريب الأخطاء الإملائية: الاسم الأول والعائلة متقاربان، وباقي الكلمات متقاربة بالترتيب
+  const near = (a, b) => a === b || lev_(a, b) <= (Math.max(a.length, b.length) >= 6 ? 2 : 1);
+  const scored = list.map(r => {
+    const R0 = nameTokens_(r.name);
+    if (!near(R0[0], T[0]) || !near(R0[R0.length - 1], T[T.length - 1])) return null;
+    let i = 0, cost = 0;
+    for (const w of R0) { if (i < T.length && near(w, T[i])) { cost += lev_(w, T[i]); i++; } }
+    return i === T.length ? { r: r, cost: cost } : null;
+  }).filter(Boolean).sort((a, b) => a.cost - b.cost).slice(0, 3);
+  if (scored.length) return { status: 'suggest', rows: scored.map(x => x.r) };
+  // أسماء بالإنجليزية في الكشف والطالب كتب بالعربية (أو العكس): مقارنة بالنطق
+  const S = skel_(name);
+  if (S.length >= 2) {
+    const nearS = (a, b) => a === b || (Math.min(a.length, b.length) >= 3 && lev_(a, b) <= 1);
+    const cross = list.map(r => {
+      const R0 = skel_(r.name);
+      if (R0.length < 2 || !nearS(R0[0], S[0]) || !nearS(R0[R0.length - 1], S[S.length - 1])) return null;
+      let i = 0, cost = 0;
+      for (const w of R0) { if (i < S.length && nearS(w, S[i])) { cost += lev_(w, S[i]); i++; } }
+      return i === S.length ? { r: r, cost: cost } : null;
+    }).filter(Boolean).sort((a, b) => a.cost - b.cost).slice(0, 3);
+    if (cross.length) return { status: 'suggest', rows: cross.map(x => x.r) };
+  }
+  return { status: 'notfound' };
+}
+function matchName_(ss, cls, name) {
+  const list = rosterList_(ss).filter(r => clsKey_(r.cls) === clsKey_(cls));
+  if (!list.length) return { status: 'noroster' };
+  const m = matchIn_(list, name);
+  if (m.status === 'ok') return { status: 'ok', name: m.rows[0].name };
+  return m.rows ? { status: m.status, options: m.rows.map(r => r.name) } : m;
+}
+function checkName_(ss, cls, name) {
+  const cache = CacheService.getScriptCache();
+  const fails = Number(cache.get('nfail') || 0);
+  if (fails > 400) return { ok: false, status: 'busy' };
+  if (!String(cls || '').trim()) {
+    // البحث في كل الفصول وتحديد فصل الطالب تلقائيًا
+    const list = rosterList_(ss);
+    if (!list.length) return { ok: true, noroster: true };
+    const T = nameTokens_(name);
+    if (T.length < 2) return { ok: false, status: 'short' };
+    const m = matchIn_(list, name);
+    if (m.status === 'ok') return { ok: true, name: m.rows[0].name, cls: m.rows[0].cls };
+    if (m.status === 'ambiguous' && T.length < 3) return { ok: false, status: 'need3' };
+    if (m.rows) return { ok: false, status: m.status, options: m.rows.map(r => ({ name: r.name, cls: r.cls })) };
+    cache.put('nfail', String(fails + 1), 600); Utilities.sleep(400);
+    return { ok: false, status: m.status };
+  }
+  const m = matchName_(ss, cls, name);
+  if (m.status === 'ok') return { ok: true, name: m.name };
+  if (m.status === 'noroster') return { ok: true, noroster: true };
+  if (m.status === 'notfound') { cache.put('nfail', String(fails + 1), 600); Utilities.sleep(400); }
+  return m.status === 'ambiguous' || m.status === 'suggest' ? { ok: false, status: m.status, options: m.options } : { ok: false, status: m.status };
+}
+
+function lev_(a, b) {
+  if (a === b) return 0;
+  const m = a.length, n = b.length; if (!m || !n) return m || n;
+  let prev = []; for (let j = 0; j <= n; j++) prev[j] = j;
+  for (let i = 1; i <= m; i++) {
+    const cur = [i];
+    for (let j = 1; j <= n; j++) cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    prev = cur;
+  }
+  return prev[n];
+}
+
+/* هيكل نطق الاسم: يحوّل العربي والإنجليزي إلى حروف ساكنة متقاربة لمقارنة «محمد» بـ Mohammed */
+function skel_(s) {
+  const AR = { 'ب':'b','ت':'t','ط':'t','ث':'t','ج':'j','ح':'h','ه':'h','ة':'h','خ':'k','د':'d','ض':'d','ذ':'z','ز':'z','ظ':'z','ر':'r','س':'s','ص':'s','ش':'x','غ':'g','ف':'f','ق':'k','ك':'k','ل':'l','م':'m','ن':'n','و':'w','ي':'y','ى':'','ا':'a','أ':'a','إ':'a','آ':'a','ع':'','ء':'','ئ':'','ؤ':'' };
+  return String(s || '').replace(/[ًٌٍَُِّْـ]/g, '').replace(/(^|\s)(عبد|ابو|أبو)\s+/g, '$1$2').replace(/\bAbd\s+/gi, 'Abd').replace(/-/g, '').split(/\s+/).filter(w => w && !/^(بن|ابن|bin|ibn)$/i.test(w)).map(w => {
+    let x;
+    if (/[؀-ۿ]/.test(w)) {
+      x = w.split('').map((c, i) => { const v = AR[c]; if (v === undefined) return ''; if ((c === 'و' || c === 'ي' || /[اأإآ]/.test(c)) && i > 0) return ''; return v; }).join('');
+    } else {
+      x = w.toLowerCase().replace(/[^a-z]/g, '').replace(/ph/g, 'f').replace(/sh/g, 'x').replace(/kh/g, 'k').replace(/gh/g, 'g').replace(/th/g, 't').replace(/dh/g, 'z').replace(/q/g, 'k').replace(/c/g, 'k').replace(/e/g, 'a').replace(/o/g, 'a').replace(/u/g, 'a').replace(/i/g, 'a');
+      x = x.split('').map((c, i) => (i > 0 && /[aiwy]/.test(c)) ? '' : c).join('');
+    }
+    x = x.replace(/^a/, '').replace(/(.)\1+/g, '$1');
+    return x;
+  }).filter(Boolean);
+}
+
+
+/* ===================== إحصاءات الزيارات (مجهولة الهوية) =====================
+   لا يُحفظ أي عنوان IP أو معرّف أو بيانات شخصية: فقط التاريخ والصفحة ونوع الجهاز. */
+const SHEET_VRAW = 'زيارات (مؤقت)', SHEET_VDAY = 'إحصاءات الزيارات', SHEET_VPAGE = 'الصفحات الأكثر زيارة';
+function visit_(ss, q) {
+  const cache = CacheService.getScriptCache(), k = 'v' + Math.floor(Date.now() / 60000), n = Number(cache.get(k) || 0);
+  if (n > 400) return { ok: true };
+  cache.put(k, String(n + 1), 120);
+  let sh = ss.getSheetByName(SHEET_VRAW);
+  if (!sh) { sh = ss.insertSheet(SHEET_VRAW); sh.appendRow(['التاريخ', 'الصفحة', 'الجهاز', 'المصدر', 'زيارة جديدة', 'زائر اليوم', 'زائر جديد', 'زائر الأسبوع', 'زائر الشهر']); sh.setRightToLeft(true); }
+  const tz = Session.getScriptTimeZone() || 'Asia/Riyadh';
+  sh.appendRow([Utilities.formatDate(new Date(), tz, 'yyyy-MM-dd'), String(q.p || 'غير معروف').slice(0, 60), q.d === 'm' ? 'جوال' : 'حاسب', q.s === 'proj' ? 'المنصة' : 'الموقع', q.n ? 1 : 0, q.u ? 1 : 0, q.f ? 1 : 0, q.w ? 1 : 0, q.mo ? 1 : 0]);
+  if (sh.getLastRow() > 1500) { const lock = LockService.getScriptLock(); if (lock.tryLock(3000)) { try { rollVisits_(ss); } finally { lock.releaseLock(); } } }
+  return { ok: true };
+}
+function rollVisits_(ss) {
+  const raw = ss.getSheetByName(SHEET_VRAW);
+  if (!raw || raw.getLastRow() < 2) return;
+  const rows = raw.getRange(2, 1, raw.getLastRow() - 1, 9).getValues();
+  raw.deleteRows(2, rows.length);
+  let day = ss.getSheetByName(SHEET_VDAY);
+  if (!day) { day = ss.insertSheet(SHEET_VDAY); day.appendRow(['التاريخ', 'الزيارات', 'مشاهدات الصفحات', 'من الجوال', 'من الحاسب', 'مشاهدات المنصة']); day.setRightToLeft(true); day.setFrozenRows(1); day.getRange(1, 1, 1, 6).setFontWeight('bold').setFontColor('#ffffff').setBackground(NAVY); }
+  let pg = ss.getSheetByName(SHEET_VPAGE);
+  if (!pg) { pg = ss.insertSheet(SHEET_VPAGE); pg.appendRow(['التاريخ', 'الصفحة', 'المشاهدات']); pg.setRightToLeft(true); pg.setFrozenRows(1); pg.getRange(1, 1, 1, 3).setFontWeight('bold').setFontColor('#ffffff').setBackground(NAVY); }
+  const D = {}, P = {};
+  rows.forEach(r => {
+    const d = r[0] instanceof Date ? Utilities.formatDate(r[0], Session.getScriptTimeZone() || 'Asia/Riyadh', 'yyyy-MM-dd') : String(r[0]);
+    const o = D[d] = D[d] || [0, 0, 0, 0, 0, 0, 0, 0, 0];
+    o[1]++; if (r[4]) o[0]++; if (r[2] === 'جوال') o[2]++; else o[3]++; if (r[3] === 'المنصة') o[4]++; if (Number(r[5]) === 1) o[5]++; if (Number(r[6]) === 1) o[6]++; if (Number(r[7]) === 1) o[7]++; if (Number(r[8]) === 1) o[8]++;
+    const pk = d + '|' + r[1]; P[pk] = (P[pk] || 0) + 1;
+  });
+  if (day.getLastColumn() < 10) day.getRange(1, 7, 1, 4).setValues([['زوار اليوم (بلا تكرار)', 'زوار جدد', 'زوار الأسبوع', 'زوار الشهر']]);
+  const dv = day.getLastRow() > 1 ? day.getRange(2, 1, day.getLastRow() - 1, 10).getValues() : [];
+  const di = {}; dv.forEach((r, i) => { di[r[0] instanceof Date ? Utilities.formatDate(r[0], Session.getScriptTimeZone() || 'Asia/Riyadh', 'yyyy-MM-dd') : String(r[0]).replace(/^'/, '')] = i; });
+  Object.keys(D).forEach(d => { const o = D[d]; if (di[d] != null) { const r = dv[di[d]]; for (let j = 0; j < 9; j++) r[j + 1] = Number(r[j + 1] || 0) + o[j]; } else dv.push(["'" + d].concat(o)); });
+  if (dv.length) day.getRange(2, 1, dv.length, 10).setValues(dv.map(r => [String(r[0]).replace(/^'/, '').length === 10 ? "'" + String(r[0]).replace(/^'/, '') : r[0], r[1], r[2], r[3], r[4], r[5], Number(r[6] || 0), Number(r[7] || 0), Number(r[8] || 0), Number(r[9] || 0)]));
+  const pv = pg.getLastRow() > 1 ? pg.getRange(2, 1, pg.getLastRow() - 1, 3).getValues() : [];
+  const pi = {}; pv.forEach((r, i) => { pi[String(r[0]).replace(/^'/, '') + '|' + r[1]] = i; });
+  Object.keys(P).forEach(k => { if (pi[k] != null) pv[pi[k]][2] = Number(pv[pi[k]][2] || 0) + P[k]; else { const [d, p] = [k.slice(0, 10), k.slice(11)]; pv.push(["'" + d, p, P[k]]); } });
+  // نحتفظ بتفاصيل الصفحات لآخر ١٨٠ يومًا فقط
+  const cut = Utilities.formatDate(new Date(Date.now() - 180 * 864e5), Session.getScriptTimeZone() || 'Asia/Riyadh', 'yyyy-MM-dd');
+  const keep = pv.filter(r => String(r[0]).replace(/^'/, '') >= cut).map(r => ["'" + String(r[0]).replace(/^'/, ''), r[1], r[2]]);
+  if (pg.getLastRow() > 1) pg.getRange(2, 1, pg.getLastRow() - 1, 3).clearContent();
+  if (keep.length) pg.getRange(2, 1, keep.length, 3).setValues(keep);
+}
+function stats_(ss) {
+  rollVisits_(ss);
+  const tz = Session.getScriptTimeZone() || 'Asia/Riyadh', day = ss.getSheetByName(SHEET_VDAY), pg = ss.getSheetByName(SHEET_VPAGE);
+  const ds = d => d instanceof Date ? Utilities.formatDate(d, tz, 'yyyy-MM-dd') : String(d).replace(/^'/, '');
+  const days = day && day.getLastRow() > 1 ? day.getRange(2, 1, day.getLastRow() - 1, Math.max(6, Math.min(10, day.getLastColumn()))).getValues().map(r => ({ d: ds(r[0]), s: +r[1] || 0, v: +r[2] || 0, m: +r[3] || 0, c: +r[4] || 0, p: +r[5] || 0, u: +r[6] || 0, f: +r[7] || 0, w: +r[8] || 0, mo: +r[9] || 0 })) : [];
+  const since = Utilities.formatDate(new Date(Date.now() - 29 * 864e5), tz, 'yyyy-MM-dd');
+  const top = {};
+  if (pg && pg.getLastRow() > 1) pg.getRange(2, 1, pg.getLastRow() - 1, 3).getValues().forEach(r => { if (ds(r[0]) >= since) top[r[1]] = (top[r[1]] || 0) + (+r[2] || 0); });
+  return { today: Utilities.formatDate(new Date(), tz, 'yyyy-MM-dd'), days: days.filter(x => x.d >= Utilities.formatDate(new Date(Date.now() - 89 * 864e5), tz, 'yyyy-MM-dd')).sort((a, b) => a.d < b.d ? -1 : 1),
+    total: days.reduce((a, x) => ({ s: a.s + x.s, v: a.v + x.v, f: a.f + x.f }), { s: 0, v: 0, f: 0 }),
+    top: Object.keys(top).map(k => [k, top[k]]).sort((a, b) => b[1] - a[1]).slice(0, 12) };
+}
