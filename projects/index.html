@@ -758,6 +758,9 @@ body.dash-mode .btn:not(.ghost):not(.wa):not(.mb-wa):not(.pm-wa):not(.rm-danger)
 .dq-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 .dq{display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:start;border:1.5px solid #e2ece7;background:#fff;border-radius:18px;padding:16px;font:inherit;color:var(--v-navy);cursor:pointer;transition:border-color .15s,transform .15s}.dq:hover{border-color:var(--v-teal);transform:translateY(-2px)}
 a.dq{text-decoration:none}
+.kf-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.kf-full{text-decoration:none}
+.kf-frame{width:100%;height:calc(100vh - 150px);height:calc(100dvh - 150px);min-height:620px;border:0;border-radius:14px;background:#eef2ef;display:block}
 .dq.dq-kashf{grid-column:1/-1;border-color:var(--v-teal);background:linear-gradient(135deg,#f2faf6,#eef8f7)}
 .dq.dq-kashf:focus-visible{outline:3px solid var(--v-teal);outline-offset:2px}
 .dq-ic{font-size:26px;width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#e6f4ec,#e2f5f4);display:grid;place-items:center;margin-bottom:4px}.dq b{font-size:16.5px}.dq small{color:#5b6b66;line-height:1.6}
@@ -3220,7 +3223,7 @@ function renderTeacher(){const base=location.origin&&location.origin!=='null'&&!
     h('p',{},'حدّد الدرس الذي تريد أن يحلّه الطلاب، ثم انسخ الرابط وأرسله لهم. الطالب الذي يفتح الرابط يرى هذا الدرس فقط.'),gradesHint(),
     base?null:h('p',{class:'msg bad'},'الروابط تعمل من موقعك المنشور. افتح هذه الصفحة من موقعك ليظهر الرابط كاملًا.'),
     dc.el,h('div',{class:'send card'},out)),h('section',{class:'card'},list));
-  teacherDash({links:linksPanel,exam:examBuilder(base),roster:h('div',{class:'stack'},reqBox(),rosterHelp(),retryBox()),news:h('div',{class:'stack'},promoBox(),stuBox(),newsBox(),closedBox(),starsBox()),msgs:msgBox(),stats:h('div',{class:'stack'},statsBox(),surveyBox()),videos:videoBox(),help:helpBox(),teachers:TSLUG?h('div'):teachersBox(),settings:h('div',{class:'stack'},maintBox(),tgBox(),gradesCard(),pinHelp(),deviceReset())})}
+  teacherDash({...(TSLUG?{}:{kashf:kashfPanel()}),links:linksPanel,exam:examBuilder(base),roster:h('div',{class:'stack'},reqBox(),rosterHelp(),retryBox()),news:h('div',{class:'stack'},promoBox(),stuBox(),newsBox(),closedBox(),starsBox()),msgs:msgBox(),stats:h('div',{class:'stack'},statsBox(),surveyBox()),videos:videoBox(),help:helpBox(),teachers:TSLUG?h('div'):teachersBox(),settings:h('div',{class:'stack'},maintBox(),tgBox(),gradesCard(),pinHelp(),deviceReset())})}
 /* ====== إدارة الفصول والطلاب (صفحة المعلم) ====== */
 function adminPin(){try{return sessionStorage.getItem('rqm4:tp')||''}catch(e){return ''}}
 async function adminCall(op,extra){const r=await fetch(SHEET_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({admin:1,pin:adminPin(),op},extra||{}))});const j=await r.json();if(j&&j.ok===false&&j.message==='عملية غير معروفة.')j.message='كود الجدول في Google ما زال قديمًا ولا يعرف هذه الميزة. الصق «كود الجدول الجديد» في Apps Script ثم: نشر ← إدارة عمليات النشر ← ✏️ ← إصدار جديد ← نشر.';return j}
@@ -3313,6 +3316,14 @@ function rosterHelp(){
     h('p',{class:'note'},'كل تعديل هنا يُحفظ مباشرة في ورقة «الطلاب» بجدولك، ويظهر للطلاب في قائمة الأسماء.'),msg,box)}
 /* ====== لوحة المعلم (تصميم عصري بتبويبات) ====== */
 const DASH_TABS=[['home','🏠','الرئيسية'],['links','🔗','روابط المشاريع'],['exam','📝','الاختبار النهائي'],['roster','👥','الفصول والطلاب'],['news','📌','الإعلانات'],['msgs','💬','الرسائل'],['stats','📊','الإحصاءات'],['videos','🎬','فيديو الدروس'],['settings','⚙️','الإعدادات'],['help','❓','دليل الاستخدام']].concat(TSLUG?[]:[['teachers','👨‍🏫','المعلمون']]);
+if(!TSLUG)DASH_TABS.splice(1,0,['kashf','📒','الكشف']);
+function kashfPanel(){window.MZ_KASHF_URL=SHEET_URL;
+  const fr=h('iframe',{title:'كشف الدرجات والمتابعة',class:'kf-frame'});
+  const sec=h('section',{class:'card stack kf'},h('div',{class:'kf-top'},h('h2',{style:'font-size:20px'},'📒 كشف الدرجات والمتابعة'),h('a',{class:'btn ghost kf-full',href:'kashf.html'},'⛶ ملء الشاشة')),
+    h('p',{class:'note'},'الدرجات والمتابعة الأسبوعية لكل الفصول. كل تعديل يُحفظ في جدولك على Google ويظهر على الجوال والكمبيوتر.'),fr);
+  const load=()=>{if(!fr.src)fr.src='kashf.html?embed=1'};
+  if('IntersectionObserver' in window){const io=new IntersectionObserver(es=>{if(es.some(e=>e.isIntersecting)){load();io.disconnect()}});io.observe(sec)}else load();
+  return sec}
 function gradesHint(){const el=h('p',{class:'pn-hint'});const draw=()=>{el.replaceChildren('تظهر لك دروس: ',h('b',{},visibleGrades().map(g=>GRADE_NAMES[g].replace(' الابتدائي','')).join('، ')),' · ',h('button',{type:'button',class:'lnk',onclick:()=>dashGo('settings')},'تغيير المراحل'))};draw();CLS_HOOKS.push(()=>{if(el.isConnected)draw()});return el}
 function pinHelp(){return h('section',{class:'card stack'},h('h2',{style:'font-size:20px'},'🔐 رمز الدخول'),h('p',{class:'note'},'رمز دخول هذه الصفحة محفوظ في جدولك فقط، ولا يظهر في ملفات الموقع. لتغييره: افتح Apps Script ← ⚙️ إعدادات المشروع ← خصائص النص البرمجي ← عدّل قيمة ADMIN_PIN ← حفظ.'),
   h('button',{type:'button',class:'btn ghost',onclick:()=>{try{sessionStorage.removeItem('rqm4:t');sessionStorage.removeItem('rqm4:tp')}catch(e){}location.href=location.pathname+'?'+TQ+'teacher'}},'🚪 تسجيل الخروج من صفحة المعلم'))}
@@ -3329,7 +3340,7 @@ function teacherDash(panels){document.body.classList.add('dash-mode');
       quick('links','🔗','أرسل مشروعًا','اختر الدرس وانسخ رابطه أو انشره في الموقع'),quick('exam','📝','أنشئ اختبارًا','اختبار نهائي بمهام عملية ودرجة'),
       quick('roster','👥','الطلاب والفصول','إضافة واستيراد ورموز أولياء الأمور'),quick('news','📌','إعلان للطلاب','يظهر في «المطلوب هذا الأسبوع»'),
       quick('msgs','💬','رسائل الزوار','أسئلة أولياء الأمور والرد عليها'),quick('stats','📊','الإحصاءات','الزيارات والصفحات الأكثر استخدامًا'),
-      TSLUG?null:h('a',{class:'dq dq-kashf',href:'https://claude.ai/artifact/UvNHS4ebyWLF4ms82xrZ75',target:'_blank',rel:'noopener'},h('span',{class:'dq-ic','aria-hidden':'true'},'📒'),h('b',{},'كشف الدرجات والمتابعة'),h('small',{},'الدرجات والمتابعة الأسبوعية لكل الفصول · متزامن مع الجوال · يفتح في Claude بحسابك')))),
+      TSLUG?null:h('button',{type:'button',class:'dq dq-kashf',onclick:()=>dashGo('kashf')},h('span',{class:'dq-ic','aria-hidden':'true'},'📒'),h('b',{},'كشف الدرجات والمتابعة'),h('small',{},'الدرجات والمتابعة الأسبوعية لكل الفصول · يُحفظ في جدولك ويتزامن مع الجوال')))),
     h('section',{class:'card dash-tip'},h('b',{},'💡 تذكير'),h('p',{},'نتائج الطلاب وكشوف الدرجات وتحليل الأخطاء تجدها في جدولك على Google Sheets، وتتحدث تلقائيًا مع كل إرسال.')));
   const P=Object.assign({home},panels);
   const nav=h('nav',{class:'dnav',role:'tablist','aria-label':'أقسام لوحة المعلم'});const main=h('div',{class:'dmain'});
@@ -3340,7 +3351,7 @@ function teacherDash(panels){document.body.classList.add('dash-mode');
     const t=nav.querySelector('.on');if(t&&t.scrollIntoView)t.scrollIntoView({block:'nearest',inline:'center'});window.scrollTo({top:0,behavior:'smooth'})};
   nav.replaceChildren(...DASH_TABS.filter(([k])=>P[k]).map(([k,ic,t])=>h('button',{type:'button',role:'tab','data-tab':k,onclick:()=>dashGo(k)},h('span',{'aria-hidden':'true'},ic),h('span',{},t))));
   const hero=h('header',{class:'dhero'},h('div',{class:'dh-top'},h('div',{class:'dh-id'},h('span',{class:'dh-av','aria-hidden':'true'},'👨‍🏫'),h('div',{},h('small',{},'لوحة المعلم'),h('h1',{},'مرحبًا أستاذ '+String(INFO.teacher).trim().split(/\s+/)[0]),h('p',{},INFO.subject+' · '+INFO.school))),
-      h('div',{class:'dh-acts'},h('span',{class:'dh-date'},today),TSLUG?null:h('a',{class:'dh-btn',href:'https://claude.ai/artifact/UvNHS4ebyWLF4ms82xrZ75',target:'_blank',rel:'noopener'},'📒 الكشف'),h('a',{class:'dh-btn',href:'https://m-zahrani.com/',target:'_blank',rel:'noopener'},'🌐 الموقع'),h('button',{type:'button',class:'dh-btn',onclick:()=>{try{sessionStorage.removeItem('rqm4:t');sessionStorage.removeItem('rqm4:tp')}catch(e){}location.href=location.pathname+'?'+TQ+'teacher'}},'خروج'))),
+      h('div',{class:'dh-acts'},h('span',{class:'dh-date'},today),TSLUG?null:h('button',{type:'button',class:'dh-btn',onclick:()=>dashGo('kashf')},'📒 الكشف'),h('a',{class:'dh-btn',href:'https://m-zahrani.com/',target:'_blank',rel:'noopener'},'🌐 الموقع'),h('button',{type:'button',class:'dh-btn',onclick:()=>{try{sessionStorage.removeItem('rqm4:t');sessionStorage.removeItem('rqm4:tp')}catch(e){}location.href=location.pathname+'?'+TQ+'teacher'}},'خروج'))),
     h('div',{class:'dk-row'},kpi('stu','👥','طالبًا','roster'),kpi('cls','🏫','فصول','roster'),kpi('msg','💬','رسائل جديدة','msgs'),kpi('vis','📊','زيارات اليوم','stats')),
     h('p',{class:'dh-warn'},'🔒 خاص بالمعلم — لا تشارك هذه الصفحة مع الطلاب'));
   app.replaceChildren(h('div',{class:'dash'},hero,nav,main));dashGo(cur);

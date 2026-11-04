@@ -101,7 +101,7 @@ function classList_(ss) {
   return sh.getRange(2, 1, n - 1, 1).getValues().map(r => String(r[0]).trim()).filter(Boolean);
 }
 
-const CODE_VER = '2026-11-04e';
+const CODE_VER = '2026-11-04k';
 function doGet(e) {
   if (e && e.parameter && e.parameter.action === 'teacher') {
     const slug = String(e.parameter.t || '').toLowerCase();
@@ -777,6 +777,8 @@ function admin_(ss, d) {
   cache.remove('afail');
   const op = String(d.op || 'list');
   if (op === 'auth') return { ok: true };
+  if (op === 'kashfGet') return kashfGet_(d);
+  if (op === 'kashfSet') return kashfSet_(d);
   if (op !== 'list' && op !== 'messages') audit_(ss, 'إدارة: ' + op, [d.cls, d.name, d.newName, d.row].filter(x => x != null && x !== '').join(' — '));
   let msg = '';
   if (op === 'list') { ensureParentCodes_(ss); formatRoster_(rosterSheet_(ss)); }
@@ -1059,6 +1061,41 @@ function admin_(ss, d) {
     return { ok: false, message: 'عملية غير معروفة.' };
   }
   return { ok: true, message: msg, classes: classList_(ss), students: adminRoster_(ss) };
+}
+/* ===================== كشف الدرجات والمتابعة (صفحة المعلم ← 📒 الكشف) =====================
+   يُحفظ الكشف كاملًا في ملف واحد داخل Google Drive (ملف المعلم صاحب الجدول)، ولا يُقرأ أو يُكتب إلا برمز الإدارة.
+   كل حفظ يحمل وقته (savedAt)؛ النسخة الأقدم لا تكتب فوق الأحدث حتى لو أرسلها جهاز آخر متأخرًا. */
+const KASHF_NAME = 'كشف الدرجات والمتابعة — بيانات (لا تحذف هذا الملف).json';
+function kashfFile_() {
+  const props = PropertiesService.getScriptProperties();
+  const id = props.getProperty('KASHF_FILE');
+  if (id) { try { const f = DriveApp.getFileById(id); if (!f.isTrashed()) return f; } catch (e) {} }
+  const f = DriveApp.createFile(KASHF_NAME, '{}', MimeType.PLAIN_TEXT);
+  props.setProperty('KASHF_FILE', f.getId());
+  return f;
+}
+function kashfRead_() { try { return JSON.parse(kashfFile_().getBlob().getDataAsString('UTF-8') || '{}') || {}; } catch (e) { return {}; } }
+function kashfGet_(d) {
+  const k = kashfRead_();
+  const o = { ok: true, savedAt: Number(k.savedAt || 0), logoAt: Number(k.logoAt || 0) };
+  if (o.savedAt > Number(d.since || 0)) o.data = k.data || null;
+  if (o.logoAt > Number(d.logoSince || 0)) o.logo = k.logo || '';
+  return o;
+}
+function kashfSet_(d) {
+  const k = kashfRead_(); let changed = false;
+  if (d.data != null) {
+    const at = Number(d.savedAt || 0);
+    if (typeof d.data !== 'string' || d.data.length > 3000000 || !at) return { ok: false, message: 'بيانات الكشف غير صالحة.' };
+    if (at < Number(k.savedAt || 0)) return { ok: true, stale: true, savedAt: Number(k.savedAt || 0), logoAt: Number(k.logoAt || 0) };
+    k.data = d.data; k.savedAt = at; changed = true;
+  }
+  if (d.logo != null) {
+    const la = Number(d.logoAt || 0);
+    if (la >= Number(k.logoAt || 0)) { k.logo = String(d.logo).slice(0, 600000); k.logoAt = la; changed = true; }
+  }
+  if (changed) kashfFile_().setContent(JSON.stringify(k));
+  return { ok: true, savedAt: Number(k.savedAt || 0), logoAt: Number(k.logoAt || 0) };
 }
 /* ===================== منح فرصة أخرى =====================
    يحذف إرسال الطالب في درس (أو اختبار) فيستطيع حله وإرساله من جديد.
