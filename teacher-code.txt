@@ -101,7 +101,7 @@ function classList_(ss) {
   return sh.getRange(2, 1, n - 1, 1).getValues().map(r => String(r[0]).trim()).filter(Boolean);
 }
 
-const CODE_VER = '2026-11-05k';
+const CODE_VER = '2026-11-05s';
 function doGet(e) {
   if (e && e.parameter && e.parameter.action === 'teacher') {
     const slug = String(e.parameter.t || '').toLowerCase();
@@ -113,7 +113,7 @@ function doGet(e) {
   if (e && e.parameter && e.parameter.action === 'ver') return out_({ ok: true, ver: CODE_VER, message: 'كود الجدول محدَّث (إصدار ' + CODE_VER + ')' });
   const ss = ss_();
   if (e && e.parameter && e.parameter.action === 'news') { const cl = closedIds_(); const live = l => { const m = String(l || '').match(/[?&]lesson=([^&#]+)/); if (!m) return true; const ids = decodeURIComponent(m[1]).split(','); return ids.some(x => cl.indexOf(x.trim()) < 0); };
-    return out_({ ok: true, news: newsList_(ss, false).filter(n => live(n.link)), promos: promosList_(ss, false).filter(p => live(p.link)), stu: stuGet_(), closed: cl, maint: maintGet_(), videos: videosGet_(), tg: TELEGRAM, stars: starsOn_() ? stars_(ss, false) : [] }); }
+    return out_({ ok: true, news: newsList_(ss, false).filter(n => live(n.link)), promos: promosList_(ss, false).filter(p => live(p.link)), stu: stuGet_(), closed: cl, maint: maintGet_(), videos: videosGet_(), tg: TELEGRAM, stars: starsOn_() ? starsPub_() : null }); }
   if (e && e.parameter && e.parameter.action === 'classes') return out_({ ok: true, classes: classList_(ss), closed: closedIds_(), maint: maintGet_(), videos: videosGet_() });
   return out_({ ok: true, status: 'ready' });
 }
@@ -751,7 +751,7 @@ function parentReport_(ss, code, consent) {
     const sc = lessons.filter(l => l.id.indexOf(u + '-') === 0 && !/-x$/.test(l.id)).map(l => l.score);
     return { unit: u, title: UNITS[u] ? UNITS[u][0] : u, avg: sc.length ? Math.round(sc.reduce((x, y) => x + y, 0) / sc.length * 10) / 10 : 0 };
   }) : [];
-  return { ok: true, student: { name: name, cls: clsLabel_(row[0]) }, stars: starsOk_().indexOf(c) >= 0, starsOn: starsOn_(), lessons: lessons, missing: missing, exams: exams, badges: badges, at: new Date().toISOString() };
+  return { ok: true, student: { name: name, cls: clsLabel_(row[0]) }, stars: !!starsOkMap_()[c], starsLevel: starsOkMap_()[c] || 0, starsOn: starsOn_(), lessons: lessons, missing: missing, exams: exams, badges: badges, at: new Date().toISOString() };
 }
 
 
@@ -995,11 +995,14 @@ function admin_(ss, d) {
     if (r.ok) audit_(ss, 'رسالة في قناة التلجرام', t.slice(0, 80));
     return r.ok ? { ok: true, message: 'نُشرت الرسالة في القناة.' } : { ok: false, message: r.message };
   } else if (op === 'stars') {
-    return { ok: true, on: starsOn_(), stars: stars_(ss, true), optIns: starsOk_().length };
+    const okm = starsOkMap_();
+    return { ok: true, on: starsOn_(), cand: starsCandidates_(ss), pub: starsPub_(), optIns: Object.keys(okm).length, optIns3: Object.keys(okm).filter(k => okm[k] >= 3).length,
+      roster: adminRoster_(ss).map(x => ({ name: x.name, cls: x.cls, ok: !!okm[normCode_(x.code)] })) };
   } else if (op === 'starsSet') {
     PropertiesService.getScriptProperties().setProperty('STARS_ON', d.on ? '1' : '');
-    CacheService.getScriptCache().remove('stars');
-    return { ok: true, message: d.on ? 'ظهر قسم «نجوم الأسبوع» في الصفحة الرئيسية.' : 'أُخفي قسم «نجوم الأسبوع».', on: !!d.on, stars: stars_(ss, true), optIns: starsOk_().length };
+    return { ok: true, message: d.on ? 'ظهر قسم «نجوم الأسبوع» في الصفحة الرئيسية.' : 'أُخفي قسم «نجوم الأسبوع».', on: !!d.on };
+  } else if (op === 'starsPublish') {
+    return starsPublish_(ss, d);
   } else if (op === 'videos') {
     return { ok: true, videos: videosGet_() };
   } else if (op === 'videoSet') {
@@ -1542,39 +1545,81 @@ function tgSend_(text, link, btn) {
 function authorizeTelegram() { UrlFetchApp.fetch('https://api.telegram.org', { muteHttpExceptions: true }); Logger.log('تم منح الإذن.'); }
 
 /* ===================== نجوم الأسبوع =====================
-   يظهر الاسم الأول والفصل فقط، ولمن وافق ولي أمره من صفحة التقرير المفصل. */
+   - يُحسب الأسبوع الدراسي من الأحد إلى الخميس (وفي الجمعة والسبت: الأسبوع المنتهي).
+   - فئتان: «المتميزون» (متوسط ٩ فأكثر) و«الأكثر تحسّنًا» (ارتفع متوسطه درجتين فأكثر عمّا قبل الأسبوع).
+   - المعلم يراجع المرشحين ويعتمدهم (ويضيف من يشاء)، ثم تظهر النسخة المعتمدة فقط في الموقع.
+   - لا يظهر إلا من وافق ولي أمره: الموافقة الجديدة على الاسم الثلاثي، والقديمة على الاسم الأول فقط. */
 function starsOn_() { return PropertiesService.getScriptProperties().getProperty('STARS_ON') === '1'; }
-function starsOk_() { try { return JSON.parse(PropertiesService.getScriptProperties().getProperty('STARS_OK') || '[]') || []; } catch (e) { return []; } }
+function starsOkMap_() {
+  let v; try { v = JSON.parse(PropertiesService.getScriptProperties().getProperty('STARS_OK') || '{}'); } catch (e) { v = {}; }
+  if (Array.isArray(v)) { const m = {}; v.forEach(c => m[c] = 1); return m; } // موافقات قديمة: الاسم الأول فقط
+  return v || {};
+}
+function starsOk_() { return Object.keys(starsOkMap_()); }
 function starOpt_(ss, code, on) {
   const c = normCode_(code); if (c.length !== 8) return { ok: false };
   const sh = rosterSheet_(ss), n = sh.getLastRow();
   const row = n > 1 ? sh.getRange(2, 1, n - 1, 4).getValues().find(r => normCode_(r[2]) === c && String(r[1]).trim()) : null;
   if (!row || !row[3]) return { ok: false };
-  const set = new Set(starsOk_()); on ? set.add(c) : set.delete(c);
-  PropertiesService.getScriptProperties().setProperty('STARS_OK', JSON.stringify([...set]));
-  CacheService.getScriptCache().remove('stars');
-  audit_(ss, on ? 'موافقة على نجوم الأسبوع' : 'إلغاء موافقة نجوم الأسبوع', String(row[1]) + ' — ' + String(row[0]));
-  return { ok: true, stars: !!on };
+  const m = starsOkMap_(); if (on) m[c] = 3; else delete m[c];
+  PropertiesService.getScriptProperties().setProperty('STARS_OK', JSON.stringify(m));
+  audit_(ss, on ? 'موافقة على نجوم الأسبوع (الاسم الثلاثي)' : 'إلغاء موافقة نجوم الأسبوع', String(row[1]) + ' — ' + String(row[0]));
+  return { ok: true, stars: !!on, level: on ? 3 : 0 };
 }
-function stars_(ss, full) {
-  const cache = CacheService.getScriptCache();
-  if (!full) { const c = cache.get('stars'); if (c) try { return JSON.parse(c); } catch (e) {} }
-  const ok = new Set(starsOk_());
+function starsName_(name, level) { const p = String(name).replace(/\s+/g, ' ').trim().split(' '); return p.slice(0, level >= 3 ? 3 : 1).join(' '); }
+function schoolWeek_() {
+  // الأسبوع الدراسي بتوقيت الرياض: من الأحد إلى الخميس (وفي الجمعة والسبت: الأسبوع المنتهي)
+  const ymdR = Utilities.formatDate(new Date(), 'Asia/Riyadh', 'yyyy-MM-dd');
+  const noon = new Date(ymdR + 'T12:00:00Z'); const dow = noon.getUTCDay(); // الأحد = 0
+  const f = new Date(noon.getTime() - dow * 864e5), t = new Date(f.getTime() + 4 * 864e5);
+  const ymd = d => d.toISOString().slice(0, 10), from = ymd(f), to = ymd(t);
+  return { from: from, to: to, t0: new Date(from + 'T00:00:00+03:00').getTime(), t1: new Date(to + 'T23:59:59+03:00').getTime() };
+}
+function starsCandidates_(ss) {
+  const W = schoolWeek_(), okm = starsOkMap_();
   const sh = rosterSheet_(ss), n = sh.getLastRow();
   const roster = n > 1 ? sh.getRange(2, 1, n - 1, 3).getValues().filter(r => String(r[1]).trim()) : [];
-  const since = Date.now() - 7 * 864e5, by = {};
+  const now = {}, before = {};
   respSheet_(ss).getDataRange().getValues().slice(1).forEach(r => {
     const t = r[0] instanceof Date ? r[0].getTime() : Date.parse(r[0]); const sc = Number(r[5]);
-    if (!(t >= since) || !isFinite(sc) || !r[3] || /-x$/.test(String(r[3]))) return;
-    const k = clsKey_(r[2]) + '|' + norm_(r[1]); (by[k] = by[k] || { name: String(r[1]), cls: r[2], n: 0, sum: 0 }); by[k].n++; by[k].sum += sc;
+    if (!isFinite(t) || !isFinite(sc) || !r[3] || /-x$/.test(String(r[3])) || t > W.t1) return;
+    const k = clsKey_(r[2]) + '|' + norm_(r[1]); const B = t >= W.t0 ? now : before;
+    (B[k] = B[k] || { name: String(r[1]).replace(/\s+/g, ' ').trim(), cls: r[2], n: 0, sum: 0 }); B[k].n++; B[k].sum += sc;
   });
-  let list = Object.values(by).map(o => { const rr = roster.find(x => clsKey_(x[0]) === clsKey_(o.cls) && sameStudent_(x[1], o.name)); return { name: o.name, cls: clsLabel_(o.cls), n: o.n, avg: Math.round(o.sum / o.n * 10) / 10, ok: !!(rr && ok.has(normCode_(rr[2]))) }; })
-    .filter(o => o.avg >= 9).sort((a, b) => b.n - a.n || b.avg - a.avg);
-  const per = {}; list = list.filter(o => (per[o.cls] = (per[o.cls] || 0) + 1) <= 5);
-  if (full) return list.slice(0, 40);
-  const pub = list.filter(o => o.ok).slice(0, 15).map(o => ({ first: String(o.name).trim().split(/\s+/)[0], cls: o.cls, n: o.n }));
-  cache.put('stars', JSON.stringify(pub), 1800);
-  return pub;
+  const info = (o, k) => { const rr = roster.find(x => clsKey_(x[0]) === clsKey_(o.cls) && sameStudent_(x[1], o.name)); const lv = rr ? (okm[normCode_(rr[2])] || 0) : 0;
+    return { key: k, name: o.name, cls: clsLabel_(o.cls), n: o.n, avg: Math.round(o.sum / o.n * 10) / 10, level: lv, show: lv ? starsName_(o.name, lv) : '' }; };
+  const per = {}, cap = (L, m) => L.filter(o => (per[o.cls + L.tag] = (per[o.cls + L.tag] || 0) + 1) <= m);
+  let top = Object.keys(now).map(k => info(now[k], k)).filter(o => o.avg >= 9).sort((a, b) => b.n - a.n || b.avg - a.avg); top.tag = 't'; top = cap(top, 5);
+  let up = Object.keys(now).filter(k => before[k]).map(k => { const o = info(now[k], k), pa = Math.round(before[k].sum / before[k].n * 10) / 10; o.prev = pa; o.gain = Math.round((o.avg - pa) * 10) / 10; return o; })
+    .filter(o => o.gain >= 2 && o.avg >= 7 && o.avg < 9).sort((a, b) => b.gain - a.gain); up.tag = 'u'; up = cap(up, 3);
+  return { week: { from: W.from, to: W.to }, top: top, up: up };
+}
+function starsPub_() { try { return JSON.parse(PropertiesService.getScriptProperties().getProperty('STARS_PUB') || 'null'); } catch (e) { return null; } }
+function starsPublish_(ss, d) {
+  const C = starsCandidates_(ss), okm = starsOkMap_();
+  const sh = rosterSheet_(ss), n = sh.getLastRow();
+  const roster = n > 1 ? sh.getRange(2, 1, n - 1, 3).getValues().filter(r => String(r[1]).trim()) : [];
+  const pick = Array.isArray(d.pick) ? d.pick : [], extra = Array.isArray(d.extra) ? d.extra : [];
+  const out = { top: [], up: [], extra: [] }, seen = {};
+  const add = (bucket, name, cls, note) => {
+    const rr = roster.find(x => clsKey_(x[0]) === clsKey_(cls) && sameStudent_(x[1], name)); if (!rr) return;
+    const lv = okm[normCode_(rr[2])] || 0; const k = clsKey_(cls) + '|' + norm_(name); if (!lv || seen[k]) return; seen[k] = 1;
+    out[bucket].push({ n: starsName_(rr[1], lv), c: clsLabel_(rr[0]), note: String(note || '').slice(0, 40) });
+  };
+  C.top.filter(o => pick.indexOf(o.key) >= 0).forEach(o => add('top', o.name, o.cls, o.n > 1 ? o.n + ' مشاريع' : ''));
+  C.up.filter(o => pick.indexOf(o.key) >= 0).forEach(o => add('up', o.name, o.cls, '+' + o.gain));
+  extra.slice(0, 20).forEach(x => add('extra', String(x.name || ''), String(x.cls || ''), String(x.note || '')));
+  const pub = { from: C.week.from, to: C.week.to, at: new Date().toISOString(), top: out.top, up: out.up, extra: out.extra };
+  PropertiesService.getScriptProperties().setProperty('STARS_PUB', JSON.stringify(pub));
+  PropertiesService.getScriptProperties().setProperty('STARS_ON', '1');
+  audit_(ss, 'اعتماد نجوم الأسبوع', (out.top.length + out.up.length + out.extra.length) + ' طالب');
+  let tgm = '';
+  if (d.tg) {
+    const line = L => L.map(x => '• ' + x.n + ' — ' + x.c).join('\n');
+    const txt = ['⭐ نجوم الأسبوع', out.top.length ? '🏆 المتميزون:\n' + line(out.top) : '', out.up.length ? '🚀 الأكثر تحسّنًا:\n' + line(out.up) : '', out.extra.length ? '🌟 تميّز خاص:\n' + line(out.extra) : '', 'أحسنتم! 👏'].filter(Boolean).join('\n\n');
+    const r = tgSend_(txt, '#home', 'افتح الموقع'); tgm = r.ok ? '، ونُشرت في قناة التلجرام' : ' (لم تُنشر في التلجرام: ' + r.message + ')';
+  }
+  return { ok: true, message: 'اعتُمدت نجوم الأسبوع وظهرت في الموقع' + tgm + '.', pub: pub };
 }
 /* ===================== النسخ الاحتياطي التلقائي =====================
    نسخة كاملة من الجدول كل أسبوع في مجلد «نسخ احتياطية»، ويُحتفظ بآخر ٨ نسخ فقط. */
