@@ -101,7 +101,7 @@ function classList_(ss) {
   return sh.getRange(2, 1, n - 1, 1).getValues().map(r => String(r[0]).trim()).filter(Boolean);
 }
 
-const CODE_VER = '2026-11-06c';
+const CODE_VER = '2026-11-06d';
 function doGet(e) {
   if (e && e.parameter && e.parameter.action === 'teacher') {
     const slug = String(e.parameter.t || '').toLowerCase();
@@ -1013,6 +1013,8 @@ function admin_(ss, d) {
   } else if (op === 'tgMeTest') {
     const r = notifyTeacher_('🔔 تجربة: هكذا تصلك الإشعارات من بوابة المهارات الرقمية.');
     return r.ok ? { ok: true, message: 'أُرسلت رسالة التجربة إلى محادثتك مع البوت.' } : { ok: false, message: r.message || 'الإشعارات غير مربوطة.' };
+  } else if (op === 'termReport') {
+    return termReport_(ss, d);
   } else if (op === 'waData') {
     return waData_(ss);
   } else if (op === 'errors') {
@@ -1585,6 +1587,37 @@ function notifyTeacher_(text) {
 function tgApi_(method, body) {
   const tok = PropertiesService.getScriptProperties().getProperty('TG_TOKEN'); if (!tok) return null;
   return JSON.parse(UrlFetchApp.fetch('https://api.telegram.org/bot' + tok + '/' + method, { method: 'post', contentType: 'application/json', payload: JSON.stringify(body || {}), muteHttpExceptions: true }).getContentText());
+}
+/* ===================== تقرير نهاية الفصل الدراسي ===================== */
+function termReport_(ss, d) {
+  const from = d && d.from ? Date.parse(d.from + 'T00:00:00+03:00') : 0, to = d && d.to ? Date.parse(d.to + 'T23:59:59+03:00') : Infinity;
+  const tm = r => r[0] instanceof Date ? r[0].getTime() : Date.parse(r[0]);
+  const rows = respSheet_(ss).getDataRange().getValues().slice(1).filter(r => String(r[3]) && !/-x$/.test(String(r[3])) && r[1] && isFinite(Number(r[5])) && tm(r) >= from && tm(r) <= to);
+  const roster = rosterList_(ss);
+  let stars = [];
+  try { const sh = ss.getSheetByName(SHEET_STARS); if (sh && sh.getLastRow() > 1) stars = sh.getRange(2, 1, sh.getLastRow() - 1, 5).getValues().filter(r => { const t = r[0] instanceof Date ? r[0].getTime() : Date.parse(r[0]); return t >= from - 7 * 864e5 && t <= to; }); } catch (e) {}
+  const C = {};
+  const cl = k => C[k] = C[k] || { cls: '', st: {}, les: {} };
+  roster.forEach(r => { const c = cl(clsKey_(r.cls)); c.cls = clsLabel_(r.cls); c.st[norm_(r.name)] = { name: r.name, sc: {}, late: 0, stars: 0 }; });
+  rows.forEach(r => {
+    const k = clsKey_(r[2]), c = cl(k); if (!c.cls) c.cls = clsLabel_(r[2]);
+    const nk = norm_(r[1]); const s = c.st[nk] = c.st[nk] || { name: String(r[1]), sc: {}, late: 0, stars: 0, extra: 1 };
+    const id = String(r[3]), sc = Number(r[5]);
+    if (!(id in s.sc) || sc > s.sc[id]) s.sc[id] = sc;
+    if (String(r[11]) === 'متأخر') s.late++;
+    c.les[id] = c.les[id] || { id: id, title: String(r[4] || id).split(':').pop().trim(), o: order_(id) };
+  });
+  stars.forEach(r => { const c = C[clsKey_(r[4])]; if (!c) return; const s = c.st[norm_(r[3])]; if (s) s.stars++; });
+  const classes = Object.keys(C).sort().map(k => {
+    const c = C[k], les = Object.values(c.les).sort((a, b) => a.o - b.o), st = Object.values(c.st);
+    const students = st.map(s => { const v = Object.values(s.sc); return { name: s.name, n: v.length, miss: les.filter(l => !(l.id in s.sc)).length, avg: v.length ? Math.round(v.reduce((a, b) => a + b, 0) / v.length * 10) / 10 : null, late: s.late, stars: s.stars, scores: les.map(l => l.id in s.sc ? s.sc[l.id] : null) }; })
+      .sort((a, b) => String(a.name).localeCompare(String(b.name), 'ar'));
+    const lessons = les.map((l, i) => { const v = students.map(s => s.scores[i]).filter(x => x != null); return { title: l.title, sent: v.length, total: students.length, avg: v.length ? Math.round(v.reduce((a, b) => a + b, 0) / v.length * 10) / 10 : null }; });
+    const all = students.filter(s => s.avg != null);
+    return { cls: c.cls, students: students, lessons: lessons, avg: all.length ? Math.round(all.reduce((a, s) => a + s.avg, 0) / all.length * 10) / 10 : null,
+      rate: lessons.length && students.length ? Math.round(lessons.reduce((a, l) => a + l.sent, 0) / (lessons.length * students.length) * 100) : 0, stars: students.reduce((a, s) => a + s.stars, 0) };
+  }).filter(c => c.students.length);
+  return { ok: true, classes: classes, prof: prof_(), first: rows.length ? Utilities.formatDate(new Date(Math.min.apply(null, rows.map(tm))), 'Asia/Riyadh', 'yyyy-MM-dd') : '' };
 }
 /* ===================== رسائل مجموعة واتساب أولياء الأمور =====================
    أرقام فقط بلا أسماء (المجموعة عامة)، والمعلم ينسخ الرسالة أو يرسلها بضغطة. */
