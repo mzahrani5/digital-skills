@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /projects/?teacher
+
+Sitemap: https://m-zahrani.com/sitemap.xml

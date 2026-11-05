@@ -101,7 +101,7 @@ function classList_(ss) {
   return sh.getRange(2, 1, n - 1, 1).getValues().map(r => String(r[0]).trim()).filter(Boolean);
 }
 
-const CODE_VER = '2026-11-04k';
+const CODE_VER = '2026-11-05';
 function doGet(e) {
   if (e && e.parameter && e.parameter.action === 'teacher') {
     const slug = String(e.parameter.t || '').toLowerCase();
@@ -777,8 +777,6 @@ function admin_(ss, d) {
   cache.remove('afail');
   const op = String(d.op || 'list');
   if (op === 'auth') return { ok: true };
-  if (op === 'kashfGet') return kashfGet_(d);
-  if (op === 'kashfSet') return kashfSet_(d);
   if (op !== 'list' && op !== 'messages') audit_(ss, 'إدارة: ' + op, [d.cls, d.name, d.newName, d.row].filter(x => x != null && x !== '').join(' — '));
   let msg = '';
   if (op === 'list') { ensureParentCodes_(ss); formatRoster_(rosterSheet_(ss)); }
@@ -959,6 +957,15 @@ function admin_(ss, d) {
     const L = teachersGet_().filter(x => x.slug !== String(d.slug)); teachersPut_(L); CacheService.getScriptCache().remove('t:' + d.slug);
     audit_(ss, 'حذف معلم', String(d.slug));
     return { ok: true, message: 'حُذف المعلم من القائمة. بيانات طلابه تبقى في جدوله هو.', teachers: L };
+  } else if (op === 'backup') {
+    return Object.assign({ ok: true }, backupInfo_());
+  } else if (op === 'backupNow') {
+    try { backup_(ss_(), 'يدوية'); } catch (err) { return { ok: false, message: 'تعذّر إنشاء النسخة: ' + err }; }
+    return Object.assign({ ok: true, message: 'حُفظت نسخة احتياطية الآن في Drive.' }, backupInfo_());
+  } else if (op === 'backupSet') {
+    try { d.on ? enableBackup() : disableBackup(); }
+    catch (err) { return { ok: false, message: 'يحتاج إذنًا لمرة واحدة: في Apps Script اختر الدالة enableBackup واضغط ▶ تشغيل ووافق على الإذن.' }; }
+    return Object.assign({ ok: true, message: d.on ? 'فُعّلت النسخة الاحتياطية الأسبوعية: كل جمعة الساعة ٣ فجرًا.' : 'أُوقفت النسخة الاحتياطية الأسبوعية.' }, backupInfo_());
   } else if (op === 'tg') {
     const pr = PropertiesService.getScriptProperties();
     return { ok: true, tg: { has: !!pr.getProperty('TG_TOKEN'), chat: pr.getProperty('TG_CHAT') || TG_CHAT_DEF, bot: pr.getProperty('TG_BOT') || '' } };
@@ -1061,41 +1068,6 @@ function admin_(ss, d) {
     return { ok: false, message: 'عملية غير معروفة.' };
   }
   return { ok: true, message: msg, classes: classList_(ss), students: adminRoster_(ss) };
-}
-/* ===================== كشف الدرجات والمتابعة (صفحة المعلم ← 📒 الكشف) =====================
-   يُحفظ الكشف كاملًا في ملف واحد داخل Google Drive (ملف المعلم صاحب الجدول)، ولا يُقرأ أو يُكتب إلا برمز الإدارة.
-   كل حفظ يحمل وقته (savedAt)؛ النسخة الأقدم لا تكتب فوق الأحدث حتى لو أرسلها جهاز آخر متأخرًا. */
-const KASHF_NAME = 'كشف الدرجات والمتابعة — بيانات (لا تحذف هذا الملف).json';
-function kashfFile_() {
-  const props = PropertiesService.getScriptProperties();
-  const id = props.getProperty('KASHF_FILE');
-  if (id) { try { const f = DriveApp.getFileById(id); if (!f.isTrashed()) return f; } catch (e) {} }
-  const f = DriveApp.createFile(KASHF_NAME, '{}', MimeType.PLAIN_TEXT);
-  props.setProperty('KASHF_FILE', f.getId());
-  return f;
-}
-function kashfRead_() { try { return JSON.parse(kashfFile_().getBlob().getDataAsString('UTF-8') || '{}') || {}; } catch (e) { return {}; } }
-function kashfGet_(d) {
-  const k = kashfRead_();
-  const o = { ok: true, savedAt: Number(k.savedAt || 0), logoAt: Number(k.logoAt || 0) };
-  if (o.savedAt > Number(d.since || 0)) o.data = k.data || null;
-  if (o.logoAt > Number(d.logoSince || 0)) o.logo = k.logo || '';
-  return o;
-}
-function kashfSet_(d) {
-  const k = kashfRead_(); let changed = false;
-  if (d.data != null) {
-    const at = Number(d.savedAt || 0);
-    if (typeof d.data !== 'string' || d.data.length > 3000000 || !at) return { ok: false, message: 'بيانات الكشف غير صالحة.' };
-    if (at < Number(k.savedAt || 0)) return { ok: true, stale: true, savedAt: Number(k.savedAt || 0), logoAt: Number(k.logoAt || 0) };
-    k.data = d.data; k.savedAt = at; changed = true;
-  }
-  if (d.logo != null) {
-    const la = Number(d.logoAt || 0);
-    if (la >= Number(k.logoAt || 0)) { k.logo = String(d.logo).slice(0, 600000); k.logoAt = la; changed = true; }
-  }
-  if (changed) kashfFile_().setContent(JSON.stringify(k));
-  return { ok: true, savedAt: Number(k.savedAt || 0), logoAt: Number(k.logoAt || 0) };
 }
 /* ===================== منح فرصة أخرى =====================
    يحذف إرسال الطالب في درس (أو اختبار) فيستطيع حله وإرساله من جديد.
@@ -1566,6 +1538,35 @@ function stars_(ss, full) {
   const pub = list.filter(o => o.ok).slice(0, 15).map(o => ({ first: String(o.name).trim().split(/\s+/)[0], cls: o.cls, n: o.n }));
   cache.put('stars', JSON.stringify(pub), 1800);
   return pub;
+}
+/* ===================== النسخ الاحتياطي التلقائي =====================
+   نسخة كاملة من الجدول كل أسبوع في مجلد «نسخ احتياطية»، ويُحتفظ بآخر ٨ نسخ فقط. */
+const BACKUP_FOLDER = 'نسخ احتياطية - المهارات الرقمية', BACKUP_KEEP = 8;
+function backupFolder_(ss) {
+  const p = DriveApp.getFileById(ss.getId()).getParents();
+  return folderIn_(p.hasNext() ? p.next() : DriveApp.getRootFolder(), BACKUP_FOLDER);
+}
+function backup_(ss, kind) {
+  const tz = Session.getScriptTimeZone() || 'Asia/Riyadh';
+  const f = backupFolder_(ss);
+  DriveApp.getFileById(ss.getId()).makeCopy('نسخة ' + kind + ' - ' + Utilities.formatDate(new Date(), tz, 'yyyy-MM-dd HH:mm') + ' - ' + ss.getName(), f);
+  const files = []; const it = f.getFiles(); while (it.hasNext()) files.push(it.next());
+  files.sort((a, b) => b.getDateCreated() - a.getDateCreated()).slice(BACKUP_KEEP).forEach(x => x.setTrashed(true));
+  PropertiesService.getScriptProperties().setProperty('BACKUP_LAST', new Date().toISOString());
+}
+function weeklyBackup() { backup_(ss_(), 'أسبوعية'); }
+/* شغّلها مرة واحدة من المحرر لتفعيل النسخ الأسبوعي (أو فعّلها من صفحة المعلم) */
+function enableBackup() {
+  disableBackup();
+  ScriptApp.newTrigger('weeklyBackup').timeBased().onWeekDay(ScriptApp.WeekDay.FRIDAY).atHour(3).inTimezone('Asia/Riyadh').create();
+  Logger.log('تم التفعيل: نسخة احتياطية كل جمعة.');
+}
+function disableBackup() { ScriptApp.getProjectTriggers().forEach(tr => { if (tr.getHandlerFunction() === 'weeklyBackup') ScriptApp.deleteTrigger(tr); }); }
+function backupInfo_() {
+  let on = null, list = [];
+  try { on = ScriptApp.getProjectTriggers().some(tr => tr.getHandlerFunction() === 'weeklyBackup'); } catch (e) {}
+  try { const it = backupFolder_(ss_()).getFiles(); while (it.hasNext()) { const x = it.next(); list.push({ name: x.getName(), url: x.getUrl(), at: x.getDateCreated().toISOString() }); } list.sort((a, b) => a.at < b.at ? 1 : -1); } catch (e) {}
+  return { on: on, last: PropertiesService.getScriptProperties().getProperty('BACKUP_LAST') || '', list: list.slice(0, BACKUP_KEEP) };
 }
 function videosGet_() { try { return JSON.parse(PropertiesService.getScriptProperties().getProperty('VIDEOS') || '{}') || {}; } catch (e) { return {}; } }
 function ytId_(u) { const m = String(u || '').match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/))([A-Za-z0-9_-]{11})/); return m ? m[1] : (/^[A-Za-z0-9_-]{11}$/.test(String(u || '')) ? String(u) : ''); }
