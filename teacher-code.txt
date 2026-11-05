@@ -101,7 +101,7 @@ function classList_(ss) {
   return sh.getRange(2, 1, n - 1, 1).getValues().map(r => String(r[0]).trim()).filter(Boolean);
 }
 
-const CODE_VER = '2026-11-05t';
+const CODE_VER = '2026-11-05u';
 function doGet(e) {
   if (e && e.parameter && e.parameter.action === 'teacher') {
     const slug = String(e.parameter.t || '').toLowerCase();
@@ -1548,7 +1548,7 @@ function authorizeTelegram() { UrlFetchApp.fetch('https://api.telegram.org', { m
    - يُحسب الأسبوع الدراسي من الأحد إلى الخميس (وفي الجمعة والسبت: الأسبوع المنتهي).
    - فئتان: «المتميزون» (متوسط ٩ فأكثر) و«الأكثر تحسّنًا» (ارتفع متوسطه درجتين فأكثر عمّا قبل الأسبوع).
    - المعلم يراجع المرشحين ويعتمدهم (ويضيف من يشاء)، ثم تظهر النسخة المعتمدة فقط في الموقع.
-   - يظهر الاسم الثلاثي باعتماد المعلم، ولولي الأمر أن يطلب إخفاء اسم ابنه من صفحة التقرير المفصل (STARS_OK: -1). */
+   - يظهر اسم الطالب كاملًا باعتماد المعلم، ولولي الأمر أن يطلب إخفاء اسم ابنه من صفحة التقرير المفصل (STARS_OK: -1). */
 function starsOn_() { return PropertiesService.getScriptProperties().getProperty('STARS_ON') === '1'; }
 function starsOkMap_() {
   let v; try { v = JSON.parse(PropertiesService.getScriptProperties().getProperty('STARS_OK') || '{}'); } catch (e) { v = {}; }
@@ -1566,7 +1566,7 @@ function starOpt_(ss, code, on) {
   audit_(ss, on ? 'نجوم الأسبوع: السماح بظهور الاسم' : 'نجوم الأسبوع: ولي الأمر طلب إخفاء الاسم', String(row[1]) + ' — ' + String(row[0]));
   return { ok: true, stars: !!on };
 }
-function starsName_(name, level) { const p = String(name).replace(/\s+/g, ' ').trim().split(' '); return p.slice(0, level >= 3 ? 3 : 1).join(' '); }
+function starsName_(name) { return String(name).replace(/\s+/g, ' ').trim(); } // الاسم كاملًا كما في كشف الفصل
 function schoolWeek_() {
   // الأسبوع الدراسي بتوقيت الرياض: من الأحد إلى الخميس (وفي الجمعة والسبت: الأسبوع المنتهي)
   const ymdR = Utilities.formatDate(new Date(), 'Asia/Riyadh', 'yyyy-MM-dd');
