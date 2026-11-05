@@ -101,7 +101,7 @@ function classList_(ss) {
   return sh.getRange(2, 1, n - 1, 1).getValues().map(r => String(r[0]).trim()).filter(Boolean);
 }
 
-const CODE_VER = '2026-11-05z';
+const CODE_VER = '2026-11-06a';
 function doGet(e) {
   if (e && e.parameter && e.parameter.action === 'teacher') {
     const slug = String(e.parameter.t || '').toLowerCase();
@@ -991,7 +991,8 @@ function admin_(ss, d) {
     if (!pr.getProperty('TG_TOKEN')) return { ok: true, me: { bot: '', on: false } };
     let code = pr.getProperty('TG_LINKCODE'); if (!code) { code = Utilities.getUuid().replace(/-/g, '').slice(0, 10); pr.setProperty('TG_LINKCODE', code); }
     const bot = String(pr.getProperty('TG_BOT') || '').replace(/^@/, '');
-    return { ok: true, me: { bot: bot, on: !!pr.getProperty('TG_ADMIN'), url: bot ? 'https://t.me/' + bot + '?start=' + code : '' } };
+    let wk = false; try { wk = weeklyTgOn_(); } catch (e) {}
+    return { ok: true, me: { bot: bot, weekly: wk, on: !!pr.getProperty('TG_ADMIN'), url: bot ? 'https://t.me/' + bot + '?start=' + code : '' } };
   } else if (op === 'tgMeCheck') {
     const pr = PropertiesService.getScriptProperties(), code = pr.getProperty('TG_LINKCODE');
     if (!pr.getProperty('TG_TOKEN') || !code) return { ok: false, message: 'اربط بوت التلجرام أولًا.' };
@@ -1012,6 +1013,17 @@ function admin_(ss, d) {
   } else if (op === 'tgMeTest') {
     const r = notifyTeacher_('🔔 تجربة: هكذا تصلك الإشعارات من بوابة المهارات الرقمية.');
     return r.ok ? { ok: true, message: 'أُرسلت رسالة التجربة إلى محادثتك مع البوت.' } : { ok: false, message: r.message || 'الإشعارات غير مربوطة.' };
+  } else if (op === 'errors') {
+    return errorsReport_(ss, d);
+  } else if (op === 'tgWeekly') {
+    try {
+      ScriptApp.getProjectTriggers().forEach(tr => { if (tr.getHandlerFunction() === 'weeklyTg') ScriptApp.deleteTrigger(tr); });
+      if (d.on) ScriptApp.newTrigger('weeklyTg').timeBased().onWeekDay(ScriptApp.WeekDay.THURSDAY).atHour(13).inTimezone('Asia/Riyadh').create();
+    } catch (err) { return { ok: false, message: 'يحتاج إذنًا لمرة واحدة: في Apps Script اختر الدالة weeklyTg واضغط ▶ تشغيل ووافق على الإذن، ثم أعد المحاولة.' }; }
+    return { ok: true, message: d.on ? 'فُعّل الملخص الأسبوعي: يصلك كل خميس الساعة ١ ظهرًا.' : 'أُوقف الملخص الأسبوعي.', me: { weekly: !!d.on } };
+  } else if (op === 'tgWeeklyNow') {
+    const r = weeklyTgSend_(ss);
+    return r.ok ? { ok: true, message: 'أُرسل ملخص هذا الأسبوع إلى محادثتك مع البوت.' } : { ok: false, message: r.message || 'تعذّر الإرسال.' };
   } else if (op === 'tgTest') {
     const r = tgSend_('✅ تجربة: بوابة المهارات الرقمية مرتبطة بهذه القناة.', '#home', 'افتح الموقع');
     return r.ok ? { ok: true, message: 'وصلت رسالة التجربة إلى القناة.' } : { ok: false, message: r.message };
@@ -1564,6 +1576,87 @@ function tgApi_(method, body) {
   const tok = PropertiesService.getScriptProperties().getProperty('TG_TOKEN'); if (!tok) return null;
   return JSON.parse(UrlFetchApp.fetch('https://api.telegram.org/bot' + tok + '/' + method, { method: 'post', contentType: 'application/json', payload: JSON.stringify(body || {}), muteHttpExceptions: true }).getContentText());
 }
+/* ===================== تحليل الأخطاء الشائعة (لوحة المعلم) ===================== */
+function parseQa_(txt) {
+  const out = [];
+  String(txt || '').split('\n').forEach(line => {
+    const m = line.match(/^س\d+:\s*([\s\S]*)\s—\sإجابة الطالب:\s*([\s\S]*?)\s*(✓ صحيحة|✗ خاطئة \(الصحيحة: ([\s\S]*)\))\s*$/);
+    if (m) out.push({ q: m[1].trim(), a: m[2].trim(), ok: m[3].charAt(0) === '✓', c: m[4] ? m[4].trim() : m[2].trim() });
+  });
+  return out;
+}
+function errorsReport_(ss, d) {
+  const sh = respSheet_(ss), n = sh.getLastRow(); if (n < 2) return { ok: true, total: 0, qs: [], steps: [], lessons: [], classes: classList_(ss) };
+  const want = d && d.cls ? clsKey_(d.cls) : '', since = d && d.days ? Date.now() - Number(d.days) * 864e5 : 0;
+  const v = sh.getRange(2, 1, n - 1, 13).getValues();
+  const Q = {}, S = {}, L = {}; let total = 0;
+  v.forEach(r => {
+    const id = String(r[3] || ''); if (!id || /-x$/.test(id) || !r[1]) return;
+    if (want && clsKey_(r[2]) !== want) return;
+    const t = r[0] instanceof Date ? r[0].getTime() : Date.parse(r[0]); if (since && !(t >= since)) return;
+    const sc = Number(r[5]); if (!isFinite(sc)) return;
+    total++; const title = String(r[4] || id).split(':').pop().trim();
+    const lo = L[id] = L[id] || { id: id, title: title, n: 0, sum: 0 }; lo.n++; lo.sum += sc;
+    parseQa_(r[9]).forEach(x => {
+      const k = id + '|' + x.q, o = Q[k] = Q[k] || { id: id, lesson: title, q: x.q, c: x.c, total: 0, wrong: 0, ans: {} };
+      o.total++; if (!x.ok) { o.wrong++; o.ans[x.a] = (o.ans[x.a] || 0) + 1; if (x.c) o.c = x.c; }
+    });
+    let st = []; try { st = JSON.parse(r[12] || '[]'); } catch (e) {}
+    (st || []).forEach(x => { if (!x || !x.t) return; const k = id + '|' + x.t, o = S[k] = S[k] || { id: id, lesson: title, t: String(x.t), total: 0, wrong: 0 }; o.total++; if (!x.ok) o.wrong++; });
+  });
+  const pct = o => o.total ? Math.round(o.wrong / o.total * 100) : 0;
+  const qs = Object.values(Q).filter(o => o.total >= 3 && o.wrong > 0).map(o => {
+    const top = Object.entries(o.ans).sort((a, b) => b[1] - a[1])[0];
+    return { id: o.id, lesson: o.lesson, q: o.q, c: o.c, total: o.total, wrong: o.wrong, pct: pct(o), top: top ? { a: top[0], n: top[1] } : null };
+  }).sort((a, b) => b.pct - a.pct || b.wrong - a.wrong).slice(0, 15);
+  const steps = Object.values(S).filter(o => o.total >= 3 && o.wrong > 0).map(o => ({ id: o.id, lesson: o.lesson, t: o.t, total: o.total, wrong: o.wrong, pct: pct(o) }))
+    .sort((a, b) => b.pct - a.pct || b.wrong - a.wrong).slice(0, 10);
+  const lessons = Object.values(L).filter(o => o.n >= 2).map(o => ({ id: o.id, title: o.title, n: o.n, avg: Math.round(o.sum / o.n * 10) / 10 })).sort((a, b) => a.avg - b.avg).slice(0, 12);
+  return { ok: true, total: total, qs: qs, steps: steps, lessons: lessons, classes: classList_(ss).map(clsLabel_) };
+}
+
+/* ===================== الملخص الأسبوعي في تلجرام الخاص ===================== */
+function weeklyTg() { const r = weeklyTgSend_(ss_()); if (!r.ok) console.error(r.message); }
+function weeklyTgText_(ss) {
+  const W = schoolWeek_(), roster = rosterList_(ss);
+  const all = respSheet_(ss).getDataRange().getValues().slice(1).filter(r => String(r[3]) && !/-x$/.test(String(r[3])) && r[1]);
+  const tm = r => r[0] instanceof Date ? r[0].getTime() : Date.parse(r[0]);
+  const week = all.filter(r => { const t = tm(r); return t >= W.t0 && t <= W.t1; });
+  const fmt = x => { const [y, m, dd] = x.split('-').map(Number); return dd + '/' + m; };
+  const lines = ['📊 ملخص الأسبوع (' + fmt(W.from) + ' – ' + fmt(W.to) + ')', ''];
+  const by = {}; week.forEach(r => { const k = clsLabel_(r[2]); (by[k] = by[k] || []).push(Number(r[5]) || 0); });
+  const ks = Object.keys(by).sort();
+  if (!ks.length) lines.push('لا توجد تسليمات هذا الأسبوع حتى الآن.');
+  else { lines.push('📥 التسليمات: ' + week.length); ks.forEach(k => { const a = by[k]; lines.push('• ' + k + ' — تسليمات: ' + a.length + ' · المتوسط: ' + (Math.round(a.reduce((x, y) => x + y, 0) / a.length * 10) / 10)); }); }
+  // من لم يسلّم: لكل درس سُلّم هذا الأسبوع، في الفصول التي سلّم منها أحد
+  const ids = [...new Set(week.map(r => String(r[3])))];
+  const miss = [];
+  ids.forEach(id => {
+    const rows = all.filter(r => String(r[3]) === id), cls = new Set(week.filter(r => String(r[3]) === id).map(r => clsKey_(r[2])));
+    const sent = new Set(rows.map(r => clsKey_(r[2]) + '|' + norm_(r[1])));
+    const m = roster.filter(x => cls.has(clsKey_(x.cls)) && !sent.has(clsKey_(x.cls) + '|' + norm_(x.name)));
+    if (m.length) miss.push({ t: String((rows[0] || [])[4] || id).split(':').pop().trim(), m: m });
+  });
+  if (miss.length) {
+    lines.push('', '⏳ لم يسلّموا بعد:');
+    miss.slice(0, 6).forEach(o => lines.push('• ' + o.t + ' (' + o.m.length + '): ' + o.m.slice(0, 8).map(x => x.name.split(' ').slice(0, 2).join(' ') + ' ' + clsLabel_(x.cls)).join('، ') + (o.m.length > 8 ? '… و' + (o.m.length - 8) + ' غيرهم' : '')));
+  } else if (ids.length && roster.length) lines.push('', '✅ سلّم الجميع دروس هذا الأسبوع.');
+  // طلبات الفرص المعلّقة
+  const rq = ss.getSheetByName(SHEET_REQ);
+  const pend = rq && rq.getLastRow() > 1 ? rq.getRange(2, 1, rq.getLastRow() - 1, 7).getValues().filter(r => String(r[6]) === 'جديد').length : 0;
+  if (pend) lines.push('', '🔁 طلبات «فرصة أخرى» تنتظر ردّك: ' + pend);
+  // نجوم الأسبوع
+  try { const C = starsCandidates_(ss), n = C.top.length + C.up.length; if (n) lines.push('', '⭐ مرشّحو نجوم الأسبوع: ' + n + ' (متميّز ' + C.top.length + ' · الأكثر تحسّنًا ' + C.up.length + ') — اعتمدهم من لوحة المعلم ← الإعلانات.'); } catch (e) {}
+  // أصعب سؤال هذا الأسبوع
+  try { const E = errorsReport_(ss, { days: 7 }); if (E.qs.length) { const q = E.qs[0]; lines.push('', '📉 أكثر سؤال أخطأ فيه الطلاب: «' + q.q.slice(0, 120) + '» — ' + q.wrong + ' من ' + q.total + ' (' + q.pct + '%) · ' + q.lesson); } } catch (e) {}
+  return lines.join('\n');
+}
+function weeklyTgSend_(ss) {
+  const pr = PropertiesService.getScriptProperties();
+  if (!pr.getProperty('TG_ADMIN')) return { ok: false, message: 'فعّل «الإشعارات الخاصة» أولًا.' };
+  return notifyTeacher_(weeklyTgText_(ss));
+}
+function weeklyTgOn_() { return ScriptApp.getProjectTriggers().some(tr => tr.getHandlerFunction() === 'weeklyTg'); }
 const TG_CHAT_DEF = '', SITE_BASE = 'https://m-zahrani.com/';
 function absLink_(l) { l = String(l || '').trim(); if (!l) return ''; if (/^https?:\/\//.test(l)) return l; if (l[0] === '#') return SITE_BASE + l; if (l[0] === '/') return SITE_BASE + l.slice(1); return ''; }
 function tgSend_(text, link, btn, chatId) {
