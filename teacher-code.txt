@@ -101,7 +101,7 @@ function classList_(ss) {
   return sh.getRange(2, 1, n - 1, 1).getValues().map(r => String(r[0]).trim()).filter(Boolean);
 }
 
-const CODE_VER = '2026-11-06b';
+const CODE_VER = '2026-11-06c';
 function doGet(e) {
   if (e && e.parameter && e.parameter.action === 'teacher') {
     const slug = String(e.parameter.t || '').toLowerCase();
@@ -991,8 +991,8 @@ function admin_(ss, d) {
     if (!pr.getProperty('TG_TOKEN')) return { ok: true, me: { bot: '', on: false } };
     let code = pr.getProperty('TG_LINKCODE'); if (!code) { code = Utilities.getUuid().replace(/-/g, '').slice(0, 10); pr.setProperty('TG_LINKCODE', code); }
     const bot = String(pr.getProperty('TG_BOT') || '').replace(/^@/, '');
-    let wk = false; try { wk = weeklyTgOn_(); } catch (e) {}
-    return { ok: true, me: { bot: bot, weekly: wk, on: !!pr.getProperty('TG_ADMIN'), url: bot ? 'https://t.me/' + bot + '?start=' + code : '' } };
+    let wk = false, du = false; try { wk = weeklyTgOn_(); du = dueOn_(); } catch (e) {}
+    return { ok: true, me: { bot: bot, weekly: wk, due: du, on: !!pr.getProperty('TG_ADMIN'), url: bot ? 'https://t.me/' + bot + '?start=' + code : '' } };
   } else if (op === 'tgMeCheck') {
     const pr = PropertiesService.getScriptProperties(), code = pr.getProperty('TG_LINKCODE');
     if (!pr.getProperty('TG_TOKEN') || !code) return { ok: false, message: 'اربط بوت التلجرام أولًا.' };
@@ -1017,6 +1017,14 @@ function admin_(ss, d) {
     return waData_(ss);
   } else if (op === 'errors') {
     return errorsReport_(ss, d);
+  } else if (op === 'tgDue') {
+    try {
+      ScriptApp.getProjectTriggers().forEach(tr => { if (tr.getHandlerFunction() === 'dueReminder') ScriptApp.deleteTrigger(tr); });
+      if (d.on) ScriptApp.newTrigger('dueReminder').timeBased().everyDays(1).atHour(17).inTimezone('Asia/Riyadh').create();
+    } catch (err) { return { ok: false, message: 'يحتاج إذنًا لمرة واحدة: في Apps Script اختر الدالة dueReminder واضغط ▶ تشغيل ووافق على الإذن، ثم أعد المحاولة.' }; }
+    return { ok: true, message: d.on ? 'فُعّل التذكير: يصلك يوميًا الساعة ٥ مساءً عند اقتراب موعد أي مشروع.' : 'أُوقف تذكير المواعيد.', me: { due: !!d.on } };
+  } else if (op === 'tgDueNow') {
+    const r = dueSend_(ss, true); return r.ok ? { ok: true, message: r.message } : { ok: false, message: r.message };
   } else if (op === 'tgWeekly') {
     try {
       ScriptApp.getProjectTriggers().forEach(tr => { if (tr.getHandlerFunction() === 'weeklyTg') ScriptApp.deleteTrigger(tr); });
@@ -1638,6 +1646,58 @@ function errorsReport_(ss, d) {
   return { ok: true, total: total, qs: qs, steps: steps, lessons: lessons, classes: classList_(ss).map(clsLabel_) };
 }
 
+/* ===================== تذكير المعلم قبل انتهاء موعد المشروع =====================
+   يوميًا الساعة ٥ مساءً: المشاريع التي ينتهي موعدها في اليوم الدراسي التالي، مع أسماء من لم يسلّم،
+   وزر يفتح رسالة جاهزة (أعداد فقط) لمجموعة واتساب أولياء الأمور. */
+function dueReminder() { try { dueSend_(ss_(), false); } catch (e) { console.error(e); } }
+function dueOn_() { return ScriptApp.getProjectTriggers().some(tr => tr.getHandlerFunction() === 'dueReminder'); }
+function dueItems_(ss, test) {
+  const tz = 'Asia/Riyadh', ymd = d => Utilities.formatDate(d, tz, 'yyyy-MM-dd');
+  const now = new Date(), today = ymd(now), dow = new Date(today + 'T12:00:00Z').getUTCDay(); // الأحد = 0
+  if (!test && (dow === 5 || dow === 6)) return [];
+  const ahead = test ? 7 : (dow === 4 ? 3 : 1), last = ymd(new Date(now.getTime() + ahead * 864e5));
+  const roster = rosterList_(ss);
+  const resp = respSheet_(ss).getDataRange().getValues().slice(1);
+  const exSh = ss.getSheetByName(SHEET_EXAM), exv = exSh && exSh.getLastRow() > 1 ? exSh.getRange(2, 1, exSh.getLastRow() - 1, 4).getValues() : [];
+  const out = [];
+  newsList_(ss, false).forEach(n => {
+    if (!n.until || n.until <= today || n.until > last) return;
+    const m = String(n.link || '').match(/[?&](lesson|exam)=([^&#]+)/); if (!m) return;
+    const id = decodeURIComponent(m[2]), rows = (m[1] === 'exam' ? exv : resp).filter(r => String(r[3]) === id && r[1]);
+    const sent = new Set(rows.map(r => clsKey_(r[2]) + '|' + norm_(r[1])));
+    let keys = [...new Set(roster.map(r => clsKey_(r.cls)))];
+    if (n.classes && n.classes.length) { const want = new Set(n.classes.map(clsKey_)); keys = keys.filter(k => want.has(k)); }
+    else if (/^[456]$/.test(n.grade)) keys = keys.filter(k => k.indexOf(n.grade + '-') === 0);
+    const classes = keys.map(k => { const st = roster.filter(r => clsKey_(r.cls) === k); const miss = st.filter(r => !sent.has(k + '|' + norm_(r.name)));
+      return { cls: clsLabel_(st[0].cls), total: st.length, miss: miss.map(r => r.name) }; }).filter(c => c.total).sort((a, b) => String(a.cls).localeCompare(String(b.cls), 'ar'));
+    out.push({ id: id, title: n.text.replace(/^(مشروع|مشاريع|اختبار):\s*/, '').trim(), until: n.until, classes: classes, kind: m[1] });
+  });
+  return out;
+}
+function dueDay_(ymd) { const [y, m, d] = ymd.split('-').map(Number); const dt = new Date(Date.UTC(y, m - 1, d, 12)); return ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'][dt.getUTCDay()] + ' ' + d + '/' + m; }
+function dueSend_(ss, test) {
+  const pr = PropertiesService.getScriptProperties(), chat = pr.getProperty('TG_ADMIN');
+  if (!chat || !pr.getProperty('TG_TOKEN')) return { ok: false, message: 'فعّل «الإشعارات الخاصة» أولًا.' };
+  let done = {}; try { done = JSON.parse(pr.getProperty('DUE_SENT') || '{}') || {}; } catch (e) {}
+  const items = dueItems_(ss, test).filter(o => test || !done[o.id + '|' + o.until]);
+  if (!items.length) return { ok: true, n: 0, message: test ? 'لا توجد مشاريع ينتهي موعدها خلال الأسبوع القادم (من «المطلوب هذا الأسبوع» بتاريخ انتهاء).' : '' };
+  const site = SITE_BASE + 'projects/', teacher = prof_().name;
+  items.forEach(o => {
+    const missN = o.classes.reduce((a, c) => a + c.miss.length, 0);
+    const lines = ['⏰ تذكير: ينتهي ' + dueDay_(o.until), (o.kind === 'exam' ? '📝 اختبار: ' : '📘 مشروع: ') + o.title, ''];
+    o.classes.forEach(c => lines.push(c.miss.length ? '• ' + c.cls + ' — لم يسلّم ' + c.miss.length + ' من ' + c.total + ': ' + c.miss.slice(0, 15).map(x => x.split(' ').slice(0, 2).join(' ')).join('، ') + (c.miss.length > 15 ? '…' : '') : '• ' + c.cls + ' — سلّم الجميع ✅'));
+    if (!o.classes.length) lines.push('(لا يوجد طلاب في كشف الفصول المستهدفة)');
+    const wa = ['⏰ *تذكير*', 'آخر موعد لتسليم ' + (o.kind === 'exam' ? 'اختبار' : 'مشروع') + ' «' + o.title + '» في مادة المهارات الرقمية: ' + dueDay_(o.until) + '.', '',
+      'نسبة التسليم حتى الآن:'].concat(o.classes.map(c => '• ' + c.cls + ': سلّم ' + (c.total - c.miss.length) + ' من ' + c.total)).concat(['', 'نرجو من أولياء أمور الطلاب الذين لم يسلّموا متابعة أبنائهم 🙏', '💻 ' + site, '', 'معلم المادة: ' + teacher]).join('\n');
+    const kb = [];
+    if (missN) kb.push([{ text: '📲 تذكير لمجموعة أولياء الأمور', url: 'https://wa.me/?text=' + encodeURIComponent(wa) }]);
+    kb.push([{ text: 'افتح لوحة المعلم', url: absLink_(pr.getProperty('TG_ADMIN_LINK') || '/projects/?teacher') }]);
+    try { tgApi_('sendMessage', { chat_id: chat, text: lines.join('\n').slice(0, 4000), disable_web_page_preview: true, reply_markup: { inline_keyboard: kb } }); } catch (e) { console.error(e); }
+    if (!test) done[o.id + '|' + o.until] = 1;
+  });
+  if (!test) { const keep = {}; Object.keys(done).slice(-60).forEach(k => keep[k] = 1); pr.setProperty('DUE_SENT', JSON.stringify(keep)); }
+  return { ok: true, n: items.length, message: 'أُرسل ' + (items.length === 1 ? 'تذكير واحد' : items.length === 2 ? 'تذكيران' : items.length + ' تذكيرات') + ' إلى محادثتك مع البوت.' };
+}
 /* ===================== الملخص الأسبوعي في تلجرام الخاص ===================== */
 function weeklyTg() { const r = weeklyTgSend_(ss_()); if (!r.ok) console.error(r.message); }
 function weeklyTgText_(ss) {
