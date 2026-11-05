@@ -101,7 +101,7 @@ function classList_(ss) {
   return sh.getRange(2, 1, n - 1, 1).getValues().map(r => String(r[0]).trim()).filter(Boolean);
 }
 
-const CODE_VER = '2026-11-05v';
+const CODE_VER = '2026-11-05z';
 function doGet(e) {
   if (e && e.parameter && e.parameter.action === 'teacher') {
     const slug = String(e.parameter.t || '').toLowerCase();
@@ -986,6 +986,32 @@ function admin_(ss, d) {
     pr.setProperty('TG_CHAT', chat);
     audit_(ss, 'ربط قناة التلجرام', chat);
     return { ok: true, message: 'حُفظ. اضغط «رسالة تجربة» للتأكد أن البوت مشرف في القناة.', tg: { has: !!pr.getProperty('TG_TOKEN'), chat: chat, bot: pr.getProperty('TG_BOT') || '' } };
+  } else if (op === 'tgMe') {
+    const pr = PropertiesService.getScriptProperties();
+    if (!pr.getProperty('TG_TOKEN')) return { ok: true, me: { bot: '', on: false } };
+    let code = pr.getProperty('TG_LINKCODE'); if (!code) { code = Utilities.getUuid().replace(/-/g, '').slice(0, 10); pr.setProperty('TG_LINKCODE', code); }
+    const bot = String(pr.getProperty('TG_BOT') || '').replace(/^@/, '');
+    return { ok: true, me: { bot: bot, on: !!pr.getProperty('TG_ADMIN'), url: bot ? 'https://t.me/' + bot + '?start=' + code : '' } };
+  } else if (op === 'tgMeCheck') {
+    const pr = PropertiesService.getScriptProperties(), code = pr.getProperty('TG_LINKCODE');
+    if (!pr.getProperty('TG_TOKEN') || !code) return { ok: false, message: 'اربط بوت التلجرام أولًا.' };
+    let r; try { r = tgApi_('getUpdates', { limit: 100, allowed_updates: ['message'] }); } catch (e) { return { ok: false, message: 'تعذّر الاتصال بتلجرام.' }; }
+    if (!r || !r.ok) return { ok: false, message: 'رفض تلجرام الطلب: ' + String(r && r.description || '') };
+    let chat = null, last = 0;
+    (r.result || []).forEach(u => { last = Math.max(last, u.update_id); const m = u.message; if (m && m.chat && m.chat.type === 'private' && String(m.text || '').trim() === '/start ' + code) chat = m.chat; });
+    if (last) try { tgApi_('getUpdates', { offset: last + 1, limit: 1 }); } catch (e) {}
+    if (!chat) return { ok: false, message: 'لم تصل رسالتك بعد. افتح رابط البوت واضغط «ابدأ» (Start) ثم أعد المحاولة.' };
+    pr.setProperty('TG_ADMIN', String(chat.id)); pr.deleteProperty('TG_LINKCODE');
+    if (d.link) pr.setProperty('TG_ADMIN_LINK', String(d.link).slice(0, 200));
+    tgSend_('✅ تم الربط. ستصلك هنا إشعارات طلبات «فرصة أخرى» من الطلاب.', '', '', String(chat.id));
+    audit_(ss, 'ربط إشعارات المعلم في تلجرام', String(chat.first_name || ''));
+    return { ok: true, message: 'تم الربط! وصلتك رسالة تأكيد في تلجرام.', me: { on: true, bot: String(pr.getProperty('TG_BOT') || '').replace(/^@/, '') } };
+  } else if (op === 'tgMeOff') {
+    PropertiesService.getScriptProperties().deleteProperty('TG_ADMIN');
+    return { ok: true, message: 'أُوقفت الإشعارات الخاصة.', me: { on: false } };
+  } else if (op === 'tgMeTest') {
+    const r = notifyTeacher_('🔔 تجربة: هكذا تصلك الإشعارات من بوابة المهارات الرقمية.');
+    return r.ok ? { ok: true, message: 'أُرسلت رسالة التجربة إلى محادثتك مع البوت.' } : { ok: false, message: r.message || 'الإشعارات غير مربوطة.' };
   } else if (op === 'tgTest') {
     const r = tgSend_('✅ تجربة: بوابة المهارات الرقمية مرتبطة بهذه القناة.', '#home', 'افتح الموقع');
     return r.ok ? { ok: true, message: 'وصلت رسالة التجربة إلى القناة.' } : { ok: false, message: r.message };
@@ -1001,6 +1027,10 @@ function admin_(ss, d) {
   } else if (op === 'starsSet') {
     PropertiesService.getScriptProperties().setProperty('STARS_ON', d.on ? '1' : '');
     return { ok: true, message: d.on ? 'ظهر قسم «نجوم الأسبوع» في الصفحة الرئيسية.' : 'أُخفي قسم «نجوم الأسبوع».', on: !!d.on };
+  } else if (op === 'starsFx') {
+    const P = starsPub_(); PropertiesService.getScriptProperties().setProperty('STARS_FX', d.on ? '1' : '');
+    if (P) { P.fx = !!d.on; PropertiesService.getScriptProperties().setProperty('STARS_PUB', JSON.stringify(P)); }
+    return { ok: true, message: d.on ? 'فُعّل هبوط النجمة بالمظلة في الصفحة الرئيسية.' : 'أُوقف هبوط النجمة بالمظلة.' };
   } else if (op === 'starsPublish') {
     return starsPublish_(ss, d);
   } else if (op === 'videos') {
@@ -1488,6 +1518,7 @@ function retryReq_(ss, q) {
   if (reqState_(ss, name, cls, id) === 'جديد') return { ok: true, status: 'pending', message: 'طلبك السابق ما زال قيد المراجعة.' };
   const safe = t => { t = String(t || '').replace(/\s+/g, ' ').trim().slice(0, 200); return /^[=+\-@]/.test(t) ? "'" + t : t; };
   reqSheet_(ss).appendRow([new Date(), row[2], row[1], id, row[4], row[5], 'جديد', safe(q.note)]);
+  notifyTeacher_('🔁 طلب فرصة أخرى\n👤 ' + row[1] + ' — ' + clsLabel_(row[2]) + '\n📘 ' + row[4] + '\n📊 الدرجة: ' + row[5] + ' من 10' + (safe(q.note) ? '\n💬 ' + safe(q.note) : ''));
   return { ok: true, status: 'pending', message: 'وصل طلبك إلى المعلم. حدّث الصفحة لاحقًا لتعرف الرد.' };
 }
 
@@ -1523,12 +1554,22 @@ function closedIds_() { try { const v = JSON.parse(PropertiesService.getScriptPr
 function maintGet_() { try { const v = JSON.parse(PropertiesService.getScriptProperties().getProperty('MAINT') || '{}'); return v && v.on ? v : { on: false }; } catch (e) { return { on: false }; } }
 /* ===================== قناة التلجرام (بوت) =====================
    الرمز يُحفظ في خصائص السكربت فقط (TG_TOKEN) ولا يظهر في الموقع. */
+/* إشعار خاص للمعلم في تلجرام (محادثة خاصة مع البوت، لا القناة) */
+function notifyTeacher_(text) {
+  const pr = PropertiesService.getScriptProperties(), id = pr.getProperty('TG_ADMIN');
+  if (!id || !pr.getProperty('TG_TOKEN')) return { ok: false };
+  try { return tgSend_(text, pr.getProperty('TG_ADMIN_LINK') || '/projects/?teacher', 'افتح لوحة المعلم', id); } catch (e) { console.error(e); return { ok: false }; }
+}
+function tgApi_(method, body) {
+  const tok = PropertiesService.getScriptProperties().getProperty('TG_TOKEN'); if (!tok) return null;
+  return JSON.parse(UrlFetchApp.fetch('https://api.telegram.org/bot' + tok + '/' + method, { method: 'post', contentType: 'application/json', payload: JSON.stringify(body || {}), muteHttpExceptions: true }).getContentText());
+}
 const TG_CHAT_DEF = '', SITE_BASE = 'https://m-zahrani.com/';
 function absLink_(l) { l = String(l || '').trim(); if (!l) return ''; if (/^https?:\/\//.test(l)) return l; if (l[0] === '#') return SITE_BASE + l; if (l[0] === '/') return SITE_BASE + l.slice(1); return ''; }
-function tgSend_(text, link, btn) {
+function tgSend_(text, link, btn, chatId) {
   const pr = PropertiesService.getScriptProperties(), tok = pr.getProperty('TG_TOKEN');
   if (!tok) return { ok: false, message: 'لم يُربط بوت التلجرام بعد (الإعدادات ← قناة التلجرام).' };
-  const body = { chat_id: pr.getProperty('TG_CHAT') || TG_CHAT_DEF, text: String(text).slice(0, 4000), disable_web_page_preview: true };
+  const body = { chat_id: chatId || pr.getProperty('TG_CHAT') || TG_CHAT_DEF, text: String(text).slice(0, 4000), disable_web_page_preview: true };
   const u = absLink_(link); if (u) body.reply_markup = { inline_keyboard: [[{ text: String(btn || 'افتح الرابط').slice(0, 40), url: u }]] };
   try {
     const r = JSON.parse(UrlFetchApp.fetch('https://api.telegram.org/bot' + tok + '/sendMessage', { method: 'post', contentType: 'application/json', payload: JSON.stringify(body), muteHttpExceptions: true }).getContentText());
@@ -1575,6 +1616,7 @@ function schoolWeek_() {
   const ymd = d => d.toISOString().slice(0, 10), from = ymd(f), to = ymd(t);
   return { from: from, to: to, t0: new Date(from + 'T00:00:00+03:00').getTime(), t1: new Date(to + 'T23:59:59+03:00').getTime() };
 }
+const STARS_PER_CLASS = 5; // أقصى عدد نجوم لكل فصل (متميّز + الأكثر تحسّنًا)
 function starsCandidates_(ss) {
   const W = schoolWeek_(), okm = starsOkMap_();
   const sh = rosterSheet_(ss), n = sh.getLastRow();
@@ -1589,9 +1631,9 @@ function starsCandidates_(ss) {
   const info = (o, k) => { const rr = roster.find(x => clsKey_(x[0]) === clsKey_(o.cls) && sameStudent_(x[1], o.name)); const lv = rr && okm[normCode_(rr[2])] !== -1 ? 3 : 0;
     return { key: k, name: o.name, cls: clsLabel_(o.cls), n: o.n, avg: Math.round(o.sum / o.n * 10) / 10, level: lv, show: lv ? starsName_(o.name, lv) : '' }; };
   const per = {}, cap = (L, m) => L.filter(o => (per[o.cls + L.tag] = (per[o.cls + L.tag] || 0) + 1) <= m);
-  let top = Object.keys(now).map(k => info(now[k], k)).filter(o => o.avg >= 9).sort((a, b) => b.n - a.n || b.avg - a.avg); top.tag = 't'; top = cap(top, 5);
+  let top = Object.keys(now).map(k => info(now[k], k)).filter(o => o.avg >= 9).sort((a, b) => b.n - a.n || b.avg - a.avg); top.tag = 't'; top = cap(top, STARS_PER_CLASS);
   let up = Object.keys(now).filter(k => before[k]).map(k => { const o = info(now[k], k), pa = Math.round(before[k].sum / before[k].n * 10) / 10; o.prev = pa; o.gain = Math.round((o.avg - pa) * 10) / 10; return o; })
-    .filter(o => o.gain >= 2 && o.avg >= 7 && o.avg < 9).sort((a, b) => b.gain - a.gain); up.tag = 'u'; up = cap(up, 3);
+    .filter(o => o.gain >= 2 && o.avg >= 7 && o.avg < 9).sort((a, b) => b.gain - a.gain); up.tag = 'u'; up = up.filter(o => (per[o.cls + 't'] || 0) < STARS_PER_CLASS && (per[o.cls + 't'] = (per[o.cls + 't'] || 0) + 1) <= STARS_PER_CLASS);
   return { week: { from: W.from, to: W.to }, top: top, up: up };
 }
 const SHEET_STARS = 'نجوم الأسبوع';
@@ -1621,7 +1663,7 @@ function starsPublish_(ss, d) {
   C.top.filter(o => pick.indexOf(o.key) >= 0).forEach(o => add('top', o.name, o.cls, o.n > 1 ? o.n + ' مشاريع' : ''));
   C.up.filter(o => pick.indexOf(o.key) >= 0).forEach(o => add('up', o.name, o.cls, '+' + o.gain));
   extra.slice(0, 20).forEach(x => add('extra', String(x.name || ''), String(x.cls || ''), String(x.note || '')));
-  const pub = { from: C.week.from, to: C.week.to, at: new Date().toISOString(), top: out.top, up: out.up, extra: out.extra };
+  const pub = { from: C.week.from, to: C.week.to, at: new Date().toISOString(), top: out.top, up: out.up, extra: out.extra, fx: PropertiesService.getScriptProperties().getProperty('STARS_FX') === '1' };
   try { // سجل دائم: يُستبدل سجل هذا الأسبوع إن أُعيد الاعتماد
     const hs = starsSheet_(ss); const KIND = { top: 'متميّز', up: 'الأكثر تحسّنًا', extra: 'تميّز خاص' };
     for (let i = hs.getLastRow(); i >= 2; i--) { const v = hs.getRange(i, 1).getValue(); const f = v instanceof Date ? Utilities.formatDate(v, 'Asia/Riyadh', 'yyyy-MM-dd') : String(v); if (f === pub.from) { if (hs.getLastRow() > 2) hs.deleteRow(i); else hs.getRange(i, 1, 1, 6).clearContent(); } }
