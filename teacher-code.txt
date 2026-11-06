@@ -101,7 +101,7 @@ function classList_(ss) {
   return sh.getRange(2, 1, n - 1, 1).getValues().map(r => String(r[0]).trim()).filter(Boolean);
 }
 
-const CODE_VER = '2026-11-06f';
+const CODE_VER = '2026-11-06g';
 function doGet(e) {
   if (e && e.parameter && e.parameter.action === 'teacher') {
     const slug = String(e.parameter.t || '').toLowerCase();
@@ -110,6 +110,7 @@ function doGet(e) {
     if (!o.url) return out_({ ok: false, status: 'setup', name: o.name });
     return out_({ ok: true, teacher: { slug: o.slug, name: o.name, school: o.school, region: o.region, grades: o.grades, url: o.url } });
   }
+  if (e && e.parameter && e.parameter.action === 'prof') { let p = null; try { p = JSON.parse(PropertiesService.getScriptProperties().getProperty('PROFILE') || 'null'); } catch (x) {} return out_({ ok: true, prof: p ? { name: p.name || '', school: p.school || '', region: p.region || '' } : null }); }
   if (e && e.parameter && e.parameter.action === 'ver') return out_({ ok: true, ver: CODE_VER, message: 'كود الجدول محدَّث (إصدار ' + CODE_VER + ')' });
   const ss = ss_();
   if (e && e.parameter && e.parameter.action === 'news') { const cl = closedIds_(); const live = l => { const m = String(l || '').match(/[?&]lesson=([^&#]+)/); if (!m) return true; const ids = decodeURIComponent(m[1]).split(','); return ids.some(x => cl.indexOf(x.trim()) < 0); };
@@ -934,7 +935,7 @@ function admin_(ss, d) {
     return { ok: true, message: v.on ? 'الموقع الآن في وضع الصيانة للزوار، وأنت ما زلت تراه عاديًا.' : 'عاد الموقع للعمل للجميع.', maint: v };
   } else if (op === 'profileSet') {
     const t = (v, n) => String(v || '').replace(/\s+/g, ' ').trim().slice(0, n);
-    const p = { name: t(d.name, 60), school: t(d.school, 80), region: t(d.region, 80), slug: /^[a-z][a-z0-9-]{1,24}$/.test(String(d.slug || '')) ? String(d.slug) : '' };
+    const p = { name: t(d.name, 60), school: t(d.school, 80), region: t(d.region, 80), slug: d.slug === undefined ? (function () { try { return (JSON.parse(PropertiesService.getScriptProperties().getProperty('PROFILE') || '{}') || {}).slug || ''; } catch (e) { return ''; } })() : /^[a-z][a-z0-9-]{1,24}$/.test(String(d.slug || '')) ? String(d.slug) : '' };
     if (!p.name) return { ok: false, message: 'الاسم مطلوب.' };
     PropertiesService.getScriptProperties().setProperty('PROFILE', JSON.stringify(p));
     if (Array.isArray(d.grades) && !PropertiesService.getScriptProperties().getProperty('GRADES')) { const g = d.grades.map(Number).filter(x => [4, 5, 6].indexOf(x) >= 0); if (g.length) PropertiesService.getScriptProperties().setProperty('GRADES', JSON.stringify(g)); }
