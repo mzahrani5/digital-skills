@@ -101,7 +101,7 @@ function classList_(ss) {
   return sh.getRange(2, 1, n - 1, 1).getValues().map(r => String(r[0]).trim()).filter(Boolean);
 }
 
-const CODE_VER = '2026-11-06g';
+const CODE_VER = '2026-11-06h';
 function doGet(e) {
   if (e && e.parameter && e.parameter.action === 'teacher') {
     const slug = String(e.parameter.t || '').toLowerCase();
@@ -971,7 +971,17 @@ function admin_(ss, d) {
     return Object.assign({ ok: true, message: d.on ? 'فُعّلت النسخة الاحتياطية الأسبوعية: كل جمعة الساعة ٣ فجرًا.' : 'أُوقفت النسخة الاحتياطية الأسبوعية.' }, backupInfo_());
   } else if (op === 'tg') {
     const pr = PropertiesService.getScriptProperties();
-    return { ok: true, tg: { has: !!pr.getProperty('TG_TOKEN'), chat: pr.getProperty('TG_CHAT') || TG_CHAT_DEF, bot: pr.getProperty('TG_BOT') || '' } };
+    return { ok: true, tg: { has: !!pr.getProperty('TG_TOKEN'), chat: pr.getProperty('TG_CHAT') || TG_CHAT_DEF, bot: pr.getProperty('TG_BOT') || '', auto: Object.assign({ on: autoOn_() }, autoCfg_()) } };
+  } else if (op === 'tgAuto') {
+    const cfg = { n: Number(d.n) === 2 ? 2 : 1, weekend: !!d.weekend };
+    try {
+      ScriptApp.getProjectTriggers().forEach(tr => { if (tr.getHandlerFunction() === 'autoPost') ScriptApp.deleteTrigger(tr); });
+      if (d.on) { ScriptApp.newTrigger('autoPost').timeBased().everyDays(1).atHour(16).inTimezone('Asia/Riyadh').create(); if (cfg.n === 2) ScriptApp.newTrigger('autoPost').timeBased().everyDays(1).atHour(20).inTimezone('Asia/Riyadh').create(); }
+    } catch (err) { return { ok: false, message: 'يحتاج إذنًا لمرة واحدة: في Apps Script اختر الدالة autoPost واضغط ▶ تشغيل ووافق على الإذن، ثم أعد المحاولة.' }; }
+    PropertiesService.getScriptProperties().setProperty('TG_AUTO_CFG', JSON.stringify(cfg));
+    return { ok: true, message: d.on ? 'فُعّل النشر التلقائي: ' + (cfg.n === 2 ? 'منشوران يوميًا (٤ عصرًا و٨ مساءً)' : 'منشور يوميًا الساعة ٤ عصرًا') + (cfg.weekend ? ' طوال الأسبوع.' : ' في أيام الدراسة.') : 'أُوقف النشر التلقائي.', auto: Object.assign({ on: !!d.on }, cfg) };
+  } else if (op === 'tgAutoNow') {
+    return autoPostNow_(String(d.kind || ''));
   } else if (op === 'tgSet') {
     const pr = PropertiesService.getScriptProperties();
     const tok = String(d.token || '').trim(), chat = String(d.chat || '').trim() || TG_CHAT_DEF;
@@ -1689,6 +1699,50 @@ function errorsReport_(ss, d) {
   return { ok: true, total: total, qs: qs, steps: steps, lessons: lessons, classes: classList_(ss).map(clsLabel_) };
 }
 
+/* ===================== محتوى تلقائي لقناة التلجرام =====================
+   بنك منوّع (أسئلة تفاعلية، هل تعلم، أمان رقمي، اختصارات، ألغاز، ذكاء اصطناعي، أولياء الأمور، تحديات)
+   يُجلب من tg-bank.json في الموقع، ويُنشر بالتناوب في الأوقات التي يختارها المعلم. */
+const TG_CYCLE = ['quiz', 'facts', 'safety', 'shortcuts', 'quiz', 'riddles', 'ai', 'facts', 'quiz', 'safety', 'games', 'parents', 'shortcuts', 'riddles'];
+const TG_KIND_AR = { quiz: '❓ سؤال تفاعلي', facts: '💡 هل تعلم', safety: '🛡️ أمان رقمي', shortcuts: '⌨️ اختصار اليوم', riddles: '🧩 لغز', ai: '🤖 ذكاء اصطناعي', parents: '👪 لأولياء الأمور', games: '🎮 تحدّي اللعبة' };
+function autoPost() { try { const pr = PropertiesService.getScriptProperties(); const cfg = autoCfg_();
+  const dow = new Date(Utilities.formatDate(new Date(), 'Asia/Riyadh', 'yyyy-MM-dd') + 'T12:00:00Z').getUTCDay();
+  if (!cfg.weekend && (dow === 5 || dow === 6)) return; autoPostNow_(''); } catch (e) { console.error(e); } }
+function autoCfg_() { try { return JSON.parse(PropertiesService.getScriptProperties().getProperty('TG_AUTO_CFG') || '{}') || {}; } catch (e) { return {}; } }
+function autoOn_() { try { return ScriptApp.getProjectTriggers().some(tr => tr.getHandlerFunction() === 'autoPost'); } catch (e) { return false; } }
+function tgEsc_(t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+function autoPostNow_(kind) {
+  const pr = PropertiesService.getScriptProperties();
+  if (!pr.getProperty('TG_TOKEN')) return { ok: false, message: 'اربط بوت التلجرام أولًا.' };
+  let bank; try { bank = JSON.parse(UrlFetchApp.fetch(SITE_BASE + 'tg-bank.json', { muteHttpExceptions: true }).getContentText()); } catch (e) { return { ok: false, message: 'تعذّر جلب بنك المحتوى من الموقع.' }; }
+  let st = {}; try { st = JSON.parse(pr.getProperty('TG_AUTO') || '{}') || {}; } catch (e) {}
+  st.i = st.i || 0; st.idx = st.idx || {};
+  let type = kind && bank[kind] ? kind : TG_CYCLE[st.i % TG_CYCLE.length]; if (!kind) st.i++;
+  const list = bank[type] || []; if (!list.length) return { ok: false, message: 'البنك فارغ.' };
+  const n = st.idx[type] || 0; st.idx[type] = n + 1;
+  const step = [7, 11, 13, 17, 19, 23, 29, 31, 37].find(p => list.length % p) || 1; // ترتيب متنوّع غير متكرر
+  const it = list[(n * step) % list.length];
+  const chat = pr.getProperty('TG_CHAT') || TG_CHAT_DEF, site = SITE_BASE, btn = t => ({ inline_keyboard: [[{ text: t || '🌐 بوابة المهارات الرقمية', url: site }]] });
+  let r;
+  if (type === 'quiz') {
+    const opts = [it.a].concat(it.w).slice(0, 4).map(x => String(x).slice(0, 100)); const sh = opts.map((x, k) => [Math.random(), x]).sort((a, b) => a[0] - b[0]).map(x => x[1]);
+    r = tgApi_('sendPoll', { chat_id: chat, question: ('❓ سؤال اليوم' + (it.g ? ' — الصف ' + it.g : '') + '\n' + it.q).slice(0, 300), options: sh, type: 'quiz', is_anonymous: true,
+      correct_option_id: sh.indexOf(String(it.a).slice(0, 100)), explanation: ('✅ ' + it.a + (it.t ? ' — من درس «' + it.t + '»' : '')).slice(0, 200) });
+  } else {
+    let text;
+    if (type === 'facts') text = '💡 <b>هل تعلم؟</b>\n\n' + tgEsc_(it);
+    else if (type === 'safety') text = '🛡️ <b>أمانك الرقمي</b>\n\n' + tgEsc_(it);
+    else if (type === 'shortcuts') text = '⌨️ <b>اختصار اليوم</b>\n\n<code>' + tgEsc_(it.k) + '</code>\n' + tgEsc_(it.d) + '\n\nجرّبه الآن على حاسبك! 💪';
+    else if (type === 'riddles') text = '🧩 <b>لغز اليوم</b>\n\n' + tgEsc_(it.q) + '\n\nالجواب: <tg-spoiler>' + tgEsc_(it.a) + '</tg-spoiler>\n(اضغط على الجواب المخفي لتراه 👆)';
+    else if (type === 'ai') text = '🤖 <b>ركن الذكاء الاصطناعي</b>\n\n' + tgEsc_(String(it).replace(/^🤖\s*/, ''));
+    else if (type === 'parents') text = '👪 <b>ركن أولياء الأمور</b>\n\n' + tgEsc_(String(it).replace(/^👪\s*لأولياء الأمور:\s*/, ''));
+    else text = tgEsc_(it);
+    r = tgApi_('sendMessage', { chat_id: chat, text: text, parse_mode: 'HTML', disable_web_page_preview: true, reply_markup: btn(type === 'games' ? '🎮 العب الآن' : '') });
+    if (type === 'games' && r && r.ok === false) r = tgApi_('sendMessage', { chat_id: chat, text: text, parse_mode: 'HTML' });
+  }
+  if (!r || !r.ok) return { ok: false, message: 'رفض تلجرام النشر: ' + String(r && r.description || '') };
+  pr.setProperty('TG_AUTO', JSON.stringify(st));
+  return { ok: true, message: 'نُشر في القناة: ' + TG_KIND_AR[type] + '.' };
+}
 /* ===================== تذكير المعلم قبل انتهاء موعد المشروع =====================
    يوميًا الساعة ٥ مساءً: المشاريع التي ينتهي موعدها في اليوم الدراسي التالي، مع أسماء من لم يسلّم،
    وزر يفتح رسالة جاهزة (أعداد فقط) لمجموعة واتساب أولياء الأمور. */
