@@ -101,7 +101,7 @@ function classList_(ss) {
   return sh.getRange(2, 1, n - 1, 1).getValues().map(r => String(r[0]).trim()).filter(Boolean);
 }
 
-const CODE_VER = '2026-11-07a';
+const CODE_VER = '2026-11-07b';
 function doGet(e) {
   if (e && e.parameter && e.parameter.action === 'teacher') {
     const slug = String(e.parameter.t || '').toLowerCase();
@@ -1717,14 +1717,15 @@ function autoPost() { try { const pr = PropertiesService.getScriptProperties(); 
   autoPostNow_(''); } catch (e) { console.error(e); } }
 function getBank_() { try { return JSON.parse(UrlFetchApp.fetch(SITE_BASE + 'tg-bank.json', { muteHttpExceptions: true }).getContentText()); } catch (e) { return null; } }
 function tgRich_(label, it) { return label + '\n\n<b>' + tgEsc_(it.t) + '</b>\n\n' + (it.b || []).map(x => '• ' + tgEsc_(x)).join('\n\n') + (it.tip ? '\n\n✅ <b>جرّبها:</b> ' + tgEsc_(it.tip) : '') + '\n\n#المهارات_الرقمية'; }
-function tgPost_(text, btnText, url) { const pr = PropertiesService.getScriptProperties();
+function tgPost_(text, btnText, url, img) { const pr = PropertiesService.getScriptProperties();
+  if (img && text.length <= 1024) { const r = tgApi_('sendPhoto', { chat_id: pr.getProperty('TG_CHAT') || TG_CHAT_DEF, photo: SITE_BASE + img, caption: text, parse_mode: 'HTML', reply_markup: { inline_keyboard: [[{ text: btnText || '🌐 بوابة المهارات الرقمية', url: url || SITE_BASE }]] } }); if (r && r.ok) return r; }
   return tgApi_('sendMessage', { chat_id: pr.getProperty('TG_CHAT') || TG_CHAT_DEF, text: text.slice(0, 4000), parse_mode: 'HTML', disable_web_page_preview: true, reply_markup: { inline_keyboard: [[{ text: btnText || '🌐 بوابة المهارات الرقمية', url: url || SITE_BASE }]] } }); }
 function tgSpecial_(kind, bank) {
   const pr = PropertiesService.getScriptProperties(), ss = ss_(), done = (r, m) => r && r.ok ? { ok: true, message: 'نُشر في القناة: ' + m } : { ok: false, message: 'لم يُنشر: ' + String(r && r.description || r && r.message || '') };
   if (kind === 'occasion') {
     const today = Utilities.formatDate(new Date(), 'Asia/Riyadh', 'yyyy-MM-dd'), L = bank.occasions || [];
     const o = L.find(x => x.d === today) || L.filter(x => x.d >= today).sort((a, b) => a.d < b.d ? -1 : 1)[0]; if (!o) return { ok: false, message: 'لا توجد مناسبة قادمة في البنك.' };
-    return done(tgPost_(tgRich_(o.L, o)), 'مناسبة «' + o.L + '»' + (o.d !== today ? ' (موعدها الأصلي ' + o.d + ')' : '') + '.');
+    return done(tgPost_(tgRich_(o.L, o), '', '', o.img), 'مناسبة «' + o.L + '»' + (o.d !== today ? ' (موعدها الأصلي ' + o.d + ')' : '') + '.');
   }
   if (kind === 'lessons') {
     const N = newsList_(ss, false).filter(n => /[?&](lesson|exam)=/.test(String(n.link || '')));
@@ -1784,7 +1785,7 @@ function autoPostNow_(kind, bank0) {
     r = tgQuiz_(it);
   } else {
     let text;
-    if (it && typeof it === 'object' && it.t) text = TG_KIND_AR[type] + '\n\n<b>' + tgEsc_(it.t) + '</b>\n\n' + (it.b || []).map(x => '• ' + tgEsc_(x)).join('\n\n') + (it.tip ? '\n\n✅ <b>جرّبها:</b> ' + tgEsc_(it.tip) : '') + '\n\n#المهارات_الرقمية';
+    if (it && typeof it === 'object' && it.t) { r = tgPost_(tgRich_(TG_KIND_AR[type], it), '', '', it.img); if (!r || !r.ok) return { ok: false, message: 'رفض تلجرام النشر: ' + String(r && r.description || '') }; pr.setProperty('TG_AUTO', JSON.stringify(st)); return { ok: true, message: 'نُشر في القناة: ' + TG_KIND_AR[type] + (it.img ? ' (مع صورة)' : '') + '.' }; }
     else if (type === 'facts') text = '💡 <b>هل تعلم؟</b>\n\n' + tgEsc_(it);
     else if (type === 'safety') text = '🛡️ <b>أمانك الرقمي</b>\n\n' + tgEsc_(it);
     else if (type === 'shortcuts') text = '⌨️ <b>اختصار اليوم</b>\n\n<code>' + tgEsc_(it.k) + '</code>\n' + tgEsc_(it.d) + '\n\nجرّبه الآن على حاسبك! 💪';
