@@ -101,7 +101,7 @@ function classList_(ss) {
   return sh.getRange(2, 1, n - 1, 1).getValues().map(r => String(r[0]).trim()).filter(Boolean);
 }
 
-const CODE_VER = '2026-11-06d';
+const CODE_VER = '2026-11-06e';
 function doGet(e) {
   if (e && e.parameter && e.parameter.action === 'teacher') {
     const slug = String(e.parameter.t || '').toLowerCase();
@@ -1277,6 +1277,15 @@ function contact_(ss, d) {
       subject: 'رسالة جديدة من بوابة المهارات الرقمية — ' + name,
       body: 'الاسم: ' + name + '\nالجوال: ' + phone + '\n\n' + msg + '\n\n— تجدها أيضًا في ورقة «' + SHEET_MSG + '» وفي صفحة المعلم.'
     });
+  } catch (e) { console.error(e); }
+  try { // إشعار فوري للمعلم في تلجرام الخاص مع زر للرد عبر واتساب
+    const pr = PropertiesService.getScriptProperties(), chat = pr.getProperty('TG_ADMIN');
+    if (chat && pr.getProperty('TG_TOKEN')) {
+      const intl = phone.replace(/^\+/, '').replace(/^00/, '').replace(/^0(?=5)/, '966').replace(/^(?=5\d{8}$)/, '966');
+      tgApi_('sendMessage', { chat_id: chat, disable_web_page_preview: true,
+        text: ('💬 رسالة جديدة من الموقع\n👤 ' + name + '\n📱 ' + phone + (d.page ? '\n📄 من صفحة: ' + String(d.page).slice(0, 60) : '') + '\n\n' + msg).slice(0, 4000),
+        reply_markup: { inline_keyboard: [[{ text: '📲 رد عبر واتساب', url: 'https://wa.me/' + intl + '?text=' + encodeURIComponent('السلام عليكم ' + name + '،\nوصلتني رسالتك عبر بوابة المهارات الرقمية.\n') }], [{ text: 'افتح لوحة المعلم', url: absLink_(pr.getProperty('TG_ADMIN_LINK') || '/projects/?teacher') }]] } });
+    }
   } catch (e) { console.error(e); }
   return { ok: true, message: 'وصلت رسالتك، وسيتواصل معك المعلم قريبًا.' };
 }
