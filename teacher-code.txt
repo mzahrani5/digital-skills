@@ -101,7 +101,7 @@ function classList_(ss) {
   return sh.getRange(2, 1, n - 1, 1).getValues().map(r => String(r[0]).trim()).filter(Boolean);
 }
 
-const CODE_VER = '2026-11-06i';
+const CODE_VER = '2026-11-07a';
 function doGet(e) {
   if (e && e.parameter && e.parameter.action === 'teacher') {
     const slug = String(e.parameter.t || '').toLowerCase();
@@ -1706,14 +1706,71 @@ const TG_CYCLE = ['explain', 'quiz', 'protect', 'trick', 'facts', 'riddles', 'ai
 const TG_KIND_AR = { explain: '🧠 اشرحها ببساطة', protect: '🛡️ احمِ نفسك', trick: '📱 حيلة تقنية', aiw: '🤖 ذكاء اصطناعي عملي', balance: '🧘 توازن رقمي', parents: '👪 لأولياء الأمور', facts: '💡 هل تعلم؟', quiz: '❓ سؤال تفاعلي', shortcuts: '⌨️ اختصار اليوم', riddles: '🧩 لغز', games: '🎮 تحدّي اللعبة' };
 function autoPost() { try { const pr = PropertiesService.getScriptProperties(); const cfg = autoCfg_();
   const dow = new Date(Utilities.formatDate(new Date(), 'Asia/Riyadh', 'yyyy-MM-dd') + 'T12:00:00Z').getUTCDay();
-  if (!cfg.weekend && (dow === 5 || dow === 6)) return; autoPostNow_(''); } catch (e) { console.error(e); } }
+  if (!cfg.weekend && (dow === 5 || dow === 6)) return;
+  const first = Number(Utilities.formatDate(new Date(), 'Asia/Riyadh', 'H')) < 18; // المنشور الأول في اليوم
+  if (first) {
+    const bank = getBank_(), today = Utilities.formatDate(new Date(), 'Asia/Riyadh', 'yyyy-MM-dd');
+    if (bank && (bank.occasions || []).some(o => o.d === today)) { autoPostNow_('occasion', bank); return; }
+    if (dow === 0) { if (pr.getProperty('TG_CHAL')) autoPostNow_('answer', bank); const r = autoPostNow_('lessons', bank); if (!r.ok) autoPostNow_('', bank); return; }
+    if (dow === 4) { autoPostNow_('harvest', bank); autoPostNow_('challenge', bank); return; }
+  }
+  autoPostNow_(''); } catch (e) { console.error(e); } }
+function getBank_() { try { return JSON.parse(UrlFetchApp.fetch(SITE_BASE + 'tg-bank.json', { muteHttpExceptions: true }).getContentText()); } catch (e) { return null; } }
+function tgRich_(label, it) { return label + '\n\n<b>' + tgEsc_(it.t) + '</b>\n\n' + (it.b || []).map(x => '• ' + tgEsc_(x)).join('\n\n') + (it.tip ? '\n\n✅ <b>جرّبها:</b> ' + tgEsc_(it.tip) : '') + '\n\n#المهارات_الرقمية'; }
+function tgPost_(text, btnText, url) { const pr = PropertiesService.getScriptProperties();
+  return tgApi_('sendMessage', { chat_id: pr.getProperty('TG_CHAT') || TG_CHAT_DEF, text: text.slice(0, 4000), parse_mode: 'HTML', disable_web_page_preview: true, reply_markup: { inline_keyboard: [[{ text: btnText || '🌐 بوابة المهارات الرقمية', url: url || SITE_BASE }]] } }); }
+function tgSpecial_(kind, bank) {
+  const pr = PropertiesService.getScriptProperties(), ss = ss_(), done = (r, m) => r && r.ok ? { ok: true, message: 'نُشر في القناة: ' + m } : { ok: false, message: 'لم يُنشر: ' + String(r && r.description || r && r.message || '') };
+  if (kind === 'occasion') {
+    const today = Utilities.formatDate(new Date(), 'Asia/Riyadh', 'yyyy-MM-dd'), L = bank.occasions || [];
+    const o = L.find(x => x.d === today) || L.filter(x => x.d >= today).sort((a, b) => a.d < b.d ? -1 : 1)[0]; if (!o) return { ok: false, message: 'لا توجد مناسبة قادمة في البنك.' };
+    return done(tgPost_(tgRich_(o.L, o)), 'مناسبة «' + o.L + '»' + (o.d !== today ? ' (موعدها الأصلي ' + o.d + ')' : '') + '.');
+  }
+  if (kind === 'lessons') {
+    const N = newsList_(ss, false).filter(n => /[?&](lesson|exam)=/.test(String(n.link || '')));
+    if (!N.length) return { ok: false, message: 'لا توجد مشاريع حالية في «المطلوب هذا الأسبوع».' };
+    const G = { 4: 'الرابع', 5: 'الخامس', 6: 'السادس' };
+    const fd = x => { const [y, m, d] = String(x).split('-').map(Number); return d + '/' + m; };
+    const text = '📘 <b>مشاريع هذا الأسبوع في المهارات الرقمية</b>\n\n' + N.map(n => '• ' + tgEsc_(n.text.replace(/\s+/g, ' ').trim()) + (G[n.grade] ? ' — الصف ' + G[n.grade] : (n.classes && n.classes.length ? ' — ' + tgEsc_(n.classes.join('، ')) : '')) + (n.until ? ' ⏰ حتى ' + fd(n.until) : '')).join('\n') +
+      '\n\n💪 أنجزها مبكرًا لتنافس على «نجوم الأسبوع»!\n👪 أولياء الأمور: تابعوا تقدّم أبنائكم من «التقرير المفصل» في الموقع.\n\n#المهارات_الرقمية';
+    const r = tgPost_(text, '💻 افتح المشاريع', SITE_BASE + 'projects/');
+    try { const Q = (bank.quiz || []).filter(q => q.t && N.some(n => String(n.text).indexOf(q.t) >= 0)); if (Q.length) tgQuiz_(Q[Math.floor(Math.random() * Q.length)], '❓ سؤال من دروس هذا الأسبوع'); } catch (e) {}
+    return done(r, 'مشاريع هذا الأسبوع.');
+  }
+  if (kind === 'harvest') {
+    const W = schoolWeek_(); let n = 0, cls = 0, top = null, stars = 0;
+    try { const D = waData_(ss); n = D.week.n; cls = D.week.classes; const P = D.stars; if (P && P.from === W.from) stars = (P.top || []).length + (P.up || []).length + (P.extra || []).length; } catch (e) {}
+    try { const E = errorsReport_(ss, { days: 7 }); top = (E.qs || []).find(q => q.pct >= 30) || null; } catch (e) {}
+    const text = '🏆 <b>حصاد الأسبوع في المهارات الرقمية</b>\n\n' + (n ? '📥 مشاريع مُسلَّمة هذا الأسبوع: <b>' + n + '</b>' : '📚 أسبوع جديد من التعلّم انتهى — شكرًا لكل من اجتهد!') + (stars ? '\n⭐ نجوم الأسبوع: <b>' + stars + '</b> طالبًا — مبارك لهم! (الأسماء في الصفحة الرئيسية للموقع)' : '') +
+      (top ? '\n\n💡 <b>أكثر سؤال احتاج مراجعة هذا الأسبوع:</b>\n«' + tgEsc_(top.q) + '»\n✅ الإجابة الصحيحة: <tg-spoiler>' + tgEsc_(top.c) + '</tg-spoiler>' : '') +
+      '\n\n🎮 وفي الإجازة: جرّب «عالم المكعبات» وأنجز مهمة تفكير جديدة!\n\n#المهارات_الرقمية';
+    return done(tgPost_(text, '🌐 زر الموقع', SITE_BASE), 'حصاد الأسبوع.');
+  }
+  if (kind === 'challenge') {
+    let st = {}; try { st = JSON.parse(pr.getProperty('TG_AUTO') || '{}') || {}; } catch (e) {} const L = bank.challenges || []; if (!L.length) return { ok: false, message: 'لا تحديات في البنك.' };
+    const i = (st.ch || 0) % L.length, c = L[i]; st.ch = (st.ch || 0) + 1; pr.setProperty('TG_AUTO', JSON.stringify(st));
+    pr.setProperty('TG_CHAL', JSON.stringify({ q: c.q, a: c.a }));
+    return done(tgPost_('🏆 <b>تحدّي الخميس</b>\n\n' + tgEsc_(c.q) + '\n\n🧠 فكّر فيه في الإجازة، وناقشه مع أسرتك…\n📅 الإجابة يوم الأحد!\n\n#تحدي_الخميس', '🌐 بوابة المهارات الرقمية'), 'تحدّي الخميس.');
+  }
+  if (kind === 'answer') {
+    let c = null; try { c = JSON.parse(pr.getProperty('TG_CHAL') || 'null'); } catch (e) {} if (!c) return { ok: false, message: 'لا يوجد تحدٍّ ينتظر إجابته.' };
+    const r = tgPost_('✅ <b>إجابة تحدّي الخميس</b>\n\n❓ ' + tgEsc_(c.q) + '\n\n💡 ' + tgEsc_(c.a) + '\n\nهل كانت إجابتك صحيحة؟ 👏\n\n#تحدي_الخميس');
+    if (r && r.ok) pr.deleteProperty('TG_CHAL'); return done(r, 'إجابة تحدّي الخميس.');
+  }
+  return null;
+}
+function tgQuiz_(it, head) { const pr = PropertiesService.getScriptProperties();
+  const opts = [it.a].concat(it.w).slice(0, 4).map(x => String(x).slice(0, 100)); const sh = opts.map(x => [Math.random(), x]).sort((a, b) => a[0] - b[0]).map(x => x[1]);
+  return tgApi_('sendPoll', { chat_id: pr.getProperty('TG_CHAT') || TG_CHAT_DEF, question: ((head || '❓ سؤال اليوم') + (it.g ? ' — الصف ' + it.g : '') + '\n' + it.q).slice(0, 300), options: sh, type: 'quiz', is_anonymous: true,
+    correct_option_id: sh.indexOf(String(it.a).slice(0, 100)), explanation: ('✅ ' + it.a + (it.t ? ' — من درس «' + it.t + '»' : '')).slice(0, 200) }); }
 function autoCfg_() { try { return JSON.parse(PropertiesService.getScriptProperties().getProperty('TG_AUTO_CFG') || '{}') || {}; } catch (e) { return {}; } }
 function autoOn_() { try { return ScriptApp.getProjectTriggers().some(tr => tr.getHandlerFunction() === 'autoPost'); } catch (e) { return false; } }
 function tgEsc_(t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
-function autoPostNow_(kind) {
+function autoPostNow_(kind, bank0) {
   const pr = PropertiesService.getScriptProperties();
   if (!pr.getProperty('TG_TOKEN')) return { ok: false, message: 'اربط بوت التلجرام أولًا.' };
-  let bank; try { bank = JSON.parse(UrlFetchApp.fetch(SITE_BASE + 'tg-bank.json', { muteHttpExceptions: true }).getContentText()); } catch (e) { return { ok: false, message: 'تعذّر جلب بنك المحتوى من الموقع.' }; }
+  const bank = bank0 || getBank_(); if (!bank) return { ok: false, message: 'تعذّر جلب بنك المحتوى من الموقع.' };
+  if (['occasion', 'lessons', 'harvest', 'challenge', 'answer'].indexOf(kind) >= 0) return tgSpecial_(kind, bank);
   let st = {}; try { st = JSON.parse(pr.getProperty('TG_AUTO') || '{}') || {}; } catch (e) {}
   st.i = st.i || 0; st.idx = st.idx || {};
   let type = kind && bank[kind] ? kind : TG_CYCLE[st.i % TG_CYCLE.length]; if (!kind) st.i++;
@@ -1724,9 +1781,7 @@ function autoPostNow_(kind) {
   const chat = pr.getProperty('TG_CHAT') || TG_CHAT_DEF, site = SITE_BASE, btn = t => ({ inline_keyboard: [[{ text: t || '🌐 بوابة المهارات الرقمية', url: site }]] });
   let r;
   if (type === 'quiz') {
-    const opts = [it.a].concat(it.w).slice(0, 4).map(x => String(x).slice(0, 100)); const sh = opts.map((x, k) => [Math.random(), x]).sort((a, b) => a[0] - b[0]).map(x => x[1]);
-    r = tgApi_('sendPoll', { chat_id: chat, question: ('❓ سؤال اليوم' + (it.g ? ' — الصف ' + it.g : '') + '\n' + it.q).slice(0, 300), options: sh, type: 'quiz', is_anonymous: true,
-      correct_option_id: sh.indexOf(String(it.a).slice(0, 100)), explanation: ('✅ ' + it.a + (it.t ? ' — من درس «' + it.t + '»' : '')).slice(0, 200) });
+    r = tgQuiz_(it);
   } else {
     let text;
     if (it && typeof it === 'object' && it.t) text = TG_KIND_AR[type] + '\n\n<b>' + tgEsc_(it.t) + '</b>\n\n' + (it.b || []).map(x => '• ' + tgEsc_(x)).join('\n\n') + (it.tip ? '\n\n✅ <b>جرّبها:</b> ' + tgEsc_(it.tip) : '') + '\n\n#المهارات_الرقمية';
