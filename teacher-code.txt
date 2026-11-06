@@ -1702,8 +1702,8 @@ function errorsReport_(ss, d) {
 /* ===================== محتوى تلقائي لقناة التلجرام =====================
    بنك منوّع (أسئلة تفاعلية، هل تعلم، أمان رقمي، اختصارات، ألغاز، ذكاء اصطناعي، أولياء الأمور، تحديات)
    يُجلب من tg-bank.json في الموقع، ويُنشر بالتناوب في الأوقات التي يختارها المعلم. */
-const TG_CYCLE = ['quiz', 'facts', 'safety', 'shortcuts', 'quiz', 'riddles', 'ai', 'facts', 'quiz', 'safety', 'games', 'parents', 'shortcuts', 'riddles'];
-const TG_KIND_AR = { quiz: '❓ سؤال تفاعلي', facts: '💡 هل تعلم', safety: '🛡️ أمان رقمي', shortcuts: '⌨️ اختصار اليوم', riddles: '🧩 لغز', ai: '🤖 ذكاء اصطناعي', parents: '👪 لأولياء الأمور', games: '🎮 تحدّي اللعبة' };
+const TG_CYCLE = ['explain', 'quiz', 'protect', 'trick', 'facts', 'riddles', 'aiw', 'balance', 'quiz', 'protect', 'parents', 'trick', 'explain', 'shortcuts', 'facts', 'games'];
+const TG_KIND_AR = { explain: '🧠 اشرحها ببساطة', protect: '🛡️ احمِ نفسك', trick: '📱 حيلة تقنية', aiw: '🤖 ذكاء اصطناعي عملي', balance: '🧘 توازن رقمي', parents: '👪 لأولياء الأمور', facts: '💡 هل تعلم؟', quiz: '❓ سؤال تفاعلي', shortcuts: '⌨️ اختصار اليوم', riddles: '🧩 لغز', games: '🎮 تحدّي اللعبة' };
 function autoPost() { try { const pr = PropertiesService.getScriptProperties(); const cfg = autoCfg_();
   const dow = new Date(Utilities.formatDate(new Date(), 'Asia/Riyadh', 'yyyy-MM-dd') + 'T12:00:00Z').getUTCDay();
   if (!cfg.weekend && (dow === 5 || dow === 6)) return; autoPostNow_(''); } catch (e) { console.error(e); } }
@@ -1729,7 +1729,8 @@ function autoPostNow_(kind) {
       correct_option_id: sh.indexOf(String(it.a).slice(0, 100)), explanation: ('✅ ' + it.a + (it.t ? ' — من درس «' + it.t + '»' : '')).slice(0, 200) });
   } else {
     let text;
-    if (type === 'facts') text = '💡 <b>هل تعلم؟</b>\n\n' + tgEsc_(it);
+    if (it && typeof it === 'object' && it.t) text = TG_KIND_AR[type] + '\n\n<b>' + tgEsc_(it.t) + '</b>\n\n' + (it.b || []).map(x => '• ' + tgEsc_(x)).join('\n\n') + (it.tip ? '\n\n✅ <b>جرّبها:</b> ' + tgEsc_(it.tip) : '') + '\n\n#المهارات_الرقمية';
+    else if (type === 'facts') text = '💡 <b>هل تعلم؟</b>\n\n' + tgEsc_(it);
     else if (type === 'safety') text = '🛡️ <b>أمانك الرقمي</b>\n\n' + tgEsc_(it);
     else if (type === 'shortcuts') text = '⌨️ <b>اختصار اليوم</b>\n\n<code>' + tgEsc_(it.k) + '</code>\n' + tgEsc_(it.d) + '\n\nجرّبه الآن على حاسبك! 💪';
     else if (type === 'riddles') text = '🧩 <b>لغز اليوم</b>\n\n' + tgEsc_(it.q) + '\n\nالجواب: <tg-spoiler>' + tgEsc_(it.a) + '</tg-spoiler>\n(اضغط على الجواب المخفي لتراه 👆)';
