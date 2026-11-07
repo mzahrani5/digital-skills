@@ -37,9 +37,10 @@ function doPost(e) {
     if (q.sentCheck) return out_(sentCheck_(ss_(), q));
     if (q.retryReq) return out_(retryReq_(ss_(), q));
     if (q.checkSent) return out_(checkSent_(ss_(), q));
+    if (q.presAuth) return out_(presAuth_(q));
   } catch (err) {}
   // أي استعلام لم يُعالَج أعلاه لا يصل أبدًا إلى حفظ الإنجاز
-  try { const q0 = JSON.parse(e.postData.contents); if (q0 && (q0.checkName || q0.visit || q0.retryCheck || q0.checkSent || q0.sentCheck || q0.retryReq)) return out_({ ok: false, status: 'error', message: 'تعذّر تنفيذ الطلب.' }); } catch (err) { return out_({ ok: false, status: 'error', message: 'طلب غير صالح' }); }
+  try { const q0 = JSON.parse(e.postData.contents); if (q0 && (q0.checkName || q0.presAuth || q0.visit || q0.retryCheck || q0.checkSent || q0.sentCheck || q0.retryReq)) return out_({ ok: false, status: 'error', message: 'تعذّر تنفيذ الطلب.' }); } catch (err) { return out_({ ok: false, status: 'error', message: 'طلب غير صالح' }); }
   const lock = LockService.getScriptLock();
   lock.waitLock(20000);
   try {
@@ -101,7 +102,7 @@ function classList_(ss) {
   return sh.getRange(2, 1, n - 1, 1).getValues().map(r => String(r[0]).trim()).filter(Boolean);
 }
 
-const CODE_VER = '2026-11-07b';
+const CODE_VER = '2026-11-08a';
 function doGet(e) {
   if (e && e.parameter && e.parameter.action === 'teacher') {
     const slug = String(e.parameter.t || '').toLowerCase();
@@ -766,6 +767,20 @@ function prof_() { try { const p = JSON.parse(PropertiesService.getScriptPropert
 /* سجل المعلمين (في جدول صاحب الموقع فقط) */
 function teachersGet_() { try { return JSON.parse(PropertiesService.getScriptProperties().getProperty('TEACHERS') || '[]') || []; } catch (e) { return []; } }
 function teachersPut_(L) { PropertiesService.getScriptProperties().setProperty('TEACHERS', JSON.stringify(L)); }
+/* حسابات «العروض وأوراق العمل فقط»: معلم يدخل برمز من ٦ أرقام دون جدول أو طلاب */
+function presTGet_() { try { return JSON.parse(PropertiesService.getScriptProperties().getProperty('PRES_T') || '[]') || []; } catch (e) { return []; } }
+function presTPut_(L) { PropertiesService.getScriptProperties().setProperty('PRES_T', JSON.stringify(L)); }
+function presAuth_(q) {
+  const cache = CacheService.getScriptCache(), fails = Number(cache.get('pfail') || 0);
+  if (fails > 30) return { ok: false, status: 'busy', message: 'محاولات كثيرة. حاول بعد ١٠ دقائق.' };
+  const code = String(q.code == null ? '' : q.code).replace(/[٠-٩]/g, x => '٠١٢٣٤٥٦٧٨٩'.indexOf(x)).replace(/\s/g, '');
+  if (code && code === adminPin_()) { const p = prof_(); return { ok: true, owner: true, name: p.name, school: p.school, region: p.region, grades: [4, 5, 6] }; }
+  const o = presTGet_().find(x => x.code === code);
+  if (!o) { cache.put('pfail', String(fails + 1), 600); Utilities.sleep(600); return { ok: false, status: 'code', message: 'الرمز غير صحيح.' }; }
+  if (!o.on) return { ok: false, status: 'off', message: 'هذا الحساب موقوف. تواصل مع صاحب الموقع.' };
+  if (!q.check) { o.last = new Date().toISOString(); o.n = (o.n || 0) + 1; presTPut_(presTGet_().map(x => x.code === code ? o : x)); }
+  return { ok: true, name: o.name, school: o.school, region: o.region, grades: o.grades && o.grades.length ? o.grades : [4, 5, 6] };
+}
 function adminPin_() { return PropertiesService.getScriptProperties().getProperty('ADMIN_PIN') || ADMIN_PIN; }
 
 function admin_(ss, d) {
@@ -956,6 +971,20 @@ function admin_(ss, d) {
     teachersPut_(L); CacheService.getScriptCache().remove('t:' + slug);
     audit_(ss, i >= 0 ? 'تعديل معلم' : 'إضافة معلم', o.name + ' (' + slug + ')');
     return { ok: true, message: i >= 0 ? 'حُفظ التعديل.' : 'أُضيف المعلم.', teachers: L };
+  } else if (op === 'presT') {
+    return { ok: true, presT: presTGet_() };
+  } else if (op === 'presTSave') {
+    const t = (v, n) => String(v || '').replace(/\s+/g, ' ').trim().slice(0, n);
+    const L = presTGet_(); let code = String(d.code || ''); const i = L.findIndex(x => x.code === code);
+    const o = { name: t(d.name, 60), school: t(d.school, 80), region: t(d.region, 80) || PROF_DEF.region, grades: (Array.isArray(d.grades) ? d.grades : []).map(Number).filter(x => [4, 5, 6].indexOf(x) >= 0), on: d.on !== false };
+    if (!o.name || !o.school) return { ok: false, message: 'اكتب اسم المعلم والمدرسة.' };
+    if (i < 0) { do { code = String(100000 + Math.floor(Math.random() * 900000)); } while (L.some(x => x.code === code) || code === adminPin_()); o.code = code; o.at = new Date().toISOString(); L.push(o); }
+    else L[i] = Object.assign(L[i], o);
+    presTPut_(L); audit_(ss, i >= 0 ? 'تعديل حساب عروض' : 'إضافة حساب عروض', o.name);
+    return { ok: true, message: i >= 0 ? 'حُفظ التعديل.' : 'أُنشئ الحساب، ورمزه ' + code + '.', presT: L, code: code };
+  } else if (op === 'presTDel') {
+    const L = presTGet_().filter(x => x.code !== String(d.code)); presTPut_(L); audit_(ss, 'حذف حساب عروض', String(d.code));
+    return { ok: true, message: 'حُذف الحساب، ولن يعمل رمزه بعد الآن.', presT: L };
   } else if (op === 'teacherDel') {
     const L = teachersGet_().filter(x => x.slug !== String(d.slug)); teachersPut_(L); CacheService.getScriptCache().remove('t:' + d.slug);
     audit_(ss, 'حذف معلم', String(d.slug));
