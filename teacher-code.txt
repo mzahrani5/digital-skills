@@ -326,6 +326,45 @@ function studentDocs_(ss, cls, name) {
 function renameStudentDoc_(ss, cls, oldName, newName) {
   studentDocs_(ss, cls, oldName).forEach(f => f.setName(String(newName).replace(/\s+/g, ' ').trim() + ' — تقارير الإنجاز'));
 }
+/* نقل طالب إلى فصل آخر يدرّسه المعلم: تنتقل معه درجاته وإنجازاته ومشاريعه وملف تقاريره في Drive */
+function transferStudent_(ss, cls, name, newCls) {
+  const target = classList_(ss).find(x => clsKey_(x) === clsKey_(newCls)) || String(newCls || '').replace(/\s+/g, ' ').trim();
+  if (!target) return { ok: false, message: 'اختر الفصل الجديد.' };
+  if (clsKey_(target) === clsKey_(cls)) return { ok: false, message: 'الطالب موجود في هذا الفصل بالفعل.' };
+  if (rosterList_(ss).some(r => clsKey_(r.cls) === clsKey_(target) && sameStudent_(r.name, name))) return { ok: false, message: 'يوجد طالب بالاسم نفسه في فصل «' + target + '». غيّر الاسم أولًا أو احذف أحدهما.' };
+  const sh = rosterSheet_(ss), n = sh.getLastRow();
+  let done = false;
+  if (n > 1) {
+    const v = sh.getRange(2, 1, n - 1, 2).getValues();
+    for (let i = 0; i < v.length && !done; i++) if (clsKey_(v[i][0]) === clsKey_(cls) && norm_(v[i][1]) === norm_(name)) { sh.getRange(i + 2, 1).setValue(target); done = true; }
+  }
+  if (!done) return { ok: false, message: 'لم يُعثر على الطالب.' };
+  if (!classList_(ss).some(x => clsKey_(x) === clsKey_(target))) { classesSheet_(ss).appendRow([target]); formatClasses_(ss); }
+  let rows = 0;
+  const retag = (sheet, ni, ci) => {
+    if (!sheet || sheet.getLastRow() < 2) return;
+    const v = sheet.getRange(2, 1, sheet.getLastRow() - 1, Math.max(ni, ci) + 1).getValues();
+    for (let i = 0; i < v.length; i++) if (sameStudent_(v[i][ni], name) && clsKey_(v[i][ci]) === clsKey_(cls)) { sheet.getRange(i + 2, ci + 1).setValue(target); rows++; }
+  };
+  retag(ss.getSheetByName(SHEET_RESP), 1, 2);
+  retag(ss.getSheetByName(SHEET_EXAM), 1, 2);
+  retag(ss.getSheetByName(SHEET_GRANT), 2, 1);
+  retag(ss.getSheetByName(SHEET_ARCH), 2, 3);
+  retag(ss.getSheetByName(SHEET_REQ), 2, 1);
+  let files = 0;
+  try {
+    const docs = studentDocs_(ss, cls, name);
+    if (docs.length) {
+      const file = DriveApp.getFileById(ss.getId()), parents = file.getParents();
+      const base = parents.hasNext() ? parents.next() : DriveApp.getRootFolder();
+      const dest = folderIn_(folderIn_(base, ROOT_FOLDER), clsLabel_(target));
+      docs.forEach(f => { f.moveTo(dest); files++; });
+    }
+  } catch (err) { console.error(err); }
+  sortRoster_(ss); formatRoster_(sh); updateGrid_(ss);
+  return { ok: true, message: 'نُقل الطالب «' + name + '» من «' + clsLabel_(cls) + '» إلى «' + target + '» مع درجاته ومشاريعه' + (files ? ' وملف تقاريره في Drive' : '') + '.', rows, files };
+}
+
 /* حذف كل ما يخص الطالب عند حذفه من الكشف: إنجازاته، اختباره، طلباته، فرصه، محاولاته المؤرشفة، وملف تقاريره في Drive */
 function purgeStudent_(ss, cls, name) {
   let rows = 0, files = 0;
@@ -826,6 +865,11 @@ function admin_(ss, d) {
     if (rows.length) { sh.getRange(sh.getLastRow() + 1, 1, rows.length, 4).setValues(rows); sortRoster_(ss); formatRoster_(sh); updateGrid_(ss); }
     const skipped = names.length - rows.length;
     msg = (rows.length ? 'أُضيف ' + students_(rows.length) + ' إلى «' + c + '»' : 'لم يُضف أحد إلى «' + c + '»') + (skipped ? ' (تُرك ' + (skipped === 1 ? 'اسم واحد مكرر' : skipped + ' أسماء مكررة') + ')' : '') + '.';
+  } else if (op === 'transferStudent') {
+    const r = transferStudent_(ss, d.cls, d.name, d.newCls);
+    if (!r.ok) return { ok: false, message: r.message };
+    audit_(ss, 'نقل طالب', d.name + ' — من ' + d.cls + ' إلى ' + d.newCls + ' (إنجازات: ' + r.rows + '، ملفات Drive: ' + r.files + ')');
+    msg = r.message;
   } else if (op === 'delStudent') {
     const removed = deleteRosterRows_(ss, r => norm_(r[0]) === norm_(d.cls) && norm_(r[1]) === norm_(d.name));
     let pr = { rows: 0, files: 0 };
