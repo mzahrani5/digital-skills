@@ -326,6 +326,37 @@ function studentDocs_(ss, cls, name) {
 function renameStudentDoc_(ss, cls, oldName, newName) {
   studentDocs_(ss, cls, oldName).forEach(f => f.setName(String(newName).replace(/\s+/g, ' ').trim() + ' — تقارير الإنجاز'));
 }
+/* أرشفة طالب: يُزال من الكشف الحالي، وتُنقل صفوف درجاته إلى ورقة «أرشيف الاستجابات»، وبياناته الأساسية إلى «الطلاب المؤرشفون». لا يُحذف شيء، وملف تقاريره في Drive يبقى كما هو */
+const SHEET_ARCH_STU = 'الطلاب المؤرشفون', SHEET_ARCH_RESP = 'أرشيف الاستجابات';
+function archSheet_(ss, name, head) {
+  let sh = ss.getSheetByName(name);
+  if (!sh) { sh = ss.insertSheet(name); sh.getRange(1, 1, 1, head.length).setValues([head]); sh.setRightToLeft(true); sh.setFrozenRows(1); sh.getRange(1, 1, 1, head.length).setFontWeight('bold').setFontColor('#ffffff').setBackground(NAVY); }
+  return sh;
+}
+function archiveStudent_(ss, cls, name) {
+  const sh = rosterSheet_(ss), n = sh.getLastRow();
+  let idx = -1, row = null;
+  if (n > 1) {
+    const v = sh.getRange(2, 1, n - 1, 4).getValues();
+    for (let i = 0; i < v.length && idx < 0; i++) if (clsKey_(v[i][0]) === clsKey_(cls) && norm_(v[i][1]) === norm_(name)) { idx = i; row = v[i]; }
+  }
+  if (idx < 0) return { ok: false, message: 'لم يُعثر على الطالب.' };
+  const now = new Date();
+  const stu = archSheet_(ss, SHEET_ARCH_STU, ['وقت الأرشفة', 'الفصل', 'اسم الطالب', 'رمز ولي الأمر', 'موافقة ولي الأمر']);
+  stu.appendRow([now, String(row[0]).trim(), String(row[1]).trim(), row[2], row[3]]);
+  const resp = respSheet_(ss), rn = resp.getLastRow();
+  let moved = 0;
+  if (rn > 1) {
+    const rv = resp.getRange(2, 1, rn - 1, resp.getLastColumn()).getValues();
+    const out = [];
+    for (let i = rv.length - 1; i >= 0; i--) if (sameStudent_(rv[i][1], name) && clsKey_(rv[i][2]) === clsKey_(cls)) { out.push(rv[i]); if (resp.getLastRow() > 2) resp.deleteRow(i + 2); else resp.getRange(i + 2, 1, 1, resp.getLastColumn()).clearContent(); moved++; }
+    if (out.length) { const ar = archSheet_(ss, SHEET_ARCH_RESP, rv[0] ? HEAD.slice(0, resp.getLastColumn()) : HEAD); ar.getRange(ar.getLastRow() + 1, 1, out.length, out[0].length).setValues(out.reverse()); }
+  }
+  if (sh.getLastRow() > 2) sh.deleteRow(idx + 2); else sh.getRange(idx + 2, 1, 1, 4).clearContent();
+  sortRoster_(ss); formatRoster_(sh); updateGrid_(ss);
+  return { ok: true, message: 'أُرشف الطالب «' + name + '»: نُقل إلى «الطلاب المؤرشفون»' + (moved ? ' ونُقلت ' + moved + ' من درجاته إلى «أرشيف الاستجابات»' : '') + '، ولم يُحذف شيء.' };
+}
+
 /* نقل طالب إلى فصل آخر يدرّسه المعلم: تنتقل معه درجاته وإنجازاته ومشاريعه وملف تقاريره في Drive */
 function transferStudent_(ss, cls, name, newCls) {
   const target = classList_(ss).find(x => clsKey_(x) === clsKey_(newCls)) || String(newCls || '').replace(/\s+/g, ' ').trim();
@@ -865,6 +896,10 @@ function admin_(ss, d) {
     if (rows.length) { sh.getRange(sh.getLastRow() + 1, 1, rows.length, 4).setValues(rows); sortRoster_(ss); formatRoster_(sh); updateGrid_(ss); }
     const skipped = names.length - rows.length;
     msg = (rows.length ? 'أُضيف ' + students_(rows.length) + ' إلى «' + c + '»' : 'لم يُضف أحد إلى «' + c + '»') + (skipped ? ' (تُرك ' + (skipped === 1 ? 'اسم واحد مكرر' : skipped + ' أسماء مكررة') + ')' : '') + '.';
+  } else if (op === 'archiveStudent') {
+    const r = archiveStudent_(ss, d.cls, d.name);
+    if (!r.ok) return { ok: false, message: r.message };
+    msg = r.message;
   } else if (op === 'transferStudent') {
     const r = transferStudent_(ss, d.cls, d.name, d.newCls);
     if (!r.ok) return { ok: false, message: r.message };
