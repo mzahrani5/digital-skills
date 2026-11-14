@@ -2064,6 +2064,31 @@ function backup_(ss, kind) {
   PropertiesService.getScriptProperties().setProperty('BACKUP_LAST', new Date().toISOString());
 }
 function weeklyBackup() { backup_(ss_(), 'أسبوعية'); }
+/* حذف النسخ الاحتياطية عند نهاية كل فصل دراسي.
+   ضع هنا تواريخ نهاية الفصول بصيغة YYYY-MM-DD، وعدّلها حسب التقويم الدراسي. */
+const SEMESTER_END_DATES = ['2027-01-07', '2027-07-01']; // نهاية الفصل الأول (آخر يوم اختبارات) ونهاية الفصل الثاني (آخر يوم دراسي)
+/* ينقل إلى المهملات كل نسخة أُنشئت قبل آخر نهاية فصل مرّت. تبقى في المهملات حتى ٣٠ يومًا ثم تُحذف نهائيًا من Drive. */
+function purgeBackupsAtTermEnd_() {
+  const tz = Session.getScriptTimeZone() || 'Asia/Riyadh';
+  const today = Utilities.formatDate(new Date(), tz, 'yyyy-MM-dd');
+  const passed = SEMESTER_END_DATES.filter(d => d <= today).sort();
+  if (!passed.length) return 0;
+  const last = passed[passed.length - 1];
+  let n = 0;
+  const it = backupFolder_(ss_()).getFiles();
+  while (it.hasNext()) {
+    const x = it.next();
+    if (Utilities.formatDate(x.getDateCreated(), tz, 'yyyy-MM-dd') <= last) { x.setTrashed(true); n++; }
+  }
+  PropertiesService.getScriptProperties().setProperty('BACKUP_PURGED_UNTIL', last);
+  return n;
+}
+/* شغّلها مرة واحدة من المحرر لتفعيل الحذف اليومي عند نهاية الفصول */
+function enableTermPurge() {
+  ScriptApp.getProjectTriggers().forEach(tr => { if (tr.getHandlerFunction() === 'purgeBackupsAtTermEnd_') ScriptApp.deleteTrigger(tr); });
+  ScriptApp.newTrigger('purgeBackupsAtTermEnd_').timeBased().everyDays(1).atHour(4).inTimezone('Asia/Riyadh').create();
+  Logger.log('تم التفعيل: حذف النسخ الاحتياطية عند نهاية كل فصل.');
+}
 /* شغّلها مرة واحدة من المحرر لتفعيل النسخ الأسبوعي (أو فعّلها من صفحة المعلم) */
 function enableBackup() {
   disableBackup();
