@@ -66,7 +66,7 @@ function doPost(e) {
     for (let i = vals.length - 1; i >= 1; i--) {
       if (sameStudent_(vals[i][1], d.name) && clsKey_(vals[i][2]) === clsKey_(d.cls) && String(vals[i][3]) === id) {
         if (isFakeRow_(vals[i])) { if (sh.getLastRow() > 2) sh.deleteRow(i + 1); else sh.getRange(i + 1, 1, 1, sh.getMaxColumns()).clearContent(); continue; }
-        return out_({ ok: false, status: 'duplicate', score: fixScoreCell_(sh, i + 1, vals[i]) });
+        return out_({ ok: false, status: 'duplicate', score: fixScoreCell_(sh, i + 1, vals[i]), units: unitsOf_(sh, d.name, d.cls) });
       }
     }
     sh.appendRow([new Date(), d.name, d.cls, id, d.lesson, safeScore_(d.score, d.task, d.quiz), d.task, d.quiz, d.reflect, d.answers || '', d.report || '', d.late ? 'متأخر' : 'في الموعد', JSON.stringify(d.steps || [])]);
@@ -74,7 +74,7 @@ function doPost(e) {
     try { updateGrid_(ss); } catch (err) { console.error(err); audit_(ss, 'خطأ في تحديث الكشوف', String(err)); }
     try { retryUsed_(ss, d.name, d.cls, id); } catch (err) { console.error(err); }
     try { saveToClassFolder_(ss, d); } catch (err) { console.error(err); }
-    return out_({ ok: true, status: 'saved' });
+    return out_({ ok: true, status: 'saved', units: unitsOf_(sh, d.name, d.cls) });
   } catch (err) {
     return out_({ ok: false, status: 'error', message: String(err) });
   } finally {
@@ -540,6 +540,23 @@ const UNITS = {
   't1-u1': ['تعلّم الأساسيات', 4], 't1-u2': ['العمل على النص', 5], 't1-u3': ['عالمي المتصل', 5], 't1-u4': ['البرمجة باستخدام سكراتش', 5],
   't2-u1': ['عرضي التقديمي', 5], 't2-u2': ['العمل على الأرقام', 3], 't2-u3': ['استخدام الوسائط المتعددة', 5], 't2-u4': ['مقدمة في علم الروبوت', 3]
 };
+/* الوحدات التي أتمّها هذا الطالب (كل دروسها + متوسط 8 فأكثر): تُرسل مع رد الحفظ ليعرض الطالب شهادته فورًا */
+function unitsOf_(sh, name, cls) {
+  try {
+    const S = {};
+    sh.getDataRange().getValues().slice(1).forEach(r => {
+      const m = String(r[3]).match(/^(t\d-u\d)-(\w+)$/);
+      if (!m || m[2] === 'x') return;
+      if (!sameStudent_(r[1], name) || clsKey_(r[2]) !== clsKey_(cls)) return;
+      const u = S[m[1]] = S[m[1]] || {};
+      if (u[r[3]] == null) u[r[3]] = Number(r[5]);
+    });
+    return Object.keys(S).filter(k => UNITS[k] && Object.keys(S[k]).length >= UNITS[k][1]).map(k => {
+      const vs = Object.values(S[k]);
+      return { k: k, avg: vs.reduce((x, y) => x + y, 0) / vs.length };
+    }).filter(o => o.avg >= 8);
+  } catch (err) { console.error(err); return []; }
+}
 function badgesFrom_(vals) {
   const S = {};
   vals.forEach(r => {
