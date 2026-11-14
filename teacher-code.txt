@@ -557,6 +557,25 @@ function unitsOf_(sh, name, cls) {
     }).filter(o => o.avg >= 8);
   } catch (err) { console.error(err); return []; }
 }
+/* لوحة الأوسمة العامة: الطلاب الذين أتمّوا وحدة. يُخفى من أوقف ولي أمره العرض (نفس موافقة نجوم الأسبوع) */
+function badgesPub_(ss) {
+  const cache = CacheService.getScriptCache();
+  const hit = cache.get('badges_pub'); if (hit) { try { return JSON.parse(hit); } catch (e) {} }
+  let out = [];
+  try {
+    const okm = starsOkMap_();
+    const sh = rosterSheet_(ss), n = sh.getLastRow();
+    const roster = n > 1 ? sh.getRange(2, 1, n - 1, 3).getValues().filter(r => String(r[1]).trim()) : [];
+    badgesFrom_(respSheet_(ss).getDataRange().getValues().slice(1)).forEach(o => {
+      const rr = roster.find(x => clsKey_(x[0]) === clsKey_(o.cls) && sameStudent_(x[1], o.name));
+      if (!rr) return;
+      if (okm[normCode_(rr[2])] === -1) return;
+      out.push({ n: String(rr[1]).replace(/\s+/g, ' ').trim(), c: clsLabel_(rr[0]), u: o.units.map(k => UNITS[k][0]) });
+    });
+  } catch (err) { console.error(err); }
+  try { cache.put('badges_pub', JSON.stringify(out), 300); } catch (e) {}
+  return out;
+}
 function badgesFrom_(vals) {
   const S = {};
   vals.forEach(r => {
@@ -1783,7 +1802,7 @@ function waData_(ss) {
     classes: Object.keys(o.cls).map(k => ({ cls: o.cls[k].cls, sent: Object.keys(o.cls[k].who).length, total: size[k] || 0 })).sort((a, b) => String(a.cls).localeCompare(String(b.cls), 'ar'))
   }));
   const W = schoolWeek_(), wk = rows.filter(r => { const t = tm(r); return t >= W.t0 && t <= W.t1; });
-  return { ok: true, news: newsList_(ss, false), lessons: lessons, stars: starsPub_(), week: { from: W.from, to: W.to, n: wk.length, classes: [...new Set(wk.map(r => clsLabel_(r[2])))].length }, report: parentUrl_() };
+  return { ok: true, news: newsList_(ss, false), lessons: lessons, badges: badgesPub_(ss), stars: starsPub_(), week: { from: W.from, to: W.to, n: wk.length, classes: [...new Set(wk.map(r => clsLabel_(r[2])))].length }, report: parentUrl_() };
 }
 /* ===================== تحليل الأخطاء الشائعة (لوحة المعلم) ===================== */
 function parseQa_(txt) {
