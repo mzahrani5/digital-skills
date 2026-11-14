@@ -115,7 +115,7 @@ function doGet(e) {
   if (e && e.parameter && e.parameter.action === 'ver') return out_({ ok: true, ver: CODE_VER, message: 'كود الجدول محدَّث (إصدار ' + CODE_VER + ')' });
   const ss = ss_();
   if (e && e.parameter && e.parameter.action === 'news') { const cl = closedIds_(); const live = l => { const m = String(l || '').match(/[?&]lesson=([^&#]+)/); if (!m) return true; const ids = decodeURIComponent(m[1]).split(','); return ids.some(x => cl.indexOf(x.trim()) < 0); };
-    return out_({ ok: true, news: newsList_(ss, false).filter(n => live(n.link)), promos: promosList_(ss, false).filter(p => live(p.link)), stu: stuGet_(), closed: cl, maint: maintGet_(), videos: videosGet_(), tg: TELEGRAM, stars: starsOn_() ? starsPub_() : null }); }
+    return out_({ ok: true, news: newsList_(ss, false).filter(n => live(n.link)), promos: promosList_(ss, false).filter(p => live(p.link)), stu: stuGet_(), closed: cl, maint: maintGet_(), videos: videosGet_(), tg: TELEGRAM, badges: badgesPub_(ss), stars: starsOn_() ? starsPub_() : null }); }
   if (e && e.parameter && e.parameter.action === 'classes') return out_({ ok: true, classes: classList_(ss), closed: closedIds_(), maint: maintGet_(), videos: videosGet_() });
   return out_({ ok: true, status: 'ready' });
 }
@@ -1802,7 +1802,7 @@ function waData_(ss) {
     classes: Object.keys(o.cls).map(k => ({ cls: o.cls[k].cls, sent: Object.keys(o.cls[k].who).length, total: size[k] || 0 })).sort((a, b) => String(a.cls).localeCompare(String(b.cls), 'ar'))
   }));
   const W = schoolWeek_(), wk = rows.filter(r => { const t = tm(r); return t >= W.t0 && t <= W.t1; });
-  return { ok: true, news: newsList_(ss, false), lessons: lessons, badges: badgesPub_(ss), stars: starsPub_(), week: { from: W.from, to: W.to, n: wk.length, classes: [...new Set(wk.map(r => clsLabel_(r[2])))].length }, report: parentUrl_() };
+  return { ok: true, news: newsList_(ss, false), lessons: lessons, stars: starsPub_(), week: { from: W.from, to: W.to, n: wk.length, classes: [...new Set(wk.map(r => clsLabel_(r[2])))].length }, report: parentUrl_() };
 }
 /* ===================== تحليل الأخطاء الشائعة (لوحة المعلم) ===================== */
 function parseQa_(txt) {
