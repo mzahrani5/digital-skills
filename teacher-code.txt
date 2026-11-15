@@ -104,7 +104,7 @@ function classList_(ss) {
   return sh.getRange(2, 1, n - 1, 1).getValues().map(r => String(r[0]).trim()).filter(Boolean);
 }
 
-const CODE_VER = '2026-11-15a';
+const CODE_VER = '2026-11-15b';
 function doGet(e) {
   if (e && e.parameter && e.parameter.action === 'teacher') {
     const slug = String(e.parameter.t || '').toLowerCase();
@@ -114,7 +114,6 @@ function doGet(e) {
     return out_({ ok: true, teacher: { slug: o.slug, name: o.name, school: o.school, region: o.region, grades: o.grades, url: o.url } });
   }
   if (e && e.parameter && e.parameter.action === 'prof') { let p = null; try { p = JSON.parse(PropertiesService.getScriptProperties().getProperty('PROFILE') || 'null'); } catch (x) {} return out_({ ok: true, prof: p ? { name: p.name || '', school: p.school || '', region: p.region || '' } : null }); }
-  if (e && e.parameter && e.parameter.action === 'aiSearch') return out_(aiSearch_(e.parameter.q));
   if (e && e.parameter && e.parameter.action === 'ph') return out_({ ok: true, ph: phPub_(ss_()) });
   if (e && e.parameter && e.parameter.action === 'ver') return out_({ ok: true, ver: CODE_VER, message: 'كود الجدول محدَّث (إصدار ' + CODE_VER + ')' });
   const ss = ss_();
@@ -1957,7 +1956,7 @@ const AI_TOPICS = [
   ['protect', '🛡️ احمِ نفسك', 'الوعي بالاحتيال الإلكتروني: الرسائل والروابط المزيفة وكلمات المرور وحماية الحسابات والأجهزة في البيت'],
   ['trick', '📱 حيلة تقنية', 'حيلة تقنية عملية يستفيد منها ولي الأمر في الجوال أو الحاسب، يمكن تطبيقها في دقيقة'],
   ['parents', '🏠 مهارة رقمية في البيت', 'نشاط رقمي بسيط يمارسه طفل المرحلة الابتدائية في البيت مع أسرته لينمّي مهارات الحاسب والتفكير']];
-/* ===================== Gemini للموقع: (١) فقرة «كيف تساعد ابنك في هذا الدرس؟» بمراجعة المعلم، (٢) البحث الذكي ===================== */
+/* ===================== Gemini للموقع: فقرة «كيف تساعد ابنك في هذا الدرس؟» بمراجعة المعلم ===================== */
 const PH_SHEET = 'دليل ولي الأمر للدروس', PH_HEAD = ['المعرّف', 'الصف', 'الدرس', 'ماذا تعلّم ابنكم؟', 'اسألوه في البيت', 'نشاط معه في البيت', 'الحالة', 'آخر تحديث'];
 function briefGet_() { const c = CacheService.getScriptCache(), k = 'brief1'; const hit = c.get(k); if (hit) { try { return JSON.parse(hit); } catch (e) {} }
   try { const t = UrlFetchApp.fetch(SITE_BASE + 'lesson-brief.json', { muteHttpExceptions: true }).getContentText(); const d = JSON.parse(t); if (Array.isArray(d)) { if (t.length < 95000) c.put(k, t, 21600); return d; } } catch (e) {} return []; }
@@ -1986,19 +1985,6 @@ function phRun_(ss, max) { const sh = phSheet_(ss), B = briefGet_(); if (!B.leng
 function phPub_(ss) { const c = CacheService.getScriptCache(), hit = c.get('ph1'); if (hit) { try { return JSON.parse(hit); } catch (e) {} }
   const sh = ss.getSheetByName(PH_SHEET), o = {}; if (sh) sh.getDataRange().getValues().slice(1).forEach(r => { if (r[0] && String(r[6]) === 'معتمد') o[String(r[0])] = { a: String(r[3]), q: String(r[4]), x: String(r[5]) }; });
   try { c.put('ph1', JSON.stringify(o), 600); } catch (e) {} return o; }
-function aiSearch_(q) { q = String(q || '').replace(/\s+/g, ' ').trim().slice(0, 80); if (q.length < 2) return { ok: false, message: 'اكتب كلمتين على الأقل.' };
-  const pr = PropertiesService.getScriptProperties(); if (!pr.getProperty('GEMINI_KEY')) return { ok: false, message: 'البحث الذكي غير مفعّل.' };
-  const c = CacheService.getScriptCache(), ck = 'as:' + (function (x) { let h = 5381; for (let i = 0; i < x.length; i++) h = ((h * 33) ^ x.charCodeAt(i)) >>> 0; return h.toString(36) + x.length; })(q.toLowerCase()), hit = c.get(ck); if (hit) { try { return JSON.parse(hit); } catch (e) {} }
-  const day = 'AS_' + Utilities.formatDate(new Date(), 'Asia/Riyadh', 'yyyy-MM-dd'), used = Number(pr.getProperty(day) || 0); if (used >= 400) return { ok: false, message: 'اكتمل حد البحث الذكي لليوم، جرّب غدًا.' };
-  pr.setProperty(day, String(used + 1));
-  const B = briefGet_(), PAGES = [['#ai', 'ركن الذكاء الاصطناعي: تعرّف عليه وجرّبه واستخدمه بأمان'], ['#parents', 'دليل ولي الأمر: متابعة الأبناء وأمانهم الرقمي'], ['#report', 'تقرير الطالب: الدروس المنجزة والدرجات'], ['#books', 'الكتب الدراسية'], ['#summaries', 'ملخصات الوحدات'], ['#steps', 'الخطوات العملية والمحاكيات'], ['#game', 'لعبة عالم المكعبات والبرمجة'], ['projects/', 'منصة المشاريع: تسليم مشروع الدرس'], ['#about', 'عن المعلم والتواصل معه']];
-  const list = B.map(L => L.id + ' | ' + L.t + ' | ' + L.u + ' | ' + (L.terms || []).map(x => String(x).split(':')[0]).slice(0, 4).join('، ')).concat(PAGES.map(p => p[0] + ' | ' + p[1])).join('\n');
-  const prompt = 'هذه قائمة صفحات موقع تعليمي لمادة المهارات الرقمية (المعرّف | العنوان | الوحدة | كلمات):\n' + list + '\n\nسؤال الزائر: «' + q + '»\n' +
-    'اختر من القائمة فقط حتى ثلاث صفحات تجيب عن سؤاله، الأنسب أولًا. لا تخترع معرّفات. إن لم يكن السؤال عن محتوى الموقع فأعد قائمة فارغة.\nأعد JSON فقط: {"ids":["…"]}';
-  const r = geminiAsk_(prompt); if (!r.ok) return { ok: false, message: 'تعذّر البحث الذكي الآن.' };
-  let ids = []; try { ids = (JSON.parse(String(r.text).replace(/^```(?:json)?|```$/g, '').trim()).ids || []).map(String); } catch (e) {}
-  const ok = new Set(B.map(L => L.id).concat(PAGES.map(p => p[0]))); const out = { ok: true, ids: ids.filter(x => ok.has(x)).filter((x, i, a) => a.indexOf(x) === i).slice(0, 3) };
-  try { c.put(ck, JSON.stringify(out), 21600); } catch (e) {} return out; }
 function aiCfg_() { try { return JSON.parse(PropertiesService.getScriptProperties().getProperty('TG_AI_CFG') || '{}') || {}; } catch (e) { return {}; } }
 function aiDay_() { const c = aiCfg_(), pr = PropertiesService.getScriptProperties(); if (!pr.getProperty('GEMINI_KEY') || !c.mode || c.mode === 'off') return false;
   if (c.mode === '7') return true; const dow = new Date(Utilities.formatDate(new Date(), 'Asia/Riyadh', 'yyyy-MM-dd') + 'T12:00:00Z').getUTCDay(); return dow === 1 || dow === 2 || dow === 3; }
