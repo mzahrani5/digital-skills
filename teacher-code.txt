@@ -1119,7 +1119,7 @@ function admin_(ss, d) {
     return Object.assign({ ok: true, message: d.on ? 'فُعّلت النسخة الاحتياطية الأسبوعية: كل جمعة الساعة ٣ فجرًا.' : 'أُوقفت النسخة الاحتياطية الأسبوعية.' }, backupInfo_());
   } else if (op === 'tg') {
     const pr = PropertiesService.getScriptProperties();
-    return { ok: true, tg: { has: !!pr.getProperty('TG_TOKEN'), chat: pr.getProperty('TG_CHAT') || TG_CHAT_DEF, bot: pr.getProperty('TG_BOT') || '', auto: Object.assign({ on: autoOn_() }, autoCfg_()) } };
+    return { ok: true, tg: { has: !!pr.getProperty('TG_TOKEN'), chat: pr.getProperty('TG_CHAT') || TG_CHAT_DEF, bot: pr.getProperty('TG_BOT') || '', auto: Object.assign({ on: autoOn_() }, autoCfg_()), ai: { has: !!pr.getProperty('GEMINI_KEY'), mode: aiCfg_().mode || 'off' } } };
   } else if (op === 'tgAuto') {
     const cfg = { n: Number(d.n) === 2 ? 2 : 1, weekend: !!d.weekend };
     try {
@@ -1128,6 +1128,13 @@ function admin_(ss, d) {
     } catch (err) { return { ok: false, message: 'يحتاج إذنًا لمرة واحدة: في Apps Script اختر الدالة autoPost واضغط ▶ تشغيل ووافق على الإذن، ثم أعد المحاولة.' }; }
     PropertiesService.getScriptProperties().setProperty('TG_AUTO_CFG', JSON.stringify(cfg));
     return { ok: true, message: d.on ? 'فُعّل النشر التلقائي: ' + (cfg.n === 2 ? 'منشوران يوميًا (٤ عصرًا و٨ مساءً)' : 'منشور يوميًا الساعة ٤ عصرًا') + (cfg.weekend ? ' طوال الأسبوع.' : ' في أيام الدراسة.') : 'أُوقف النشر التلقائي.', auto: Object.assign({ on: !!d.on }, cfg) };
+  } else if (op === 'aiSet') {
+    const pr = PropertiesService.getScriptProperties();
+    if (d.key !== undefined) { const k = String(d.key || '').trim();
+      if (!k) { pr.deleteProperty('GEMINI_KEY'); } else { pr.setProperty('GEMINI_KEY', k); const t = geminiAsk_('أجب بكلمة واحدة: نعم'); if (!t.ok) { pr.deleteProperty('GEMINI_KEY'); return { ok: false, message: 'لم يُحفظ المفتاح: ' + t.message, ai: { has: false, mode: aiCfg_().mode || 'off' } }; } } }
+    const c = aiCfg_(); if (d.mode !== undefined) c.mode = ['off', '3', '7'].indexOf(String(d.mode)) >= 0 ? String(d.mode) : 'off'; pr.setProperty('TG_AI_CFG', JSON.stringify(c));
+    const has = !!pr.getProperty('GEMINI_KEY');
+    return { ok: true, ai: { has: has, mode: c.mode || 'off' }, message: !has ? 'لا يوجد مفتاح Gemini محفوظ.' : c.mode === '7' ? 'Gemini يكتب منشور العصر كل يوم دراسة، والبنك احتياطي.' : c.mode === '3' ? 'Gemini يكتب منشور العصر أيام الاثنين والثلاثاء والأربعاء، وبقية الأيام من البنك.' : 'المفتاح محفوظ، والمنشورات المتجددة متوقفة.' };
   } else if (op === 'tgAutoNow') {
     return autoPostNow_(String(d.kind || ''));
   } else if (op === 'tgSet') {
@@ -1856,7 +1863,7 @@ const TG_CYCLE = ['parents', 'explain', 'protect', 'quiz', 'parents', 'balance',
 const TG_LINK = { explain: ['📚 دروس المادة', '#lessons'], protect: ['👪 دليل ولي الأمر', '#parents'], trick: ['🖱️ الخطوات العملية', '#steps'], aiw: ['🤖 ركن الذكاء الاصطناعي', '#ai'], balance: ['👪 دليل ولي الأمر', '#parents'],
   parents: ['👪 دليل ولي الأمر', '#parents'], facts: ['📚 دروس المادة', '#lessons'], shortcuts: ['🖱️ الخطوات العملية', '#steps'], riddles: ['🎮 العب وتعلّم', '#game'], games: ['🎮 العب الآن', '#game'] };
 function tgLink_(type, it) { const d = TG_LINK[type] || ['🌐 بوابة المهارات الرقمية', ''], u = it && typeof it === 'object' && it.u ? it.u : d[1]; return [it && it.bt || d[0], SITE_BASE + String(u || '').replace(/^\//, '')]; }
-const TG_KIND_AR = { explain: '🧠 اشرحها ببساطة', protect: '🛡️ احمِ نفسك', trick: '📱 حيلة تقنية', aiw: '🤖 ذكاء اصطناعي عملي', balance: '🧘 توازن رقمي', parents: '👪 لأولياء الأمور', facts: '💡 هل تعلم؟', quiz: '❓ سؤال تفاعلي', shortcuts: '⌨️ اختصار اليوم', riddles: '🧩 لغز', games: '🎮 تحدّي اللعبة' };
+const TG_KIND_AR = { gemini: '✨ منشور متجدد', explain: '🧠 اشرحها ببساطة', protect: '🛡️ احمِ نفسك', trick: '📱 حيلة تقنية', aiw: '🤖 ذكاء اصطناعي عملي', balance: '🧘 توازن رقمي', parents: '👪 لأولياء الأمور', facts: '💡 هل تعلم؟', quiz: '❓ سؤال تفاعلي', shortcuts: '⌨️ اختصار اليوم', riddles: '🧩 لغز', games: '🎮 تحدّي اللعبة' };
 function autoPost() { const fails = [];
   const run = (k, b) => { let r; try { r = autoPostNow_(k, b); } catch (e) { r = { ok: false, message: String(e && e.message || e) }; } if (!r || !r.ok) fails.push((k ? (TG_KIND_AR[k] || k) + ': ' : '') + String(r && r.message || 'خطأ غير معروف')); return r || { ok: false }; };
   try { const pr = PropertiesService.getScriptProperties(); const cfg = autoCfg_();
@@ -1871,6 +1878,7 @@ function autoPost() { const fails = [];
     else if (dow === 0) { if (pr.getProperty('TG_CHAL')) run('answer', bank); const r = autoPostNow_('lessons', bank); if (!r.ok) run('', bank); done = true; }
     else if (dow === 4) { run('harvest', bank); run('challenge', bank); done = true; }
   }
+  if (!done && first && aiDay_()) { const r = run('gemini'); if (!r.ok) run(''); done = true; }
   if (!done && !(first && fails.length)) run('');
   } catch (e) { fails.push(String(e && e.message || e)); }
   if (fails.length) notifyTeacher_('⚠️ لم يكتمل النشر التلقائي في القناة اليوم\n\n' + fails.map(f => '• ' + f).join('\n') + '\n\nتأكد من ربط البوت وأنه مشرف في القناة، ثم جرّب «انشر الآن» من لوحة المعلم.'); }
@@ -1923,6 +1931,54 @@ function tgQuiz_(it, head) { const pr = PropertiesService.getScriptProperties();
   const opts = [it.a].concat(it.w).slice(0, 4).map(x => String(x).slice(0, 100)); const sh = opts.map(x => [Math.random(), x]).sort((a, b) => a[0] - b[0]).map(x => x[1]);
   return tgApi_('sendPoll', { chat_id: pr.getProperty('TG_CHAT') || TG_CHAT_DEF, question: ((head || '❓ سؤال اليوم') + (it.g ? ' — الصف ' + it.g : '') + '\n' + it.q).slice(0, 300), options: sh, type: 'quiz', is_anonymous: true,
     correct_option_id: sh.indexOf(String(it.a).slice(0, 100)), explanation: ('✅ ' + it.a + (it.t ? ' — من درس «' + it.t + '»' : '')).slice(0, 200) }); }
+/* ===================== منشورات متجددة يكتبها Gemini (الخطة المجانية من Google) =====================
+   - المفتاح في خصائص السكربت GEMINI_KEY (يُحفظ من لوحة المعلم). لا تُرسل أي بيانات طلاب: الطلب نص ثابت + عناوين آخر المنشورات.
+   - ضوابط: مواضيع محددة، بلا أرقام أو روابط أو أسماء شركات وتطبيقات وأشخاص، ويُرفض أي ناتج يخالفها؛ وعند الفشل يُنشر من البنك ويُنبَّه المعلم. */
+const AI_TOPICS = [
+  ['parents', '👪 لأولياء الأمور', 'أمان الأبناء على الإنترنت: الألعاب والدردشة والخصوصية والتنمّر الإلكتروني وكيف يتحدث الوالدان مع أبنائهم عنها'],
+  ['balance', '🧘 توازن رقمي', 'التوازن الرقمي في الأسرة: وقت الشاشات والنوم والأنشطة البديلة والقدوة في البيت'],
+  ['aiw', '🤖 ذكاء اصطناعي عملي', 'الذكاء الاصطناعي للأسرة: كيف يستخدمه الطفل بأمان وأمانة، وكيف يتحقق من إجاباته، وما الذي لا يُكتب فيه'],
+  ['protect', '🛡️ احمِ نفسك', 'الوعي بالاحتيال الإلكتروني: الرسائل والروابط المزيفة وكلمات المرور وحماية الحسابات والأجهزة في البيت'],
+  ['trick', '📱 حيلة تقنية', 'حيلة تقنية عملية يستفيد منها ولي الأمر في الجوال أو الحاسب، يمكن تطبيقها في دقيقة'],
+  ['parents', '🏠 مهارة رقمية في البيت', 'نشاط رقمي بسيط يمارسه طفل المرحلة الابتدائية في البيت مع أسرته لينمّي مهارات الحاسب والتفكير']];
+function aiCfg_() { try { return JSON.parse(PropertiesService.getScriptProperties().getProperty('TG_AI_CFG') || '{}') || {}; } catch (e) { return {}; } }
+function aiDay_() { const c = aiCfg_(), pr = PropertiesService.getScriptProperties(); if (!pr.getProperty('GEMINI_KEY') || !c.mode || c.mode === 'off') return false;
+  if (c.mode === '7') return true; const dow = new Date(Utilities.formatDate(new Date(), 'Asia/Riyadh', 'yyyy-MM-dd') + 'T12:00:00Z').getUTCDay(); return dow === 1 || dow === 2 || dow === 3; }
+function geminiAsk_(prompt) { const pr = PropertiesService.getScriptProperties(), key = pr.getProperty('GEMINI_KEY'); if (!key) return { ok: false, message: 'لم يُحفظ مفتاح Gemini بعد.' };
+  const models = [pr.getProperty('GEMINI_MODEL') || 'gemini-flash-latest', 'gemini-2.5-flash'].filter((m, i, a) => a.indexOf(m) === i); let last = '';
+  for (const m of models) { try {
+    const res = UrlFetchApp.fetch('https://generativelanguage.googleapis.com/v1beta/models/' + m + ':generateContent', { method: 'post', contentType: 'application/json', muteHttpExceptions: true, headers: { 'x-goog-api-key': key },
+      payload: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: prompt }] }], generationConfig: { temperature: 0.95, responseMimeType: 'application/json', maxOutputTokens: 900 } }) });
+    const code = res.getResponseCode(), j = JSON.parse(res.getContentText() || '{}');
+    if (code === 200) { const t = (((j.candidates || [])[0] || {}).content || {}).parts; const txt = (t || []).map(x => x.text || '').join(''); if (txt) return { ok: true, text: txt, model: m }; last = 'لم يُرجع Gemini نصًا.'; continue; }
+    last = (code === 400 || code === 403) && /key/i.test(JSON.stringify(j)) ? 'مفتاح Gemini غير صالح.' : code === 429 ? 'تجاوزت حدود الخطة المجانية اليوم.' : 'Gemini: ' + code + ' ' + String((j.error || {}).message || '').slice(0, 120);
+    if (code !== 404) break; } catch (e) { last = String(e && e.message || e); } }
+  return { ok: false, message: last }; }
+function aiCheck_(o) { if (!o || typeof o !== 'object') return 'ليس JSON';
+  const t = String(o.t || '').trim(), b = Array.isArray(o.b) ? o.b.map(x => String(x || '').trim()).filter(Boolean) : [], tip = String(o.tip || '').trim(), all = [t].concat(b, tip).join(' ');
+  if (t.length < 6 || t.length > 70) return 'العنوان'; if (b.length < 2 || b.length > 4 || b.some(x => x.length > 230)) return 'النقاط'; if (tip.length > 160) return 'جرّبها';
+  if (/[0-9٠-٩]/.test(all)) return 'أرقام'; if (/https?:|www\.|\.com|@/i.test(all)) return 'روابط'; if (/[A-Za-z]{3,}/.test(all)) return 'كلمات أجنبية';
+  if (!/[؀-ۿ]/.test(t)) return 'ليس عربيًا'; return ''; }
+function geminiPost_(bank) { const pr = PropertiesService.getScriptProperties();
+  let st = {}; try { st = JSON.parse(pr.getProperty('TG_AUTO') || '{}') || {}; } catch (e) {}
+  let hist = []; try { hist = JSON.parse(pr.getProperty('TG_AI_HIST') || '[]') || []; } catch (e) {}
+  const k = (st.ai || 0) % AI_TOPICS.length, T = AI_TOPICS[k];
+  const old = hist.slice(-40).map(x => '- ' + x).join('\n') + '\n' + ((bank && bank[T[0]]) || []).slice(0, 30).map(x => '- ' + (x.t || '')).join('\n');
+  const prompt = 'اكتب منشورًا واحدًا لقناة تلجرام يتابعها أولياء أمور طلاب المرحلة الابتدائية في السعودية، تابعة لمعلم المهارات الرقمية.\n' +
+    'الموضوع: ' + T[2] + '.\nاختر فكرة واحدة محددة وجديدة ومفيدة عمليًا، مختلفة تمامًا عن هذه العناوين المنشورة سابقًا:\n' + old + '\n\n' +
+    'الشروط:\n- عربية فصحى سهلة وودودة، تخاطب الوالدين بصيغة الجمع (افعلوا، علّموا).\n- لا أرقام ولا إحصاءات ولا نسب ولا أعمار محددة.\n- لا تذكر أسماء شركات أو تطبيقات أو مواقع أو أشخاص، ولا روابط، ولا كلمات إنجليزية.\n' +
+    '- لا نصائح طبية أو نفسية علاجية أو دينية أو قانونية. نصائح عامة آمنة يتفق عليها المختصون.\n- لا تخويف ولا مبالغة.\n\n' +
+    'أعد JSON فقط بهذا الشكل: {"t":"عنوان قصير لا يزيد عن ست كلمات وينتهي برمز تعبيري واحد","b":["جملة أولى عملية","جملة ثانية","جملة ثالثة"],"tip":"خطوة واحدة يطبقها الوالدان اليوم"}';
+  let it = null, why = '', model = '';
+  for (let a = 0; a < 3 && !it; a++) { const r = geminiAsk_(prompt); if (!r.ok) return { ok: false, message: r.message };
+    let o = null; try { o = JSON.parse(String(r.text).replace(/^```(?:json)?|```$/g, '').trim()); } catch (e) {}
+    why = aiCheck_(o); if (!why) { it = { t: String(o.t).trim(), b: o.b.map(x => String(x).trim()).filter(Boolean).slice(0, 3), tip: String(o.tip || '').trim() }; model = r.model; } }
+  if (!it) return { ok: false, message: 'رُفض نص Gemini لأنه خالف الضوابط (' + why + ').' };
+  const cover = ((bank && bank.aicovers) || [])[k]; const lk = tgLink_(T[0], null);
+  const r = tgPost_(tgRich_(T[1], it), lk[0], lk[1], cover && cover.img);
+  if (!r || !r.ok) return { ok: false, message: 'رفض تلجرام النشر: ' + String(r && r.description || '') };
+  st.ai = (st.ai || 0) + 1; pr.setProperty('TG_AUTO', JSON.stringify(st)); hist.push(it.t); pr.setProperty('TG_AI_HIST', JSON.stringify(hist.slice(-60)));
+  return { ok: true, message: 'نُشر منشور متجدد (' + T[1] + '): «' + it.t + '».' }; }
 function autoCfg_() { try { return JSON.parse(PropertiesService.getScriptProperties().getProperty('TG_AUTO_CFG') || '{}') || {}; } catch (e) { return {}; } }
 function autoOn_() { try { return ScriptApp.getProjectTriggers().some(tr => tr.getHandlerFunction() === 'autoPost'); } catch (e) { return false; } }
 function tgEsc_(t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
@@ -1931,6 +1987,7 @@ function autoPostNow_(kind, bank0) {
   if (!pr.getProperty('TG_TOKEN')) return { ok: false, message: 'اربط بوت التلجرام أولًا.' };
   const bank = bank0 || getBank_(); if (!bank) return { ok: false, message: 'تعذّر جلب بنك المحتوى من الموقع.' };
   if (['occasion', 'lessons', 'harvest', 'challenge', 'answer'].indexOf(kind) >= 0) return tgSpecial_(kind, bank);
+  if (kind === 'gemini') return geminiPost_(bank);
   let st = {}; try { st = JSON.parse(pr.getProperty('TG_AUTO') || '{}') || {}; } catch (e) {}
   st.i = st.i || 0; st.idx = st.idx || {};
   let type = kind && bank[kind] ? kind : TG_CYCLE[st.i % TG_CYCLE.length]; if (!kind) st.i++;
