@@ -1850,19 +1850,30 @@ function errorsReport_(ss, d) {
 /* ===================== محتوى تلقائي لقناة التلجرام =====================
    بنك منوّع (أسئلة تفاعلية، هل تعلم، أمان رقمي، اختصارات، ألغاز، ذكاء اصطناعي، أولياء الأمور، تحديات)
    يُجلب من tg-bank.json في الموقع، ويُنشر بالتناوب في الأوقات التي يختارها المعلم. */
-const TG_CYCLE = ['explain', 'quiz', 'protect', 'trick', 'facts', 'riddles', 'aiw', 'balance', 'quiz', 'protect', 'parents', 'trick', 'explain', 'shortcuts', 'facts', 'games'];
+// القناة جمهورها الأكبر أولياء الأمور: نصف الدورة لهم (أولياء الأمور، احمِ نفسك، توازن رقمي، ذكاء اصطناعي عملي)
+const TG_CYCLE = ['parents', 'explain', 'protect', 'quiz', 'parents', 'balance', 'trick', 'aiw', 'parents', 'facts', 'protect', 'quiz', 'parents', 'riddles', 'balance', 'shortcuts'];
+// زر كل منشور يفتح الصفحة المناسبة في الموقع (ويمكن للمنشور أن يحدد صفحته بالحقلين u و bt)
+const TG_LINK = { explain: ['📚 دروس المادة', '#lessons'], protect: ['👪 دليل ولي الأمر', '#parents'], trick: ['🖱️ الخطوات العملية', '#steps'], aiw: ['🤖 ركن الذكاء الاصطناعي', '#ai'], balance: ['👪 دليل ولي الأمر', '#parents'],
+  parents: ['👪 دليل ولي الأمر', '#parents'], facts: ['📚 دروس المادة', '#lessons'], shortcuts: ['🖱️ الخطوات العملية', '#steps'], riddles: ['🎮 العب وتعلّم', '#game'], games: ['🎮 العب الآن', '#game'] };
+function tgLink_(type, it) { const d = TG_LINK[type] || ['🌐 بوابة المهارات الرقمية', ''], u = it && typeof it === 'object' && it.u ? it.u : d[1]; return [it && it.bt || d[0], SITE_BASE + String(u || '').replace(/^\//, '')]; }
 const TG_KIND_AR = { explain: '🧠 اشرحها ببساطة', protect: '🛡️ احمِ نفسك', trick: '📱 حيلة تقنية', aiw: '🤖 ذكاء اصطناعي عملي', balance: '🧘 توازن رقمي', parents: '👪 لأولياء الأمور', facts: '💡 هل تعلم؟', quiz: '❓ سؤال تفاعلي', shortcuts: '⌨️ اختصار اليوم', riddles: '🧩 لغز', games: '🎮 تحدّي اللعبة' };
-function autoPost() { try { const pr = PropertiesService.getScriptProperties(); const cfg = autoCfg_();
+function autoPost() { const fails = [];
+  const run = (k, b) => { let r; try { r = autoPostNow_(k, b); } catch (e) { r = { ok: false, message: String(e && e.message || e) }; } if (!r || !r.ok) fails.push((k ? (TG_KIND_AR[k] || k) + ': ' : '') + String(r && r.message || 'خطأ غير معروف')); return r || { ok: false }; };
+  try { const pr = PropertiesService.getScriptProperties(); const cfg = autoCfg_();
   const dow = new Date(Utilities.formatDate(new Date(), 'Asia/Riyadh', 'yyyy-MM-dd') + 'T12:00:00Z').getUTCDay();
   if (!cfg.weekend && (dow === 5 || dow === 6)) return;
   const first = Number(Utilities.formatDate(new Date(), 'Asia/Riyadh', 'H')) < 18; // المنشور الأول في اليوم
+  let done = false;
   if (first) {
     const bank = getBank_(), today = Utilities.formatDate(new Date(), 'Asia/Riyadh', 'yyyy-MM-dd');
-    if (bank && (bank.occasions || []).some(o => o.d === today)) { autoPostNow_('occasion', bank); return; }
-    if (dow === 0) { if (pr.getProperty('TG_CHAL')) autoPostNow_('answer', bank); const r = autoPostNow_('lessons', bank); if (!r.ok) autoPostNow_('', bank); return; }
-    if (dow === 4) { autoPostNow_('harvest', bank); autoPostNow_('challenge', bank); return; }
+    if (!bank) fails.push('تعذّر جلب بنك المحتوى من الموقع.');
+    else if ((bank.occasions || []).some(o => o.d === today)) { run('occasion', bank); done = true; }
+    else if (dow === 0) { if (pr.getProperty('TG_CHAL')) run('answer', bank); const r = autoPostNow_('lessons', bank); if (!r.ok) run('', bank); done = true; }
+    else if (dow === 4) { run('harvest', bank); run('challenge', bank); done = true; }
   }
-  autoPostNow_(''); } catch (e) { console.error(e); } }
+  if (!done && !(first && fails.length)) run('');
+  } catch (e) { fails.push(String(e && e.message || e)); }
+  if (fails.length) notifyTeacher_('⚠️ لم يكتمل النشر التلقائي في القناة اليوم\n\n' + fails.map(f => '• ' + f).join('\n') + '\n\nتأكد من ربط البوت وأنه مشرف في القناة، ثم جرّب «انشر الآن» من لوحة المعلم.'); }
 function getBank_() { try { return JSON.parse(UrlFetchApp.fetch(SITE_BASE + 'tg-bank.json', { muteHttpExceptions: true }).getContentText()); } catch (e) { return null; } }
 function tgRich_(label, it) { return label + '\n\n<b>' + tgEsc_(it.t) + '</b>\n\n' + (it.b || []).map(x => '• ' + tgEsc_(x)).join('\n\n') + (it.tip ? '\n\n✅ <b>جرّبها:</b> ' + tgEsc_(it.tip) : '') + '\n\n#المهارات_الرقمية'; }
 function tgPost_(text, btnText, url, img) { const pr = PropertiesService.getScriptProperties();
@@ -1933,7 +1944,7 @@ function autoPostNow_(kind, bank0) {
     r = tgQuiz_(it);
   } else {
     let text;
-    if (it && typeof it === 'object' && it.t) { r = tgPost_(tgRich_(TG_KIND_AR[type], it), '', '', it.img); if (!r || !r.ok) return { ok: false, message: 'رفض تلجرام النشر: ' + String(r && r.description || '') }; pr.setProperty('TG_AUTO', JSON.stringify(st)); return { ok: true, message: 'نُشر في القناة: ' + TG_KIND_AR[type] + (it.img ? ' (مع صورة)' : '') + '.' }; }
+    if (it && typeof it === 'object' && it.t) { const lk = tgLink_(type, it); r = tgPost_(tgRich_(TG_KIND_AR[type], it), lk[0], lk[1], it.img); if (!r || !r.ok) return { ok: false, message: 'رفض تلجرام النشر: ' + String(r && r.description || '') }; pr.setProperty('TG_AUTO', JSON.stringify(st)); return { ok: true, message: 'نُشر في القناة: ' + TG_KIND_AR[type] + (it.img ? ' (مع صورة)' : '') + '.' }; }
     else if (type === 'facts') text = '💡 <b>هل تعلم؟</b>\n\n' + tgEsc_(it);
     else if (type === 'safety') text = '🛡️ <b>أمانك الرقمي</b>\n\n' + tgEsc_(it);
     else if (type === 'shortcuts') text = '⌨️ <b>اختصار اليوم</b>\n\n<code>' + tgEsc_(it.k) + '</code>\n' + tgEsc_(it.d) + '\n\nجرّبه الآن على حاسبك! 💪';
@@ -1941,7 +1952,8 @@ function autoPostNow_(kind, bank0) {
     else if (type === 'ai') text = '🤖 <b>ركن الذكاء الاصطناعي</b>\n\n' + tgEsc_(String(it).replace(/^🤖\s*/, ''));
     else if (type === 'parents') text = '👪 <b>ركن أولياء الأمور</b>\n\n' + tgEsc_(String(it).replace(/^👪\s*لأولياء الأمور:\s*/, ''));
     else text = tgEsc_(it);
-    r = tgApi_('sendMessage', { chat_id: chat, text: text, parse_mode: 'HTML', disable_web_page_preview: true, reply_markup: btn(type === 'games' ? '🎮 العب الآن' : '') });
+    const lk = tgLink_(type, it);
+    r = tgApi_('sendMessage', { chat_id: chat, text: text, parse_mode: 'HTML', disable_web_page_preview: true, reply_markup: { inline_keyboard: [[{ text: lk[0], url: lk[1] }]] } });
     if (type === 'games' && r && r.ok === false) r = tgApi_('sendMessage', { chat_id: chat, text: text, parse_mode: 'HTML' });
   }
   if (!r || !r.ok) return { ok: false, message: 'رفض تلجرام النشر: ' + String(r && r.description || '') };
