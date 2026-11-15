@@ -41,8 +41,10 @@ function doPost(e) {
   } catch (err) {}
   // أي استعلام لم يُعالَج أعلاه لا يصل أبدًا إلى حفظ الإنجاز
   try { const q0 = JSON.parse(e.postData.contents); if (q0 && (q0.checkName || q0.presAuth || q0.visit || q0.retryCheck || q0.checkSent || q0.sentCheck || q0.retryReq)) return out_({ ok: false, status: 'error', message: 'تعذّر تنفيذ الطلب.' }); } catch (err) { return out_({ ok: false, status: 'error', message: 'طلب غير صالح' }); }
+  // عمليات Gemini بطيئة (ثوانٍ إلى دقائق): تُنفَّذ خارج القفل حتى لا توقف دخول المعلم وتسليم الطلاب
+  try { const q1 = JSON.parse(e.postData.contents); if (q1 && q1.admin && ['phRun', 'phInfo', 'phApprove', 'aiSet', 'tgAutoNow'].indexOf(String(q1.op)) >= 0) return out_(admin_(ss_(), q1)); } catch (err) { return out_({ ok: false, status: 'error', message: 'تعذّر التنفيذ: ' + String(err && err.message || err) }); }
   const lock = LockService.getScriptLock();
-  lock.waitLock(20000);
+  try { lock.waitLock(20000); } catch (err) { return out_({ ok: false, status: 'busy', message: 'الجدول مشغول بعملية أخرى الآن، حاول بعد دقيقة.' }); }
   try {
     const d = JSON.parse(e.postData.contents);
     const ss = ss_();
@@ -102,7 +104,7 @@ function classList_(ss) {
   return sh.getRange(2, 1, n - 1, 1).getValues().map(r => String(r[0]).trim()).filter(Boolean);
 }
 
-const CODE_VER = '2026-11-08a';
+const CODE_VER = '2026-11-15a';
 function doGet(e) {
   if (e && e.parameter && e.parameter.action === 'teacher') {
     const slug = String(e.parameter.t || '').toLowerCase();
@@ -1134,7 +1136,7 @@ function admin_(ss, d) {
     return { ok: true, ph: phInfo_(ss) };
   } else if (op === 'phRun') {
     if (!PropertiesService.getScriptProperties().getProperty('GEMINI_KEY')) return { ok: false, message: 'احفظ مفتاح Gemini أولًا (قسم التلجرام).' };
-    return phRun_(ss, Number(d.max) || 12);
+    return phRun_(ss, Math.min(8, Number(d.max) || 8));
   } else if (op === 'phApprove') {
     const sh = ss.getSheetByName(PH_SHEET); let n = 0; if (sh) { const V = sh.getDataRange().getValues(); for (let i = 1; i < V.length; i++) if (String(V[i][6]) === 'مسودة') { sh.getRange(i + 1, 7).setValue('معتمد'); n++; } }
     CacheService.getScriptCache().remove('ph1'); return { ok: true, ph: phInfo_(ss), message: n ? 'اعتُمدت ' + n + ' فقرة، وستظهر في صفحات الدروس خلال دقائق.' : 'لا توجد مسودات.' };
@@ -1977,7 +1979,7 @@ function phInfo_(ss) { const sh = ss.getSheetByName(PH_SHEET), B = briefGet_(); 
   return { total: B.length, ok: st('معتمد'), draft: st('مسودة'), no: st('مرفوض'), left: B.filter(L => !have.has(L.id)).length, url: ss.getUrl() + (sh ? '#gid=' + sh.getSheetId() : '') }; }
 function phRun_(ss, max) { const sh = phSheet_(ss), B = briefGet_(); if (!B.length) return { ok: false, message: 'تعذّر جلب قائمة الدروس من الموقع.' };
   const have = new Set(sh.getDataRange().getValues().slice(1).map(r => String(r[0]))), todo = B.filter(L => !have.has(L.id)), G = { 4: 'الرابع', 5: 'الخامس', 6: 'السادس' }, t0 = Date.now(); let n = 0, err = '';
-  for (const L of todo) { if (n >= (max || 12) || Date.now() - t0 > 240000) break; const r = phGen_(L); if (!r.ok) { err = r.message; break; }
+  for (const L of todo) { if (n >= (max || 8) || Date.now() - t0 > 90000) break; const r = phGen_(L); if (!r.ok) { err = r.message; break; }
     sh.appendRow([L.id, G[L.g] || L.g, L.t, r.a, r.q, r.x, 'مسودة', new Date()]); n++; }
   CacheService.getScriptCache().remove('ph1'); const info = phInfo_(ss);
   return { ok: !err || n > 0, ph: info, message: (n ? 'كُتبت ' + n + ' فقرة جديدة (مسودات للمراجعة). ' : '') + (err ? 'توقف: ' + err : info.left ? 'بقي ' + info.left + ' درسًا — اضغط مرة أخرى.' : 'اكتملت كل الدروس.') }; }
