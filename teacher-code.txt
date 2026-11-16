@@ -116,7 +116,7 @@ function classList_(ss) {
   return sh.getRange(2, 1, n - 1, 1).getValues().map(r => String(r[0]).trim()).filter(Boolean);
 }
 
-const CODE_VER = '2026-11-16b';
+const CODE_VER = '2026-11-16c';
 function doGet(e) {
   if (e && e.parameter && e.parameter.action === 'teacher') {
     const slug = String(e.parameter.t || '').toLowerCase();
@@ -1204,6 +1204,8 @@ function admin_(ss, d) {
     return r.ok ? { ok: true, message: 'أُرسلت رسالة التجربة إلى محادثتك مع البوت.' } : { ok: false, message: r.message || 'الإشعارات غير مربوطة.' };
   } else if (op === 'termReport') {
     return termReport_(ss, d);
+  } else if (op === 'stuRep') {
+    return stuRep_(ss, d);
   } else if (op === 'waData') {
     return waData_(ss);
   } else if (op === 'errors') {
@@ -1836,6 +1838,43 @@ function termReport_(ss, d) {
       rate: lessons.length && students.length ? Math.round(lessons.reduce((a, l) => a + l.sent, 0) / (lessons.length * students.length) * 100) : 0, stars: students.reduce((a, s) => a + s.stars, 0) };
   }).filter(c => c.students.length);
   return { ok: true, classes: classes, prof: prof_(), first: rows.length ? Utilities.formatDate(new Date(Math.min.apply(null, rows.map(tm))), 'Asia/Riyadh', 'yyyy-MM-dd') : '' };
+}
+/* ===================== تقرير الطالب الرسمي وقياس الأثر (لوحة المعلم) =====================
+   d.cls مطلوب، و d.name اختياري (بدونه: كل طلاب الفصل). يجمع من «الاستجابات» و«المحاولات السابقة» و«الاختبار النهائي». */
+function stuRep_(ss, d) {
+  const ck = clsKey_(d.cls || ''); if (!ck) return { ok: false, message: 'اختر الفصل.' };
+  const tm = x => x instanceof Date ? x.getTime() : (Date.parse(x) || 0), iso = x => tm(x) ? new Date(tm(x)).toISOString() : '';
+  const parse = x => { try { const v = JSON.parse(x || '[]'); return Array.isArray(v) ? v : []; } catch (e) { return []; } };
+  const resp = respSheet_(ss).getDataRange().getValues().slice(1).filter(r => r[1] && String(r[3]) && clsKey_(r[2]) === ck && !isFakeRow_(r));
+  const arc = (function () { const a = ss.getSheetByName(SHEET_ARCH); return a && a.getLastRow() > 1 ? a.getDataRange().getValues().slice(1).filter(r => r[2] && clsKey_(r[3]) === ck) : []; })();
+  const exSh = ss.getSheetByName(SHEET_EXAM), exRows = exSh && exSh.getLastRow() > 1 ? exSh.getDataRange().getValues().slice(1).filter(r => r[1] && clsKey_(r[2]) === ck) : [];
+  // دروس الفصل: كل درس أرسله طالب واحد على الأقل من الفصل
+  const L = {}; resp.forEach(r => { const id = String(r[3]); if (/-x$/.test(id)) return; const o = L[id] = L[id] || { id: id, title: String(r[4] || id).split(':').pop().trim(), sc: [], o: order_(id) }; if (isFinite(Number(r[5]))) o.sc.push(Number(r[5])); });
+  const les = Object.values(L).sort((a, b) => a.o - b.o).map(l => ({ id: l.id, title: l.title, avg: l.sc.length ? Math.round(l.sc.reduce((a, b) => a + b, 0) / l.sc.length * 10) / 10 : null, n: l.sc.length }));
+  const roster = rosterList_(ss).filter(r => clsKey_(r.cls) === ck).map(r => String(r.name).replace(/\s+/g, ' ').trim());
+  const names = d.name ? [String(d.name)] : (roster.length ? roster : Array.from(new Set(resp.map(r => String(r[1]).trim()))));
+  const clsAll = resp.filter(r => !/-x$/.test(String(r[3])) && isFinite(Number(r[5])));
+  const clsAvg = clsAll.length ? Math.round(clsAll.reduce((a, r) => a + Number(r[5]), 0) / clsAll.length * 10) / 10 : null;
+  const clsOnTime = clsAll.length ? Math.round(clsAll.filter(r => String(r[11]) !== 'متأخر').length / clsAll.length * 100) : null;
+  const one = nm => {
+    const mine = r => sameStudent_(r[1], nm);
+    const rows = resp.filter(mine).filter(r => !/-x$/.test(String(r[3])));
+    const lessons = rows.map(r => {
+      const id = String(r[3]), A = arc.filter(a => sameStudent_(a[2], nm) && String(a[4]) === id).map(a => ({ at: iso(a[1]), score: Number(a[6]) })).filter(a => isFinite(a.score));
+      const all = A.concat([{ at: iso(r[0]), score: Number(r[5]) }]).sort((a, b) => tm(a.at) - tm(b.at));
+      const steps = parse(r[12]), ans = String(r[9] || '').split('\n').filter(Boolean);
+      return { id: id, title: String(r[4] || id).split(':').pop().trim(), at: iso(r[0]), score: Number(r[5]), late: String(r[11]) === 'متأخر', cls: (L[id] && les.find(l => l.id === id) || {}).avg,
+        tries: all.length, first: all.length ? all[0].score : Number(r[5]),
+        bad: steps.filter(x => x && x.ok === false).map(x => String(x.t || '')).filter(Boolean).slice(0, 6),
+        wrong: ans.filter(a => /✗|×/.test(a)).map(a => a.replace(/[✗×]/g, '').trim()).slice(0, 4), qs: ans.length, ok: ans.filter(a => /✓/.test(a)).length };
+    }).sort((a, b) => order_(a.id) - order_(b.id));
+    const got = new Set(lessons.map(l => l.id));
+    const units = Object.keys(UNITS).map(u => { const ls = lessons.filter(l => l.id.indexOf(u + '-') === 0); const cl = les.filter(l => l.id.indexOf(u + '-') === 0);
+      return { u: u, title: UNITS[u][0], done: ls.length, total: Math.max(cl.length, 0), avg: ls.length ? Math.round(ls.reduce((a, l) => a + l.score, 0) / ls.length * 10) / 10 : null }; }).filter(x => x.total);
+    const exams = exRows.filter(mine).map(r => ({ at: iso(r[0]), title: String(r[4] || ''), score: Number(r[5]), total: Number(r[6]), pct: Number(r[7]) }));
+    return { name: nm, lessons: lessons, missing: les.filter(l => !got.has(l.id)).map(l => ({ id: l.id, title: l.title })), units: units, exams: exams };
+  };
+  return { ok: true, cls: clsLabel_(d.cls), prof: prof_(), classAvg: clsAvg, classOnTime: clsOnTime, classN: names.length && !d.name ? names.length : roster.length, lessons: les, students: names.map(one), at: new Date().toISOString() };
 }
 /* ===================== رسائل مجموعة واتساب أولياء الأمور =====================
    أرقام فقط بلا أسماء (المجموعة عامة)، والمعلم ينسخ الرسالة أو يرسلها بضغطة. */
