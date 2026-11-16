@@ -42,7 +42,8 @@ function doPost(e) {
   // أي استعلام لم يُعالَج أعلاه لا يصل أبدًا إلى حفظ الإنجاز
   try { const q0 = JSON.parse(e.postData.contents); if (q0 && (q0.checkName || q0.presAuth || q0.visit || q0.retryCheck || q0.checkSent || q0.sentCheck || q0.retryReq)) return out_({ ok: false, status: 'error', message: 'تعذّر تنفيذ الطلب.' }); } catch (err) { return out_({ ok: false, status: 'error', message: 'طلب غير صالح' }); }
   // عمليات Gemini بطيئة (ثوانٍ إلى دقائق): تُنفَّذ خارج القفل حتى لا توقف دخول المعلم وتسليم الطلاب
-  try { const q1 = JSON.parse(e.postData.contents); if (q1 && q1.admin && ['phRun', 'phInfo', 'phApprove', 'aiSet', 'tgAutoNow'].indexOf(String(q1.op)) >= 0) return out_(admin_(ss_(), q1)); } catch (err) { return out_({ ok: false, status: 'error', message: 'تعذّر التنفيذ: ' + String(err && err.message || err) }); }
+  // وعمليات القراءة (قائمة الطلاب، تقرير الطالب، تقرير الفصل) لا تحتاج القفل فلا تنتظر غيرها
+  try { const q1 = JSON.parse(e.postData.contents); if (q1 && q1.admin && ['phRun', 'phInfo', 'phApprove', 'aiSet', 'tgAutoNow', 'list', 'stuRep', 'termReport'].indexOf(String(q1.op || 'list')) >= 0) return out_(admin_(ss_(), q1)); } catch (err) { return out_({ ok: false, status: 'error', message: 'تعذّر التنفيذ: ' + String(err && err.message || err) }); }
   const lock = LockService.getScriptLock();
   try { lock.waitLock(20000); } catch (err) { return out_({ ok: false, status: 'busy', message: 'الجدول مشغول بعملية أخرى الآن، حاول بعد دقيقة.' }); }
   try {
@@ -116,7 +117,7 @@ function classList_(ss) {
   return sh.getRange(2, 1, n - 1, 1).getValues().map(r => String(r[0]).trim()).filter(Boolean);
 }
 
-const CODE_VER = '2026-11-16c';
+const CODE_VER = '2026-11-16e';
 function doGet(e) {
   if (e && e.parameter && e.parameter.action === 'teacher') {
     const slug = String(e.parameter.t || '').toLowerCase();
@@ -920,10 +921,10 @@ function admin_(ss, d) {
   if (op === 'auth') return { ok: true };
   if (op === 'kashfGet') return kashfGet_(d);
   if (op === 'kashfSet') return kashfSet_(d);
-  if (op !== 'list' && op !== 'messages') audit_(ss, 'إدارة: ' + op, [d.cls, d.name, d.newName, d.row].filter(x => x != null && x !== '').join(' — '));
+  if (['list', 'messages', 'stats', 'stuRep', 'termReport', 'reqs', 'tg', 'closed', 'phInfo', 'waData'].indexOf(op) < 0) audit_(ss, 'إدارة: ' + op, [d.cls, d.name, d.newName, d.row].filter(x => x != null && x !== '').join(' — '));
   let msg = '';
   if (op === 'list') { ensureParentCodes_(ss); formatRoster_(rosterSheet_(ss)); }
-  if (op === 'messages' || op === 'list') { try { purgeMessages_(ss); } catch (e) { console.error(e); } }
+  if (op === 'messages') { try { purgeMessages_(ss); } catch (e) { console.error(e); } }
   if (op === 'addClass') {
     const c = String(d.cls || '').replace(/\s+/g, ' ').trim();
     if (!c) return { ok: false, message: 'اكتب اسم الفصل.' };
@@ -1961,7 +1962,9 @@ function autoPost() { const fails = [];
     else if (dow === 4 && cfg.n !== 2) { run('harvest', bank); run('challenge', bank); done = true; }
   }
   if (!done && !first && dow === 4 && cfg.n === 2) { const bank = getBank_(); if (!bank) fails.push('تعذّر جلب بنك المحتوى من الموقع.'); else { run('harvest', bank); run('challenge', bank); } done = true; } // حصاد الخميس في المساء عند النشر مرتين
-  if (!done && first && aiDay_()) { const r = run('gemini'); if (!r.ok) run(''); done = true; }
+  if (!done && first && aiDay_()) { let r; try { r = autoPostNow_('gemini'); } catch (e) { r = { ok: false, message: String(e && e.message || e) }; }
+    if (!r || !r.ok) { const b = run(''); if (b.ok) { try { audit_(ss_(), 'منشور Gemini تعذّر فنُشر بديل من البنك', String(r && r.message || '')); } catch (e) {} } else fails.push((TG_KIND_AR.gemini || 'Gemini') + ': ' + String(r && r.message || '')); }
+    done = true; }
   if (!done && !(first && fails.length)) run('');
   } catch (e) { fails.push(String(e && e.message || e)); }
   if (fails.length) notifyTeacher_('⚠️ لم يكتمل النشر التلقائي في القناة اليوم\n\n' + fails.map(f => '• ' + f).join('\n') + '\n\nتأكد من ربط البوت وأنه مشرف في القناة، ثم جرّب «انشر الآن» من لوحة المعلم.'); }
@@ -2061,14 +2064,16 @@ function aiCfg_() { try { return JSON.parse(PropertiesService.getScriptPropertie
 function aiDay_() { const c = aiCfg_(), pr = PropertiesService.getScriptProperties(); if (!pr.getProperty('GEMINI_KEY') || !c.mode || c.mode === 'off') return false;
   if (c.mode === '7') return true; const dow = new Date(Utilities.formatDate(new Date(), 'Asia/Riyadh', 'yyyy-MM-dd') + 'T12:00:00Z').getUTCDay(); return dow === 1 || dow === 2 || dow === 3; }
 function geminiAsk_(prompt) { const pr = PropertiesService.getScriptProperties(), key = pr.getProperty('GEMINI_KEY'); if (!key) return { ok: false, message: 'لم يُحفظ مفتاح Gemini بعد.' };
-  const models = [pr.getProperty('GEMINI_MODEL') || 'gemini-flash-latest', 'gemini-2.5-flash'].filter((m, i, a) => a.indexOf(m) === i); let last = '';
-  for (const m of models) { try {
+  const models = [pr.getProperty('GEMINI_MODEL') || 'gemini-flash-latest', 'gemini-2.5-flash', 'gemini-2.5-flash-lite'].filter((m, i, a) => a.indexOf(m) === i); let last = '';
+  for (const m of models) for (let attempt = 0; attempt < 2; attempt++) { try {
     const res = UrlFetchApp.fetch('https://generativelanguage.googleapis.com/v1beta/models/' + m + ':generateContent', { method: 'post', contentType: 'application/json', muteHttpExceptions: true, headers: { 'x-goog-api-key': key },
       payload: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: prompt }] }], generationConfig: { temperature: 0.95, responseMimeType: 'application/json', maxOutputTokens: 900 } }) });
     const code = res.getResponseCode(), j = JSON.parse(res.getContentText() || '{}');
     if (code === 200) { const t = (((j.candidates || [])[0] || {}).content || {}).parts; const txt = (t || []).map(x => x.text || '').join(''); if (txt) return { ok: true, text: txt, model: m }; last = 'لم يُرجع Gemini نصًا.'; continue; }
     last = (code === 400 || code === 403) && /key/i.test(JSON.stringify(j)) ? 'مفتاح Gemini غير صالح.' : code === 429 ? 'تجاوزت حدود الخطة المجانية اليوم.' : 'Gemini: ' + code + ' ' + String((j.error || {}).message || '').slice(0, 120);
-    if (code !== 404) break; } catch (e) { last = String(e && e.message || e); } }
+    const busy = code === 500 || code === 503 || (code === 429 && !/quota|billing|exceeded your current/i.test(JSON.stringify(j)));
+    if (busy) { if (attempt === 0) { Utilities.sleep(8000); continue; } break; }   // ضغط مؤقت: أعد المحاولة ثم جرّب نموذجًا آخر
+    if (code === 404) break; return { ok: false, message: last }; } catch (e) { last = String(e && e.message || e); } }
   return { ok: false, message: last }; }
 function aiCheck_(o) { if (!o || typeof o !== 'object') return 'ليس JSON';
   const t = String(o.t || '').trim(), b = Array.isArray(o.b) ? o.b.map(x => String(x || '').trim()).filter(Boolean) : [], tip = String(o.tip || '').trim(), all = [t].concat(b, tip).join(' ');
