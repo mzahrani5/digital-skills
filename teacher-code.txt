@@ -65,18 +65,30 @@ function doPost(e) {
     if (closedIds_().indexOf(id) >= 0) return out_({ ok: false, status: 'closed', message: 'أغلق المعلم استقبال هذا المشروع.' });
 
     const vals = sh.getDataRange().getValues();
+    const regrant = hasGrant_(ss, d.name, d.cls, id);   // لديه فرصة أخرى: محاولته السابقة باقية في الجدول حتى يرسل الجديدة
+    let prevRow = 0;
     for (let i = vals.length - 1; i >= 1; i--) {
       if (sameStudent_(vals[i][1], d.name) && clsKey_(vals[i][2]) === clsKey_(d.cls) && String(vals[i][3]) === id) {
         if (isFakeRow_(vals[i])) { if (sh.getLastRow() > 2) sh.deleteRow(i + 1); else sh.getRange(i + 1, 1, 1, sh.getMaxColumns()).clearContent(); continue; }
+        if (regrant) { if (!prevRow) prevRow = i + 1; continue; }
         return out_({ ok: false, status: 'duplicate', score: fixScoreCell_(sh, i + 1, vals[i]), units: unitsOf_(sh, d.name, d.cls) });
       }
     }
-    sh.appendRow([new Date(), d.name, d.cls, id, d.lesson, safeScore_(d.score, d.task, d.quiz), d.task, d.quiz, d.reflect, d.answers || '', d.report || '', d.late ? 'متأخر' : 'في الموعد', JSON.stringify(d.steps || [])]);
+    const newRow = [new Date(), d.name, d.cls, id, d.lesson, safeScore_(d.score, d.task, d.quiz), d.task, d.quiz, d.reflect, d.answers || '', d.report || '', d.late ? 'متأخر' : 'في الموعد', JSON.stringify(d.steps || [])];
+    let keptOld = false;
+    if (prevRow) {   // تبقى الدرجة الأعلى، والمحاولة الأخرى تُحفظ في «المحاولات السابقة»
+      const old = sh.getRange(prevRow, 1, 1, sh.getLastColumn()).getValues()[0];
+      const oS = Number(old[5]), nS = Number(newRow[5]);
+      if (isFinite(oS) && isFinite(nS) && oS > nS) { keptOld = true; archiveAttempt_(ss, newRow, 'محاولة أقل — بقيت الدرجة السابقة'); }
+      else { archiveAttempt_(ss, old, 'استُبدلت بمحاولة أعلى أو مساوية'); if (sh.getLastRow() > 2) sh.deleteRow(prevRow); else sh.getRange(prevRow, 1, 1, sh.getMaxColumns()).clearContent(); }
+    }
+    if (!keptOld) sh.appendRow(newRow);
     try { formatResp_(sh); } catch (err) { console.error(err); audit_(ss, 'خطأ في تنسيق الاستجابات', String(err)); }
     try { updateGrid_(ss); } catch (err) { console.error(err); audit_(ss, 'خطأ في تحديث الكشوف', String(err)); }
     try { retryUsed_(ss, d.name, d.cls, id); } catch (err) { console.error(err); }
     try { saveToClassFolder_(ss, d); } catch (err) { console.error(err); }
-    return out_({ ok: true, status: 'saved', units: unitsOf_(sh, d.name, d.cls) });
+    if (prevRow) audit_(ss, 'محاولة ثانية', d.name + ' — ' + d.cls + ' — ' + (d.lesson || id) + (keptOld ? ' (بقيت الدرجة السابقة لأنها أعلى)' : ' (اعتُمدت الدرجة الجديدة)'));
+    return out_(Object.assign({ ok: true, status: 'saved', units: unitsOf_(sh, d.name, d.cls) }, keptOld ? { kept: true, message: 'وصلت محاولتك، وبقيت درجتك السابقة لأنها أعلى.' } : {}));
   } catch (err) {
     return out_({ ok: false, status: 'error', message: String(err) });
   } finally {
@@ -104,7 +116,7 @@ function classList_(ss) {
   return sh.getRange(2, 1, n - 1, 1).getValues().map(r => String(r[0]).trim()).filter(Boolean);
 }
 
-const CODE_VER = '2026-11-15b';
+const CODE_VER = '2026-11-16b';
 function doGet(e) {
   if (e && e.parameter && e.parameter.action === 'teacher') {
     const slug = String(e.parameter.t || '').toLowerCase();
@@ -1048,7 +1060,7 @@ function admin_(ss, d) {
       const sh = respSheet_(ss), v = sh.getLastRow() > 1 ? sh.getRange(2, 1, sh.getLastRow() - 1, 4).getValues() : [];
       let r = -1; for (let i = v.length - 1; i >= 0; i--) if (sameStudent_(v[i][1], q[2]) && clsKey_(v[i][2]) === clsKey_(q[1]) && String(v[i][3]) === String(q[3])) { r = i + 2; break; }
       if (r < 0) { if (rs.getLastRow() > 2) rs.deleteRow(ri); else rs.getRange(ri, 1, 1, 8).clearContent(); return { ok: true, message: 'قُبل الطلب، ولا يوجد إرسال سابق له، فيستطيع الإرسال مباشرة.', reqs: reqsList_(ss) }; }
-      const g = grantRetry_(ss, r, q[2], q[3]);   // يحذف المحاولة السابقة والفرص والطلبات السابقة لنفس الدرس
+      const g = grantRetry_(ss, r, q[2], q[3]);   // يفتح الدرس مع إبقاء المحاولة السابقة حتى تُستبدل بالأعلى
       if (!g.ok) return { ok: false, message: g.message, reqs: reqsList_(ss) };
       return { ok: true, message: 'قُبل طلب ' + q[2] + '، ويجد الدرس مفتوحًا عند تحديث الصفحة.', reqs: reqsList_(ss) };
     }
@@ -1127,10 +1139,10 @@ function admin_(ss, d) {
     const cfg = { n: Number(d.n) === 2 ? 2 : 1, weekend: !!d.weekend };
     try {
       ScriptApp.getProjectTriggers().forEach(tr => { if (tr.getHandlerFunction() === 'autoPost') ScriptApp.deleteTrigger(tr); });
-      if (d.on) { ScriptApp.newTrigger('autoPost').timeBased().everyDays(1).atHour(16).inTimezone('Asia/Riyadh').create(); if (cfg.n === 2) ScriptApp.newTrigger('autoPost').timeBased().everyDays(1).atHour(20).inTimezone('Asia/Riyadh').create(); }
+      if (d.on) { ScriptApp.newTrigger('autoPost').timeBased().everyDays(1).atHour(cfg.n === 2 ? 7 : 16).inTimezone('Asia/Riyadh').create(); if (cfg.n === 2) ScriptApp.newTrigger('autoPost').timeBased().everyDays(1).atHour(20).inTimezone('Asia/Riyadh').create(); }
     } catch (err) { return { ok: false, message: 'يحتاج إذنًا لمرة واحدة: في Apps Script اختر الدالة autoPost واضغط ▶ تشغيل ووافق على الإذن، ثم أعد المحاولة.' }; }
     PropertiesService.getScriptProperties().setProperty('TG_AUTO_CFG', JSON.stringify(cfg));
-    return { ok: true, message: d.on ? 'فُعّل النشر التلقائي: ' + (cfg.n === 2 ? 'منشوران يوميًا (٤ عصرًا و٨ مساءً)' : 'منشور يوميًا الساعة ٤ عصرًا') + (cfg.weekend ? ' طوال الأسبوع.' : ' في أيام الدراسة.') : 'أُوقف النشر التلقائي.', auto: Object.assign({ on: !!d.on }, cfg) };
+    return { ok: true, message: d.on ? 'فُعّل النشر التلقائي: ' + (cfg.n === 2 ? 'منشوران يوميًا (٧ صباحًا و٨ مساءً)' : 'منشور يوميًا الساعة ٤ عصرًا') + (cfg.weekend ? ' طوال الأسبوع.' : ' في أيام الدراسة.') : 'أُوقف النشر التلقائي.', auto: Object.assign({ on: !!d.on }, cfg) };
   } else if (op === 'phInfo') {
     return { ok: true, ph: phInfo_(ss) };
   } else if (op === 'phRun') {
@@ -1355,6 +1367,12 @@ function sentOf_(ss, cls, name) {
   return out;
 }
 function retry_(ss, cls, name, id, exam) {
+  if (!exam) {   // الدروس: نفس منطق «فرصة أخرى» — لا حذف، وتبقى الدرجة الأعلى
+    const rs = respSheet_(ss); if (rs.getLastRow() < 2 || !id) return 0;
+    const v = rs.getRange(2, 1, rs.getLastRow() - 1, 4).getValues();
+    for (let i = v.length - 1; i >= 0; i--) if (sameStudent_(v[i][1], name) && clsKey_(v[i][2]) === clsKey_(cls) && String(v[i][3]) === id) { const g = grantRetry_(ss, i + 2, v[i][1], id); return g.ok ? 1 : 0; }
+    return 0;
+  }
   const sh = exam ? ss.getSheetByName(SHEET_EXAM) : respSheet_(ss);
   if (!sh || sh.getLastRow() < 2 || !id) return 0;
   const v = sh.getRange(2, 1, sh.getLastRow() - 1, 4).getValues();
@@ -1384,7 +1402,8 @@ function checkSent_(ss, q) {
   const sent = [];
   if (ids.length) {
     const have = new Set(respSheet_(ss).getDataRange().getValues().slice(1).filter(mine).map(r => String(r[3])));
-    ids.forEach(id => { if (have.has(id)) sent.push(id); });
+    const gr = grantIds_(ss, name, cls);
+    ids.forEach(id => { if (have.has(id) && !gr.has(id)) sent.push(id); });
   }
   if (exams.length) {
     const ex = ss.getSheetByName(SHEET_EXAM);
@@ -1613,10 +1632,24 @@ function archiveSheet_(ss) {
   let sh = ss.getSheetByName(SHEET_ARCH);
   if (!sh) {
     sh = ss.insertSheet(SHEET_ARCH);
-    sh.getRange(1, 1, 1, 13).setValues([['وقت الإعادة', 'وقت الإرسال', 'اسم الطالب', 'الفصل', 'رقم الدرس', 'الدرس', 'الدرجة', 'المهمة', 'الأسئلة', 'التأمل', 'الإجابات', 'التقرير', 'الموعد']]);
-    sh.setRightToLeft(true); sh.setFrozenRows(1); sh.getRange(1, 1, 1, 13).setFontWeight('bold').setFontColor('#ffffff').setBackground(NAVY);
+    sh.getRange(1, 1, 1, 14).setValues([['وقت الأرشفة', 'وقت الإرسال', 'اسم الطالب', 'الفصل', 'رقم الدرس', 'الدرس', 'الدرجة', 'المهمة', 'الأسئلة', 'التأمل', 'الإجابات', 'التقرير', 'الموعد', 'الحالة']]);
+    sh.setRightToLeft(true); sh.setFrozenRows(1); sh.getRange(1, 1, 1, 14).setFontWeight('bold').setFontColor('#ffffff').setBackground(NAVY);
   }
+  if (String(sh.getRange(1, 14).getValue()) !== 'الحالة') sh.getRange(1, 14).setValue('الحالة').setFontWeight('bold').setFontColor('#ffffff').setBackground(NAVY);
   return sh;
+}
+/* يحفظ محاولة كاملة في «المحاولات السابقة» بدل حذفها — r بترتيب أعمدة «الاستجابات» */
+function archiveAttempt_(ss, r, note) {
+  archiveSheet_(ss).appendRow([new Date(), r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8], r[9], r[10], r[11], note || '']);
+}
+/* هل لدى الطالب فرصة أخرى متاحة في هذا الدرس؟ */
+function hasGrant_(ss, nm, cls, id) {
+  const sh = ss.getSheetByName(SHEET_GRANT); if (!sh || sh.getLastRow() < 2) return false;
+  return sh.getRange(2, 1, sh.getLastRow() - 1, 7).getValues().some(r => String(r[6]).trim() === 'متاحة' && sameStudent_(r[2], nm) && clsKey_(r[1]) === clsKey_(cls) && String(r[3]) === String(id));
+}
+function grantIds_(ss, nm, cls) {
+  const sh = ss.getSheetByName(SHEET_GRANT); if (!sh || sh.getLastRow() < 2) return new Set();
+  return new Set(sh.getRange(2, 1, sh.getLastRow() - 1, 7).getValues().filter(r => String(r[6]).trim() === 'متاحة' && sameStudent_(r[2], nm) && clsKey_(r[1]) === clsKey_(cls)).map(r => String(r[3])));
 }
 function subsList_(ss, cls) {
   const sh = respSheet_(ss); if (sh.getLastRow() < 2) return [];
@@ -1658,6 +1691,7 @@ function sentCheck_(ss, q) {
   for (let i = v.length - 1; i >= 0; i--) {
     if (String(v[i][3]) === id && clsKey_(v[i][2]) === clsKey_(cls) && sameStudent_(v[i][1], name)) {
       if (isFakeRow_(v[i])) { if (sh.getLastRow() > 2) sh.deleteRow(i + 2); else sh.getRange(i + 2, 1, 1, sh.getMaxColumns()).clearContent(); continue; }
+      if (hasGrant_(ss, name, cls, id)) return { ok: true, sent: false, retry: true };
       return { ok: true, sent: true, score: fixScoreCell_(sh, i + 2, v[i]), at: v[i][0] instanceof Date ? v[i][0].toISOString() : '' };
     }
   }
@@ -1668,19 +1702,17 @@ function grantRetry_(ss, r, name, lessonId) {
     if (!(r >= 2 && r <= sh.getLastRow())) return { ok: false, message: 'لم يُعثر على الإرسال. حدّث القائمة.' };
     const row = sh.getRange(r, 1, 1, sh.getLastColumn()).getValues()[0];
     if (!sameStudent_(row[1], name) || String(row[3]) !== String(lessonId || '')) return { ok: false, message: 'تغيّرت البيانات. حدّث القائمة ثم حاول.' };
-    if (sh.getLastRow() > 2) sh.deleteRow(r); else sh.getRange(r, 1, 1, sh.getMaxColumns()).clearContent();
-    // تنظيف: حذف أي فرص سابقة لنفس الطالب في نفس الدرس، وأي محاولات مؤرشفة قديمة له، حتى لا تتكرر
+    // المحاولة السابقة تبقى في الجدول ودرجتها محسوبة حتى يرسل الطالب الجديدة، ثم تبقى الدرجة الأعلى
+    // تنظيف: حذف أي فرص أو طلبات سابقة لنفس الطالب في نفس الدرس حتى لا تتكرر
     const same = (nm, c, id) => sameStudent_(nm, row[1]) && clsKey_(c) === clsKey_(row[2]) && String(id) === String(row[3]);
     const gs = grantSheet_(ss);
     for (let i = gs.getLastRow(); i >= 2; i--) { const g = gs.getRange(i, 1, 1, 7).getValues()[0]; if (same(g[2], g[1], g[3])) { if (gs.getLastRow() > 2) gs.deleteRow(i); else gs.getRange(i, 1, 1, 7).clearContent(); } }
-    const ar = ss.getSheetByName(SHEET_ARCH);
-    if (ar) for (let i = ar.getLastRow(); i >= 2; i--) { const a = ar.getRange(i, 1, 1, 5).getValues()[0]; if (same(a[2], a[3], a[4])) { if (ar.getLastRow() > 2) ar.deleteRow(i); else ar.getRange(i, 1, 1, 13).clearContent(); } }
     const rq = ss.getSheetByName(SHEET_REQ);
     if (rq) for (let i = rq.getLastRow(); i >= 2; i--) { const q = rq.getRange(i, 1, 1, 4).getValues()[0]; if (same(q[2], q[1], q[3])) { if (rq.getLastRow() > 2) rq.deleteRow(i); else rq.getRange(i, 1, 1, 8).clearContent(); } }
     gs.appendRow([new Date(), row[2], row[1], row[3], row[4], row[5], 'متاحة']);
     try { formatResp_(sh); updateGrid_(ss); } catch (err) { console.error(err); }
     audit_(ss, 'منح فرصة أخرى', row[1] + ' — ' + row[2] + ' — ' + row[4] + ' (الدرجة السابقة ' + row[5] + ')');
-    return { ok: true, message: 'مُنح ' + row[1] + ' فرصة أخرى في «' + row[4] + '». حُذفت محاولته السابقة، وتُعتمد درجته الجديدة عند إرساله.', row: row };
+    return { ok: true, message: 'مُنح ' + row[1] + ' فرصة أخرى في «' + row[4] + '». تبقى درجته الحالية محسوبة، وعند إرساله المحاولة الجديدة تُعتمد الدرجة الأعلى وتُحفظ الأخرى في «المحاولات السابقة».', row: row };
 }
 /* ===================== طلبات الطلاب لفرصة أخرى ===================== */
 const SHEET_REQ = 'طلبات الفرص', REQ_MAX = 8;
@@ -1887,8 +1919,9 @@ function autoPost() { const fails = [];
     if (!bank) fails.push('تعذّر جلب بنك المحتوى من الموقع.');
     else if ((bank.occasions || []).some(o => o.d === today)) { run('occasion', bank); done = true; }
     else if (dow === 0) { if (pr.getProperty('TG_CHAL')) run('answer', bank); const r = autoPostNow_('lessons', bank); if (!r.ok) run('', bank); done = true; }
-    else if (dow === 4) { run('harvest', bank); run('challenge', bank); done = true; }
+    else if (dow === 4 && cfg.n !== 2) { run('harvest', bank); run('challenge', bank); done = true; }
   }
+  if (!done && !first && dow === 4 && cfg.n === 2) { const bank = getBank_(); if (!bank) fails.push('تعذّر جلب بنك المحتوى من الموقع.'); else { run('harvest', bank); run('challenge', bank); } done = true; } // حصاد الخميس في المساء عند النشر مرتين
   if (!done && first && aiDay_()) { const r = run('gemini'); if (!r.ok) run(''); done = true; }
   if (!done && !(first && fails.length)) run('');
   } catch (e) { fails.push(String(e && e.message || e)); }
