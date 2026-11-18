@@ -45,7 +45,7 @@ function doPost(e) {
   try { const q0 = JSON.parse(e.postData.contents); if (q0 && (q0.checkName || q0.presAuth || q0.visit || q0.retryCheck || q0.checkSent || q0.sentCheck || q0.retryReq)) return out_({ ok: false, status: 'error', message: 'تعذّر تنفيذ الطلب.' }); } catch (err) { return out_({ ok: false, status: 'error', message: 'طلب غير صالح' }); }
   // عمليات Gemini بطيئة (ثوانٍ إلى دقائق): تُنفَّذ خارج القفل حتى لا توقف دخول المعلم وتسليم الطلاب
   // وعمليات القراءة (قائمة الطلاب، تقرير الطالب، تقرير الفصل) لا تحتاج القفل فلا تنتظر غيرها
-  try { const q1 = JSON.parse(e.postData.contents); if (q1 && q1.admin && ['phRun', 'phInfo', 'phApprove', 'aiSet', 'tgAutoNow', 'list', 'stuRep', 'termReport', 'updInfo', 'updNow'].indexOf(String(q1.op || 'list')) >= 0) return out_(admin_(ss_(), q1)); } catch (err) { return out_({ ok: false, status: 'error', message: 'تعذّر التنفيذ: ' + String(err && err.message || err) }); }
+  try { const q1 = JSON.parse(e.postData.contents); if (q1 && q1.admin && ['phRun', 'phInfo', 'phApprove', 'aiSet', 'tgAutoNow', 'list', 'stuRep', 'termReport', 'updInfo'].indexOf(String(q1.op || 'list')) >= 0) return out_(admin_(ss_(), q1)); } catch (err) { return out_({ ok: false, status: 'error', message: 'تعذّر التنفيذ: ' + String(err && err.message || err) }); }
   const lock = LockService.getScriptLock();
   try { lock.waitLock(20000); } catch (err) { return out_({ ok: false, status: 'busy', message: 'الجدول مشغول بعملية أخرى الآن، حاول بعد دقيقة.' }); }
   try {
@@ -119,17 +119,12 @@ function classList_(ss) {
   return sh.getRange(2, 1, n - 1, 1).getValues().map(r => String(r[0]).trim()).filter(Boolean);
 }
 
-const CODE_VER = '2026-11-18a';
-/* ====== التحديث التلقائي للكود ======
-   كل ليلة يقارن هذا الجدول إصدار كوده بالإصدار المنشور في الموقع (teacher-code.txt)،
-   فإن وُجد أحدث استبدل الكود ونشر إصدارًا جديدًا من النشر نفسه (يبقى الرابط كما هو).
-   يحتاج مرة واحدة: تشغيل «Google Apps Script API» من https://script.google.com/home/usersettings
-   يحتفظ بالإعدادات (الرمز، الاسم، المجلد، القناة) لأنها في «خصائص النص البرمجي» لا في الكود. */
-const UPD_SRC = 'https://m-zahrani.com/teacher-code.txt';
-const UPD_SCOPES = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/documents', 'https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/script.external_request', 'https://www.googleapis.com/auth/script.scriptapp', 'https://www.googleapis.com/auth/script.send_mail', 'https://www.googleapis.com/auth/script.container.ui', 'https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/script.projects', 'https://www.googleapis.com/auth/script.deployments'];
-const UPD_MANIFEST = { timeZone: 'Asia/Riyadh', exceptionLogging: 'STACKDRIVER', runtimeVersion: 'V8', oauthScopes: UPD_SCOPES, webapp: { executeAs: 'USER_DEPLOYING', access: 'ANYONE_ANONYMOUS' } };
-const UPD_API_HELP = 'شغّل «Google Apps Script API» مرة واحدة من https://script.google.com/home/usersettings ثم اضغط «تحقّق الآن».';
-/* ينقل الإعدادات المكتوبة في الكود إلى الخصائص (مرة واحدة) حتى لا يمسحها التحديث */
+const CODE_VER = '2026-11-18b';
+/* ====== تحديث كود الجدول ======
+   إعدادات الجدول (الرمز، الاسم، المجلد، القناة) محفوظة في «خصائص النص البرمجي»،
+   فالتحديث = لصق الكود الجديد كما هو ونشر إصدار جديد، دون تعديل أي سطر.
+   لوحة المعلم تقارن إصدار هذا الكود بالمنشور في الموقع وتنبّه عند وجود أحدث. */
+/* ينقل الإعدادات المكتوبة في الكود إلى الخصائص (مرة واحدة) حتى لا يمسحها لصق كود جديد */
 function updMigrate_() {
   const P = PropertiesService.getScriptProperties();
   if (!P.getProperty('ADMIN_PIN') && ADMIN_PIN) P.setProperty('ADMIN_PIN', ADMIN_PIN);
@@ -138,78 +133,12 @@ function updMigrate_() {
   if (P.getProperty('TG_CHAT_DEF') == null) P.setProperty('TG_CHAT_DEF', TG_CHAT_DEF || '');
 }
 function updSetup_() {
-  const P = PropertiesService.getScriptProperties();
   updMigrate_();
-  if (P.getProperty('UPD_TRIG') === '2') return;
-  if (!ScriptApp.getProjectTriggers().some(tr => tr.getHandlerFunction() === 'autoUpdateTick')) ScriptApp.newTrigger('autoUpdateTick').timeBased().everyDays(1).atHour(2).inTimezone('Asia/Riyadh').create();
-  P.setProperty('UPD_TRIG', '2');
+  /* إزالة مشغّل التحديث الذاتي من تجربة سابقة (لم يعد مستخدمًا) */
+  try { ScriptApp.getProjectTriggers().forEach(tr => { if (tr.getHandlerFunction() === 'autoUpdateTick') ScriptApp.deleteTrigger(tr); }); } catch (e) {}
 }
-function autoUpdateTick() { try { autoUpdate_({}); } catch (e) { console.error(e); } }
-function updLast_(o) { o.at = new Date().toISOString(); PropertiesService.getScriptProperties().setProperty('UPD_LAST', JSON.stringify(o)); return o; }
-function updInfo_() {
-  let last = null; try { last = JSON.parse(PropertiesService.getScriptProperties().getProperty('UPD_LAST') || 'null'); } catch (e) {}
-  let on = false; try { on = ScriptApp.getProjectTriggers().some(tr => tr.getHandlerFunction() === 'autoUpdateTick'); } catch (e) {}
-  return { ok: true, upd: { ver: CODE_VER, on: on, last: last, help: UPD_API_HELP } };
-}
-function updApi_(method, path, body) {
-  const o = { method: method, headers: { Authorization: 'Bearer ' + ScriptApp.getOAuthToken() }, muteHttpExceptions: true, contentType: 'application/json' };
-  if (body) o.payload = JSON.stringify(body);
-  const r = UrlFetchApp.fetch('https://script.googleapis.com/v1/projects/' + path, o);
-  let j = {}; try { j = JSON.parse(r.getContentText() || '{}'); } catch (e) {}
-  if (r.getResponseCode() >= 300) {
-    const m = (j.error && j.error.message) || ('HTTP ' + r.getResponseCode());
-    const err = new Error(m); err.api = /has not been used|is disabled|not enabled|SERVICE_DISABLED|User has not enabled/i.test(m) ? 'off' : /insufficient|scope|PERMISSION_DENIED/i.test(m) ? 'scope' : 'other'; throw err;
-  }
-  return j;
-}
-/* يحدّث ملفات مشروع (هذا الجدول أو القالب) بالكود الجديد مع إبقاء أي ملفات أخرى */
-function updFiles_(cur, src) {
-  const files = (cur.files || []).filter(f => f.name !== 'appsscript');
-  const i = files.findIndex(f => f.type === 'SERVER_JS' && /const CODE_VER\s*=/.test(f.source || ''));
-  const main = { name: i >= 0 ? files[i].name : 'Code', type: 'SERVER_JS', source: src };
-  if (i >= 0) files[i] = main; else files.push(main);
-  files.push({ name: 'appsscript', type: 'JSON', source: JSON.stringify(UPD_MANIFEST, null, 2) });
-  return files;
-}
-function autoUpdate_(opt) {
-  opt = opt || {};
-  try { updSetup_(); } catch (e) {}
-  const r = UrlFetchApp.fetch(UPD_SRC + '?t=' + Date.now(), { muteHttpExceptions: true });
-  if (r.getResponseCode() !== 200) return updLast_({ ok: false, message: 'تعذّر جلب الكود الجديد من الموقع، سيُعاد المحاولة الليلة القادمة.' });
-  const src = r.getContentText();
-  const nv = (src.match(/const CODE_VER = '([^']+)'/) || [])[1] || '';
-  if (!nv || src.length < 50000 || src.indexOf('function doPost') < 0 || src.indexOf('function autoUpdate_') < 0) return updLast_({ ok: false, message: 'الكود المنشور غير مكتمل، فلم يُحدَّث شيء.' });
-  const nScopes = ((src.match(/const UPD_SCOPES = (\[[^\]]*\])/) || [])[1] || '').replace(/'/g, '"');
-  let newScopes = []; try { newScopes = JSON.parse(nScopes); } catch (e) {}
-  const id = ScriptApp.getScriptId();
-  let selfMsg = '';
-  try {
-    if (nv > CODE_VER) {
-      if (newScopes.some(x => UPD_SCOPES.indexOf(x) < 0)) return updLast_({ ok: false, manual: true, ver: CODE_VER, to: nv, message: 'الإصدار ' + nv + ' يحتاج صلاحية جديدة، فيلزم تحديثه يدويًا مرة واحدة.' });
-      const cur = updApi_('get', id + '/content');
-      updApi_('put', id + '/content', { files: updFiles_(cur, src) });
-      try {
-        const v = updApi_('post', id + '/versions', { description: 'تحديث تلقائي ' + nv });
-        const deps = (updApi_('get', id + '/deployments').deployments || []).filter(dp => (dp.entryPoints || []).some(ep => ep.entryPointType === 'WEB_APP') && dp.deploymentConfig && dp.deploymentConfig.versionNumber);
-        if (!deps.length) throw new Error('لم يُعثر على نشر تطبيق الويب.');
-        deps.forEach(dp => updApi_('put', id + '/deployments/' + dp.deploymentId, { deploymentConfig: { scriptId: id, versionNumber: v.versionNumber, manifestFileName: 'appsscript', description: 'تحديث تلقائي ' + nv } }));
-      } catch (e) { try { updApi_('put', id + '/content', { files: cur.files }); } catch (e2) {} throw e; }
-      selfMsg = 'حُدّث الكود من ' + CODE_VER + ' إلى ' + nv + '.';
-    }
-    /* جدول صاحب الموقع يحدّث القالب الذي ينسخه المعلمون الجدد */
-    const tpl = cfgProp_('TEMPLATE_SCRIPT_ID');
-    let tplMsg = '';
-    if (tpl) {
-      const tc = updApi_('get', tpl + '/content');
-      const tv = (((tc.files || []).find(f => /const CODE_VER\s*=/.test(f.source || '')) || {}).source || '').match(/const CODE_VER = '([^']+)'/);
-      if (!tv || tv[1] < nv) { updApi_('put', tpl + '/content', { files: updFiles_(tc, src) }); tplMsg = ' وحُدّث قالب المعلمين.'; }
-    }
-    return updLast_({ ok: true, ver: nv > CODE_VER ? nv : CODE_VER, updated: !!selfMsg, message: (selfMsg || 'الكود محدَّث (' + CODE_VER + ').') + tplMsg });
-  } catch (e) {
-    const m = e.api === 'off' ? 'التحديث التلقائي متوقف: ' + UPD_API_HELP : e.api === 'scope' ? 'التحديث التلقائي يحتاج صلاحية «إدارة مشاريع Apps Script» في ملف appsscript.json لهذا الجدول. الجداول المنشأة بزر «أنشئ جدولي بضغطة» فيها هذه الصلاحية.' : 'تعذّر التحديث: ' + String(e.message || e).slice(0, 200);
-    return updLast_({ ok: false, api: e.api || '', ver: CODE_VER, to: nv, message: m });
-  }
-}
+function autoUpdateTick() {}
+function updInfo_() { let script = ''; try { script = ScriptApp.getScriptId(); } catch (e) {} return { ok: true, upd: { ver: CODE_VER, script: script } }; }
 
 function doGet(e) {
   if (e && e.parameter && e.parameter.action === 'teacher') {
@@ -1013,7 +942,6 @@ function admin_(ss, d) {
   const op = String(d.op || 'list');
   if (op === 'auth') return { ok: true };
   if (op === 'updInfo') return updInfo_();
-  if (op === 'updNow') return autoUpdate_({ manual: true });
   if (op === 'kashfGet') return kashfGet_(d);
   if (op === 'kashfSet') return kashfSet_(d);
   if (['list', 'messages', 'stats', 'stuRep', 'termReport', 'reqs', 'tg', 'closed', 'phInfo', 'waData', 'updInfo'].indexOf(op) < 0) audit_(ss, 'إدارة: ' + op, [d.cls, d.name, d.newName, d.row].filter(x => x != null && x !== '').join(' — '));
