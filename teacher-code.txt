@@ -119,7 +119,7 @@ function classList_(ss) {
   return sh.getRange(2, 1, n - 1, 1).getValues().map(r => String(r[0]).trim()).filter(Boolean);
 }
 
-const CODE_VER = '2026-11-26d';
+const CODE_VER = '2026-11-26e';
 /* ====== تحديث كود الجدول ======
    إعدادات الجدول (الرمز، الاسم، المجلد، القناة) محفوظة في «خصائص النص البرمجي»،
    فالتحديث = لصق الكود الجديد كما هو ونشر إصدار جديد، دون تعديل أي سطر.
@@ -604,7 +604,7 @@ function badgesPub_(ss) {
     const okm = starsOkMap_();
     const sh = rosterSheet_(ss), n = sh.getLastRow();
     const roster = n > 1 ? sh.getRange(2, 1, n - 1, 3).getValues().filter(r => String(r[1]).trim()) : [];
-    badgesFrom_(respSheet_(ss).getDataRange().getValues().slice(1)).sort((a, b) => a.at - b.at).forEach(o => {
+    badgesRecent_(badgesFrom_(respSheet_(ss).getDataRange().getValues().slice(1)), Date.now()).forEach(o => {
       const rr = roster.find(x => clsKey_(x[0]) === clsKey_(o.cls) && sameStudent_(x[1], o.name));
       if (!rr) return;
       if (okm[normCode_(rr[2])] === -1) return;
@@ -613,6 +613,12 @@ function badgesPub_(ss) {
   } catch (err) { console.error(err); }
   try { cache.put('badges_pub', JSON.stringify(out), 300); } catch (e) {}
   return out;
+}
+/* لوحة الصفحة الرئيسية: كل وسام يظهر ٧ أيام من حصول الطالب عليه ثم يختفي وحده (يبقى في صفحة الطالب وتقريره) */
+function badgesRecent_(list, now) {
+  const WEEK = 7 * 864e5;
+  return list.map(o => { const u = o.units.filter(k => o.ts && o.ts[k] && now - o.ts[k] <= WEEK); return u.length ? { name: o.name, cls: o.cls, units: u, at: Math.min(...u.map(k => o.ts[k])) } : null; })
+    .filter(Boolean).sort((a, b) => b.at - a.at);
 }
 function badgesFrom_(vals) {
   const S = {};
@@ -629,7 +635,8 @@ function badgesFrom_(vals) {
     const got = Object.keys(o.u).filter(k => UNITS[k] && Object.keys(o.u[k]).length >= UNITS[k][1] && Object.values(o.u[k]).reduce((a, b) => a + b, 0) / Object.keys(o.u[k]).length >= 8);
     // وقت إتمام الوسام = وقت آخر درس في أول وحدة أُتمّت (للترتيب: الأسبق أولاً)
     const at = got.length ? Math.min(...got.map(k => o.t[k] || 0)) : 0;
-    return { name: o.name, cls: o.cls, units: got.sort((a, b) => order_(a + '-1') - order_(b + '-1')), at: at };
+    const ts = {}; got.forEach(k => { ts[k] = o.t[k] || 0; });
+    return { name: o.name, cls: o.cls, units: got.sort((a, b) => order_(a + '-1') - order_(b + '-1')), at: at, ts: ts };
   }).filter(o => o.units.length);
 }
 function buildBadges_(ss, vals) {
