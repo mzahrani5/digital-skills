@@ -119,7 +119,7 @@ function classList_(ss) {
   return sh.getRange(2, 1, n - 1, 1).getValues().map(r => String(r[0]).trim()).filter(Boolean);
 }
 
-const CODE_VER = '2026-11-18c';
+const CODE_VER = '2026-11-26';
 /* ====== تحديث كود الجدول ======
    إعدادات الجدول (الرمز، الاسم، المجلد، القناة) محفوظة في «خصائص النص البرمجي»،
    فالتحديث = لصق الكود الجديد كما هو ونشر إصدار جديد، دون تعديل أي سطر.
@@ -153,8 +153,8 @@ function doGet(e) {
   if (e && e.parameter && e.parameter.action === 'ver') return out_({ ok: true, ver: CODE_VER, message: 'كود الجدول محدَّث (إصدار ' + CODE_VER + ')' });
   const ss = ss_();
   if (e && e.parameter && e.parameter.action === 'news') { const cl = closedIds_(); const live = l => { const m = String(l || '').match(/[?&]lesson=([^&#]+)/); if (!m) return true; const ids = decodeURIComponent(m[1]).split(','); return ids.some(x => cl.indexOf(x.trim()) < 0); };
-    return out_({ ok: true, news: newsList_(ss, false).filter(n => live(n.link)), promos: promosList_(ss, false).filter(p => live(p.link)), stu: stuGet_(), closed: cl, maint: maintGet_(), videos: videosGet_(), tg: TELEGRAM, badges: badgesPub_(ss), stars: starsOn_() ? starsPub_() : null }); }
-  if (e && e.parameter && e.parameter.action === 'classes') return out_({ ok: true, classes: classList_(ss), closed: closedIds_(), maint: maintGet_(), videos: videosGet_() });
+    return out_({ ok: true, news: newsList_(ss, false).filter(n => live(n.link)), promos: promosList_(ss, false).filter(p => live(p.link)), stu: stuGet_(), closed: cl, maint: maintGet_(), videos: videosGet_(), tg: TELEGRAM, badges: badgesOn_() ? badgesPub_(ss) : [], badgesOn: badgesOn_(), stars: starsOn_() ? starsPub_() : null }); }
+  if (e && e.parameter && e.parameter.action === 'classes') return out_({ ok: true, classes: classList_(ss), closed: closedIds_(), maint: maintGet_(), videos: videosGet_(), badgesOn: badgesOn_() });
   return out_({ ok: true, status: 'ready' });
 }
 
@@ -901,7 +901,7 @@ function parentReport_(ss, code, consent) {
     const sc = lessons.filter(l => l.id.indexOf(u + '-') === 0 && !/-x$/.test(l.id)).map(l => l.score);
     return { unit: u, title: UNITS[u] ? UNITS[u][0] : u, avg: sc.length ? Math.round(sc.reduce((x, y) => x + y, 0) / sc.length * 10) / 10 : 0 };
   }) : [];
-  return { ok: true, student: { name: name, cls: clsLabel_(row[0]) }, stars: starsOkMap_()[c] !== -1, starHist: (function () { try { return starsHistOf_(ss, name, row[0]); } catch (e) { return []; } })(), starsOn: starsOn_(), lessons: lessons, missing: missing, exams: exams, badges: badges, at: new Date().toISOString() };
+  return { ok: true, student: { name: name, cls: clsLabel_(row[0]) }, stars: starsOkMap_()[c] !== -1, starHist: (function () { try { return starsHistOf_(ss, name, row[0]); } catch (e) { return []; } })(), starsOn: starsOn_(), lessons: lessons, missing: missing, exams: exams, badges: badgesOn_() ? badges : [], badgesOn: badgesOn_(), at: new Date().toISOString() };
 }
 
 
@@ -1100,6 +1100,14 @@ function admin_(ss, d) {
     PropertiesService.getScriptProperties().setProperty('CLOSED', JSON.stringify(cur.slice(-300)));
     audit_(ss, d.close ? 'إغلاق مشروع' : 'إعادة فتح مشروع', ids.join('، '));
     return { ok: true, message: d.close ? 'أُغلق استقبال المشروع: لن يستطيع أي طالب حله أو إرساله حتى تعيد فتحه.' : 'أُعيد فتح المشروع للطلاب.', closed: cur };
+  } else if (op === 'badges') {
+    if (!d.get) {
+      PropertiesService.getScriptProperties().setProperty('BADGES_OFF', d.on ? '' : '1');
+      try { CacheService.getScriptCache().remove('badges_pub'); } catch (e) {}
+      audit_(ss, d.on ? 'تشغيل الأوسمة' : 'إيقاف الأوسمة', '');
+      return { ok: true, on: !!d.on, message: d.on ? 'عادت الأوسمة والشهادات للظهور في الموقع.' : 'أُخفيت الأوسمة والشهادات من الموقع. الدرجات محفوظة كما هي.' };
+    }
+    return { ok: true, on: badgesOn_() };
   } else if (op === 'maint') {
     if (d.get) return { ok: true, maint: maintGet_() };
     const v = { on: !!d.on, msg: String(d.msg || '').replace(/\s+/g, ' ').trim().slice(0, 200), until: String(d.until || '').slice(0, 40) };
@@ -2284,6 +2292,8 @@ function authorizeTelegram() { UrlFetchApp.fetch('https://api.telegram.org', { m
    - المعلم يراجع المرشحين ويعتمدهم (ويضيف من يشاء)، ثم تظهر النسخة المعتمدة فقط في الموقع.
    - يظهر اسم الطالب كاملًا باعتماد المعلم، ولولي الأمر أن يطلب إخفاء اسم ابنه من صفحة التقرير المفصل (STARS_OK: -1). */
 function starsOn_() { return PropertiesService.getScriptProperties().getProperty('STARS_ON') === '1'; }
+/* الأوسمة تعمل افتراضيًا؛ يوقفها المعلم من «الإعلانات» فتختفي من الموقع وصفحة الطالب وتقريره، وتبقى الدرجات كما هي */
+function badgesOn_() { return PropertiesService.getScriptProperties().getProperty('BADGES_OFF') !== '1'; }
 function starsOkMap_() {
   let v; try { v = JSON.parse(PropertiesService.getScriptProperties().getProperty('STARS_OK') || '{}'); } catch (e) { v = {}; }
   if (Array.isArray(v)) { const m = {}; v.forEach(c => m[c] = 1); return m; } // موافقات قديمة: الاسم الأول فقط
