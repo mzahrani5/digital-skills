@@ -119,7 +119,7 @@ function classList_(ss) {
   return sh.getRange(2, 1, n - 1, 1).getValues().map(r => String(r[0]).trim()).filter(Boolean);
 }
 
-const CODE_VER = '2026-11-26';
+const CODE_VER = '2026-11-26b';
 /* ====== تحديث كود الجدول ======
    إعدادات الجدول (الرمز، الاسم، المجلد، القناة) محفوظة في «خصائص النص البرمجي»،
    فالتحديث = لصق الكود الجديد كما هو ونشر إصدار جديد، دون تعديل أي سطر.
@@ -154,7 +154,7 @@ function doGet(e) {
   const ss = ss_();
   if (e && e.parameter && e.parameter.action === 'news') { const cl = closedIds_(); const live = l => { const m = String(l || '').match(/[?&]lesson=([^&#]+)/); if (!m) return true; const ids = decodeURIComponent(m[1]).split(','); return ids.some(x => cl.indexOf(x.trim()) < 0); };
     return out_({ ok: true, news: newsList_(ss, false).filter(n => live(n.link)), promos: promosList_(ss, false).filter(p => live(p.link)), stu: stuGet_(), closed: cl, maint: maintGet_(), videos: videosGet_(), tg: TELEGRAM, badges: badgesOn_() ? badgesPub_(ss) : [], badgesOn: badgesOn_(), stars: starsOn_() ? starsPub_() : null }); }
-  if (e && e.parameter && e.parameter.action === 'classes') return out_({ ok: true, classes: classList_(ss), closed: closedIds_(), maint: maintGet_(), videos: videosGet_(), badgesOn: badgesOn_() });
+  if (e && e.parameter && e.parameter.action === 'classes') return out_({ ok: true, classes: classList_(ss), closed: closedIds_(), maint: maintGet_(), videos: videosGet_() });
   return out_({ ok: true, status: 'ready' });
 }
 
@@ -901,7 +901,7 @@ function parentReport_(ss, code, consent) {
     const sc = lessons.filter(l => l.id.indexOf(u + '-') === 0 && !/-x$/.test(l.id)).map(l => l.score);
     return { unit: u, title: UNITS[u] ? UNITS[u][0] : u, avg: sc.length ? Math.round(sc.reduce((x, y) => x + y, 0) / sc.length * 10) / 10 : 0 };
   }) : [];
-  return { ok: true, student: { name: name, cls: clsLabel_(row[0]) }, stars: starsOkMap_()[c] !== -1, starHist: (function () { try { return starsHistOf_(ss, name, row[0]); } catch (e) { return []; } })(), starsOn: starsOn_(), lessons: lessons, missing: missing, exams: exams, badges: badgesOn_() ? badges : [], badgesOn: badgesOn_(), at: new Date().toISOString() };
+  return { ok: true, student: { name: name, cls: clsLabel_(row[0]) }, stars: starsOkMap_()[c] !== -1, starHist: (function () { try { return starsHistOf_(ss, name, row[0]); } catch (e) { return []; } })(), starsOn: starsOn_(), lessons: lessons, missing: missing, exams: exams, badges: badges, at: new Date().toISOString() };
 }
 
 
@@ -1104,8 +1104,8 @@ function admin_(ss, d) {
     if (!d.get) {
       PropertiesService.getScriptProperties().setProperty('BADGES_OFF', d.on ? '' : '1');
       try { CacheService.getScriptCache().remove('badges_pub'); } catch (e) {}
-      audit_(ss, d.on ? 'تشغيل الأوسمة' : 'إيقاف الأوسمة', '');
-      return { ok: true, on: !!d.on, message: d.on ? 'عادت الأوسمة والشهادات للظهور في الموقع.' : 'أُخفيت الأوسمة والشهادات من الموقع. الدرجات محفوظة كما هي.' };
+      audit_(ss, d.on ? 'إظهار لوحة الأوسمة' : 'إخفاء لوحة الأوسمة', '');
+      return { ok: true, on: !!d.on, message: d.on ? 'عادت «لوحة الأوسمة» للظهور في الصفحة الرئيسية.' : 'أُخفيت «لوحة الأوسمة» من الصفحة الرئيسية. أوسمة الطلاب وشهاداتهم باقية في صفحاتهم.' };
     }
     return { ok: true, on: badgesOn_() };
   } else if (op === 'maint') {
@@ -2292,7 +2292,7 @@ function authorizeTelegram() { UrlFetchApp.fetch('https://api.telegram.org', { m
    - المعلم يراجع المرشحين ويعتمدهم (ويضيف من يشاء)، ثم تظهر النسخة المعتمدة فقط في الموقع.
    - يظهر اسم الطالب كاملًا باعتماد المعلم، ولولي الأمر أن يطلب إخفاء اسم ابنه من صفحة التقرير المفصل (STARS_OK: -1). */
 function starsOn_() { return PropertiesService.getScriptProperties().getProperty('STARS_ON') === '1'; }
-/* الأوسمة تعمل افتراضيًا؛ يوقفها المعلم من «الإعلانات» فتختفي من الموقع وصفحة الطالب وتقريره، وتبقى الدرجات كما هي */
+/* لوحة الأوسمة في الصفحة الرئيسية تظهر افتراضيًا؛ يخفيها المعلم من «الإعلانات». أوسمة الطالب وشهاداته في صفحته وتقريره لا تتأثر */
 function badgesOn_() { return PropertiesService.getScriptProperties().getProperty('BADGES_OFF') !== '1'; }
 function starsOkMap_() {
   let v; try { v = JSON.parse(PropertiesService.getScriptProperties().getProperty('STARS_OK') || '{}'); } catch (e) { v = {}; }
