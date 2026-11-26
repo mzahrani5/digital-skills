@@ -119,7 +119,7 @@ function classList_(ss) {
   return sh.getRange(2, 1, n - 1, 1).getValues().map(r => String(r[0]).trim()).filter(Boolean);
 }
 
-const CODE_VER = '2026-11-26c';
+const CODE_VER = '2026-11-26d';
 /* ====== تحديث كود الجدول ======
    إعدادات الجدول (الرمز، الاسم، المجلد، القناة) محفوظة في «خصائص النص البرمجي»،
    فالتحديث = لصق الكود الجديد كما هو ونشر إصدار جديد، دون تعديل أي سطر.
@@ -1104,7 +1104,7 @@ function admin_(ss, d) {
     if (d.save) {
       const list = (Array.isArray(d.save) ? d.save : []).slice(0, 30).map(x => ({ id: String(x.id || Utilities.getUuid().slice(0, 8)), t: String(x.t || '').replace(/\s+/g, ' ').trim().slice(0, 80),
         from: String(x.from || '').slice(0, 10), to: String(x.to || x.from || '').slice(0, 10), desc: String(x.desc || '').replace(/\s+/g, ' ').trim().slice(0, 200),
-        link: /^https?:\/\//.test(String(x.link || '')) ? String(x.link).slice(0, 300) : '', ic: String(x.ic || '📣').slice(0, 4) })).filter(x => x.t && /^\d{4}-\d{2}-\d{2}$/.test(x.from));
+        link: /^(https?:\/\/|#[a-z])/.test(String(x.link || '')) ? String(x.link).slice(0, 300) : '', ic: String(x.ic || '📣').slice(0, 4) })).filter(x => x.t && /^\d{4}-\d{2}-\d{2}$/.test(x.from));
       PropertiesService.getScriptProperties().setProperty('EVENTS', JSON.stringify(list));
       audit_(ss, 'تحديث ركن الفعاليات', list.length + ' فعالية');
       return { ok: true, events: list, message: 'حُفظ ركن الفعاليات.' };
