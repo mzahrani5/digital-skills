@@ -119,7 +119,7 @@ function classList_(ss) {
   return sh.getRange(2, 1, n - 1, 1).getValues().map(r => String(r[0]).trim()).filter(Boolean);
 }
 
-const CODE_VER = '2026-11-26b';
+const CODE_VER = '2026-11-26c';
 /* ====== تحديث كود الجدول ======
    إعدادات الجدول (الرمز، الاسم، المجلد، القناة) محفوظة في «خصائص النص البرمجي»،
    فالتحديث = لصق الكود الجديد كما هو ونشر إصدار جديد، دون تعديل أي سطر.
@@ -153,7 +153,7 @@ function doGet(e) {
   if (e && e.parameter && e.parameter.action === 'ver') return out_({ ok: true, ver: CODE_VER, message: 'كود الجدول محدَّث (إصدار ' + CODE_VER + ')' });
   const ss = ss_();
   if (e && e.parameter && e.parameter.action === 'news') { const cl = closedIds_(); const live = l => { const m = String(l || '').match(/[?&]lesson=([^&#]+)/); if (!m) return true; const ids = decodeURIComponent(m[1]).split(','); return ids.some(x => cl.indexOf(x.trim()) < 0); };
-    return out_({ ok: true, news: newsList_(ss, false).filter(n => live(n.link)), promos: promosList_(ss, false).filter(p => live(p.link)), stu: stuGet_(), closed: cl, maint: maintGet_(), videos: videosGet_(), tg: TELEGRAM, badges: badgesOn_() ? badgesPub_(ss) : [], badgesOn: badgesOn_(), stars: starsOn_() ? starsPub_() : null }); }
+    return out_({ ok: true, news: newsList_(ss, false).filter(n => live(n.link)), promos: promosList_(ss, false).filter(p => live(p.link)), stu: stuGet_(), closed: cl, maint: maintGet_(), videos: videosGet_(), tg: TELEGRAM, badges: badgesOn_() ? badgesPub_(ss) : [], badgesOn: badgesOn_(), events: eventsPub_(), gallery: galleryPub_(), stars: starsOn_() ? starsPub_() : null }); }
   if (e && e.parameter && e.parameter.action === 'classes') return out_({ ok: true, classes: classList_(ss), closed: closedIds_(), maint: maintGet_(), videos: videosGet_() });
   return out_({ ok: true, status: 'ready' });
 }
@@ -1100,6 +1100,42 @@ function admin_(ss, d) {
     PropertiesService.getScriptProperties().setProperty('CLOSED', JSON.stringify(cur.slice(-300)));
     audit_(ss, d.close ? 'إغلاق مشروع' : 'إعادة فتح مشروع', ids.join('، '));
     return { ok: true, message: d.close ? 'أُغلق استقبال المشروع: لن يستطيع أي طالب حله أو إرساله حتى تعيد فتحه.' : 'أُعيد فتح المشروع للطلاب.', closed: cur };
+  } else if (op === 'events') {
+    if (d.save) {
+      const list = (Array.isArray(d.save) ? d.save : []).slice(0, 30).map(x => ({ id: String(x.id || Utilities.getUuid().slice(0, 8)), t: String(x.t || '').replace(/\s+/g, ' ').trim().slice(0, 80),
+        from: String(x.from || '').slice(0, 10), to: String(x.to || x.from || '').slice(0, 10), desc: String(x.desc || '').replace(/\s+/g, ' ').trim().slice(0, 200),
+        link: /^https?:\/\//.test(String(x.link || '')) ? String(x.link).slice(0, 300) : '', ic: String(x.ic || '📣').slice(0, 4) })).filter(x => x.t && /^\d{4}-\d{2}-\d{2}$/.test(x.from));
+      PropertiesService.getScriptProperties().setProperty('EVENTS', JSON.stringify(list));
+      audit_(ss, 'تحديث ركن الفعاليات', list.length + ' فعالية');
+      return { ok: true, events: list, message: 'حُفظ ركن الفعاليات.' };
+    }
+    return { ok: true, events: eventsAll_() };
+  } else if (op === 'gallery') {
+    const P = PropertiesService.getScriptProperties();
+    let list = galleryAll_();
+    if (d.add) {
+      const a = d.add, first = String(a.n || '').replace(/\s+/g, ' ').trim().split(' ')[0].slice(0, 20);
+      if (!first || !a.image) return { ok: false, message: 'أدخل الاسم الأول واختر صورة.' };
+      if (list.length >= 24) return { ok: false, message: 'المعرض ممتلئ (٢٤ عملًا). احذف عملًا قديمًا أولًا.' };
+      const file = DriveApp.getFileById(ss.getId()), par = file.getParents(), base = par.hasNext() ? par.next() : DriveApp.getRootFolder();
+      const folder = folderIn_(folderIn_(base, ROOT_FOLDER), 'معرض الأعمال');
+      const f = folder.createFile(Utilities.newBlob(Utilities.base64Decode(String(a.image)), 'image/jpeg', first + ' - ' + Date.now() + '.jpg'));
+      try { f.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW); }
+      catch (e) { f.setTrashed(true); return { ok: false, message: 'تعذّر جعل الصورة قابلة للعرض. قد يمنع حساب Google مشاركة الملفات بالرابط.' }; }
+      list.unshift({ id: f.getId(), n: first, c: String(a.c || '').replace(/\s+/g, ' ').trim().slice(0, 30), t: String(a.t || '').replace(/\s+/g, ' ').trim().slice(0, 60),
+        note: String(a.note || '').replace(/\s+/g, ' ').trim().slice(0, 140), at: new Date().toISOString().slice(0, 10) });
+      P.setProperty('GALLERY', JSON.stringify(list));
+      audit_(ss, 'إضافة عمل للمعرض', first);
+      return { ok: true, gallery: list, message: 'أُضيف العمل إلى المعرض.' };
+    }
+    if (d.del) {
+      const it = list.find(x => x.id === d.del);
+      if (it) { try { DriveApp.getFileById(it.id).setTrashed(true); } catch (e) {} }
+      list = list.filter(x => x.id !== d.del); P.setProperty('GALLERY', JSON.stringify(list));
+      audit_(ss, 'حذف عمل من المعرض', it ? it.n : '');
+      return { ok: true, gallery: list, message: 'حُذف العمل من المعرض.' };
+    }
+    return { ok: true, gallery: list };
   } else if (op === 'badges') {
     if (!d.get) {
       PropertiesService.getScriptProperties().setProperty('BADGES_OFF', d.on ? '' : '1');
@@ -2293,6 +2329,12 @@ function authorizeTelegram() { UrlFetchApp.fetch('https://api.telegram.org', { m
    - يظهر اسم الطالب كاملًا باعتماد المعلم، ولولي الأمر أن يطلب إخفاء اسم ابنه من صفحة التقرير المفصل (STARS_OK: -1). */
 function starsOn_() { return PropertiesService.getScriptProperties().getProperty('STARS_ON') === '1'; }
 /* لوحة الأوسمة في الصفحة الرئيسية تظهر افتراضيًا؛ يخفيها المعلم من «الإعلانات». أوسمة الطالب وشهاداته في صفحته وتقريره لا تتأثر */
+/* ركن الفعاليات: يضيفها المعلم من «الإعلانات»؛ يظهر منها ما لم ينتهِ بعد */
+function eventsAll_() { try { const v = JSON.parse(PropertiesService.getScriptProperties().getProperty('EVENTS') || 'null'); return Array.isArray(v) ? v : null; } catch (e) { return null; } }
+function eventsPub_() { const L = eventsAll_(); if (L === null) return null; const t = Utilities.formatDate(new Date(), 'Asia/Riyadh', 'yyyy-MM-dd'); return L.filter(x => (x.to || x.from) >= t).sort((a, b) => a.from.localeCompare(b.from)).slice(0, 6); }
+/* معرض أعمال الطلاب: صور يرفعها المعلم، ويظهر الاسم الأول والفصل فقط */
+function galleryAll_() { try { const v = JSON.parse(PropertiesService.getScriptProperties().getProperty('GALLERY') || '[]'); return Array.isArray(v) ? v : []; } catch (e) { return []; } }
+function galleryPub_() { return galleryAll_().slice(0, 12).map(x => ({ id: x.id, n: x.n, c: x.c, t: x.t, note: x.note })); }
 function badgesOn_() { return PropertiesService.getScriptProperties().getProperty('BADGES_OFF') !== '1'; }
 function starsOkMap_() {
   let v; try { v = JSON.parse(PropertiesService.getScriptProperties().getProperty('STARS_OK') || '{}'); } catch (e) { v = {}; }
