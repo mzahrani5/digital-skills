@@ -39,10 +39,11 @@ function doPost(e) {
     if (q.sentCheck) return out_(sentCheck_(ss_(), q));
     if (q.retryReq) return out_(retryReq_(ss_(), q));
     if (q.checkSent) return out_(checkSent_(ss_(), q));
+    if (q.myReqs) return out_(myReqs_(ss_(), q));
     if (q.presAuth) return out_(presAuth_(q));
   } catch (err) {}
   // أي استعلام لم يُعالَج أعلاه لا يصل أبدًا إلى حفظ الإنجاز
-  try { const q0 = JSON.parse(e.postData.contents); if (q0 && (q0.checkName || q0.presAuth || q0.visit || q0.retryCheck || q0.checkSent || q0.sentCheck || q0.retryReq)) return out_({ ok: false, status: 'error', message: 'تعذّر تنفيذ الطلب.' }); } catch (err) { return out_({ ok: false, status: 'error', message: 'طلب غير صالح' }); }
+  try { const q0 = JSON.parse(e.postData.contents); if (q0 && (q0.checkName || q0.presAuth || q0.visit || q0.retryCheck || q0.checkSent || q0.myReqs || q0.sentCheck || q0.retryReq)) return out_({ ok: false, status: 'error', message: 'تعذّر تنفيذ الطلب.' }); } catch (err) { return out_({ ok: false, status: 'error', message: 'طلب غير صالح' }); }
   // عمليات Gemini بطيئة (ثوانٍ إلى دقائق): تُنفَّذ خارج القفل حتى لا توقف دخول المعلم وتسليم الطلاب
   // وعمليات القراءة (قائمة الطلاب، تقرير الطالب، تقرير الفصل) لا تحتاج القفل فلا تنتظر غيرها
   try { const q1 = JSON.parse(e.postData.contents); if (q1 && q1.admin && ['phRun', 'phInfo', 'phApprove', 'aiSet', 'tgAutoNow', 'list', 'stuRep', 'termReport', 'updInfo'].indexOf(String(q1.op || 'list')) >= 0) return out_(admin_(ss_(), q1)); } catch (err) { return out_({ ok: false, status: 'error', message: 'تعذّر التنفيذ: ' + String(err && err.message || err) }); }
@@ -119,7 +120,7 @@ function classList_(ss) {
   return sh.getRange(2, 1, n - 1, 1).getValues().map(r => String(r[0]).trim()).filter(Boolean);
 }
 
-const CODE_VER = '2026-11-28b';
+const CODE_VER = '2026-11-28c';
 /* ====== تحديث كود الجدول ======
    إعدادات الجدول (الرمز، الاسم، المجلد، القناة) محفوظة في «خصائص النص البرمجي»،
    فالتحديث = لصق الكود الجديد كما هو ونشر إصدار جديد، دون تعديل أي سطر.
@@ -1857,6 +1858,25 @@ function reqState_(ss, name, cls, id) {
   const v = sh.getRange(2, 1, sh.getLastRow() - 1, 7).getValues();
   for (let i = v.length - 1; i >= 0; i--) if (sameStudent_(v[i][2], name) && clsKey_(v[i][1]) === clsKey_(cls) && String(v[i][3]) === String(id)) return String(v[i][6]).trim();
   return '';
+}
+/* الصفحة الرئيسية للطالب: هل قُبل طلب «فرصة أخرى» أو رُفض أو ما زال قيد المراجعة؟ */
+function myReqs_(ss, q) {
+  const cache = CacheService.getScriptCache(), ck = 'mr' + Math.floor(Date.now() / 60000), cn = Number(cache.get(ck) || 0);
+  if (cn > 600) return { ok: false, status: 'busy' };
+  cache.put(ck, String(cn + 1), 120);
+  let name = String(q.name || ''); const cls = String(q.cls || '');
+  if (!norm_(name) || !cls.trim()) return { ok: false };
+  const m = matchName_(ss, cls, name); if (m.status === 'ok') name = m.name;
+  const mine = (nm, c) => sameStudent_(nm, name) && clsKey_(c) === clsKey_(cls);
+  const grants = [], reqs = [];
+  const gs = ss.getSheetByName(SHEET_GRANT);
+  if (gs && gs.getLastRow() > 1) gs.getRange(2, 1, gs.getLastRow() - 1, 7).getValues().forEach(r => { if (String(r[6]).trim() === 'متاحة' && mine(r[2], r[1])) grants.push({ id: String(r[3]), lesson: String(r[4]), at: r[0] instanceof Date ? r[0].getTime() : 0 }); });
+  const rs = ss.getSheetByName(SHEET_REQ), old = Date.now() - 14 * 864e5;
+  if (rs && rs.getLastRow() > 1) rs.getRange(2, 1, rs.getLastRow() - 1, 7).getValues().forEach(r => {
+    const st = String(r[6]).trim(), t = r[0] instanceof Date ? r[0].getTime() : 0;
+    if (mine(r[2], r[1]) && (st === 'جديد' || (st === 'مرفوض' && t >= old)) && !grants.some(g => g.id === String(r[3]))) reqs.push({ id: String(r[3]), lesson: String(r[4]), status: st === 'جديد' ? 'pending' : 'no', at: t });
+  });
+  return { ok: true, grants: grants.slice(-5), reqs: reqs.slice(-5) };
 }
 /* الطالب يطلب فرصة أخرى (إذا كانت درجته ٨ أو أقل) */
 function retryReq_(ss, q) {
