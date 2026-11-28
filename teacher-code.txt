@@ -119,7 +119,7 @@ function classList_(ss) {
   return sh.getRange(2, 1, n - 1, 1).getValues().map(r => String(r[0]).trim()).filter(Boolean);
 }
 
-const CODE_VER = '2026-11-28a';
+const CODE_VER = '2026-11-28b';
 /* ====== تحديث كود الجدول ======
    إعدادات الجدول (الرمز، الاسم، المجلد، القناة) محفوظة في «خصائص النص البرمجي»،
    فالتحديث = لصق الكود الجديد كما هو ونشر إصدار جديد، دون تعديل أي سطر.
@@ -1946,7 +1946,7 @@ function termReport_(ss, d) {
     const c = C[k], les = Object.values(c.les).sort((a, b) => a.o - b.o), st = Object.values(c.st);
     const students = st.map(s => { const v = Object.values(s.sc); return { name: s.name, n: v.length, miss: les.filter(l => !(l.id in s.sc)).length, avg: v.length ? Math.round(v.reduce((a, b) => a + b, 0) / v.length * 10) / 10 : null, late: s.late, stars: s.stars, scores: les.map(l => l.id in s.sc ? s.sc[l.id] : null) }; })
       .sort((a, b) => String(a.name).localeCompare(String(b.name), 'ar'));
-    const lessons = les.map((l, i) => { const v = students.map(s => s.scores[i]).filter(x => x != null); return { title: l.title, sent: v.length, total: students.length, avg: v.length ? Math.round(v.reduce((a, b) => a + b, 0) / v.length * 10) / 10 : null }; });
+    const lessons = les.map((l, i) => { const v = students.map(s => s.scores[i]).filter(x => x != null); return { id: l.id, title: l.title, sent: v.length, total: students.length, avg: v.length ? Math.round(v.reduce((a, b) => a + b, 0) / v.length * 10) / 10 : null }; });
     const all = students.filter(s => s.avg != null);
     return { cls: c.cls, students: students, lessons: lessons, avg: all.length ? Math.round(all.reduce((a, s) => a + s.avg, 0) / all.length * 10) / 10 : null,
       rate: lessons.length && students.length ? Math.round(lessons.reduce((a, l) => a + l.sent, 0) / (lessons.length * students.length) * 100) : 0, stars: students.reduce((a, s) => a + s.stars, 0) };
